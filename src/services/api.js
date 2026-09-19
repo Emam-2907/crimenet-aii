@@ -1158,17 +1158,31 @@ export const api = {
       const validNodeIds = new Set(filteredNodes.map(n => n.data.id));
       let filteredEdges = caseEdges.filter(e => validNodeIds.has(e.data.source) && validNodeIds.has(e.data.target));
 
-      // 5. Filter by relationFilter (calls, financial, ownership/vehicle, location, evidence_backed)
+      // 5. Filter by relationFilter (calls, financial, ownership/vehicle, location, evidence_backed, organization, association)
       if (filters.relationFilter && filters.relationFilter !== 'ALL') {
         const rf = filters.relationFilter.toLowerCase();
         filteredEdges = filteredEdges.filter(e => {
           const rt = (e.data.relation_type || '').toLowerCase();
           const r = (e.data.relation || '').toLowerCase();
           if (rf === 'ownership' || rf === 'vehicle') {
-            return rt === 'ownership' || rt === 'vehicle' || r.includes('vehicle') || r.includes('driver') || r.includes('convoy');
+            return rt === 'ownership' || rt === 'vehicle' || r.includes('vehicle') || r.includes('driver') || r.includes('convoy') || r.includes('operating');
+          }
+          if (rf === 'organization' || rf === 'syndicate') {
+            return rt === 'organization' || r.includes('directs') || r.includes('enforces') || r.includes('front');
+          }
+          if (rf === 'association') {
+            return rt === 'association';
           }
           return rt === rf || r.includes(rf);
         });
+
+        // Filter nodes to only those participating in the filtered relation!
+        const participatingNodeIds = new Set();
+        filteredEdges.forEach(e => {
+          participatingNodeIds.add(e.data.source);
+          participatingNodeIds.add(e.data.target);
+        });
+        filteredNodes = filteredNodes.filter(n => participatingNodeIds.has(n.data.id));
       }
 
       return {

@@ -431,6 +431,9 @@ export default function CytoscapeGraph() {
       // Events: Node Click
       cy.on('tap', 'node', (evt) => {
         const node = evt.target;
+        cy.elements().removeClass('highlighted');
+        node.addClass('highlighted');
+        node.connectedEdges().addClass('highlighted');
         setSelectedNode(node.data());
         setSelectedEdge(null);
         setActiveSideDrawer('INSPECTOR');
@@ -440,6 +443,10 @@ export default function CytoscapeGraph() {
       // Events: Edge Click
       cy.on('tap', 'edge', (evt) => {
         const edge = evt.target;
+        cy.elements().removeClass('highlighted');
+        edge.addClass('highlighted');
+        edge.source().addClass('highlighted');
+        edge.target().addClass('highlighted');
         setSelectedEdge(edge.data());
         setSelectedNode(null);
         setActiveSideDrawer('INSPECTOR');
@@ -748,6 +755,15 @@ export default function CytoscapeGraph() {
               Entities ({graphData.nodes?.length || 0})
             </button>
             <button
+              onClick={() => setActiveSideDrawer('RELATIONS')}
+              style={{
+                padding: '4px 8px', background: activeSideDrawer === 'RELATIONS' ? 'rgba(255,255,255,0.1)' : 'transparent',
+                border: 'none', borderRadius: '4px', color: '#fff', fontSize: '0.68rem', cursor: 'pointer'
+              }}
+            >
+              Relations ({graphData.edges?.length || 0})
+            </button>
+            <button
               onClick={() => setActiveSideDrawer('PATHFINDER')}
               style={{
                 padding: '4px 8px', background: activeSideDrawer === 'PATHFINDER' ? 'rgba(255,255,255,0.1)' : 'transparent',
@@ -870,9 +886,11 @@ export default function CytoscapeGraph() {
               <option value="ALL">All Relations</option>
               <option value="calls">Calls / Messages</option>
               <option value="financial">Financial / Escrow</option>
-              <option value="ownership">Ownership</option>
-              <option value="location">Location</option>
+              <option value="ownership">Ownership / Vehicles</option>
+              <option value="location">Location / Staging</option>
               <option value="evidence_backed">Evidence-Backed</option>
+              <option value="organization">Syndicate Hierarchy</option>
+              <option value="association">Tactical Associations</option>
             </select>
           </div>
 
@@ -1327,6 +1345,90 @@ export default function CytoscapeGraph() {
                           {d.threat || 'MEDIUM'}
                         </span>
                       </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* PANEL: DOCKET RELATIONSHIP ROSTER */}
+          {activeSideDrawer === 'RELATIONS' && (
+            <div style={{ padding: '18px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div style={{ fontSize: '0.68rem', color: 'var(--t-dim)', fontFamily: 'var(--f-mono)' }}>
+                  RELATIONSHIPS ROSTER ({graphData.edges?.length || 0})
+                </div>
+                <span style={{ fontSize: '0.66rem', color: 'var(--green-light)', fontFamily: 'var(--f-mono)' }}>
+                  {currentCaseId}
+                </span>
+              </div>
+
+              <p style={{ fontSize: '0.74rem', color: 'var(--t-muted)', lineHeight: 1.4 }}>
+                Active semantic links between suspects, comms, vehicles, and accounts. Click any relation to highlight and inspect.
+              </p>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: 'calc(100vh - 280px)', overflowY: 'auto' }}>
+                {(graphData.edges || []).map((e) => {
+                  const ed = e.data;
+                  const isSelected = selectedEdge?.id === ed.id;
+                  const srcLabel = graphData.nodes?.find(n => n.data.id === ed.source)?.data.label || ed.source;
+                  const tgtLabel = graphData.nodes?.find(n => n.data.id === ed.target)?.data.label || ed.target;
+                  const cfg = RELATION_CONFIG[ed.relation_type] || RELATION_CONFIG.association;
+
+                  return (
+                    <div
+                      key={ed.id}
+                      onClick={() => {
+                        const cy = cyRef.current;
+                        if (cy) {
+                          const eEle = cy.getElementById(ed.id);
+                          if (eEle.length > 0) {
+                            cy.animate({ center: { eles: eEle }, zoom: 1.5, duration: 400 });
+                            cy.elements().removeClass('highlighted');
+                            eEle.addClass('highlighted');
+                            eEle.source().addClass('highlighted');
+                            eEle.target().addClass('highlighted');
+                          }
+                        }
+                        setSelectedEdge(ed);
+                        setSelectedNode(null);
+                        setActiveSideDrawer('INSPECTOR');
+                        soundFx.click();
+                      }}
+                      style={{
+                        padding: '10px 12px',
+                        background: isSelected ? 'rgba(56, 189, 248, 0.12)' : 'var(--ink-2)',
+                        border: isSelected ? '1px solid var(--blue)' : '1px solid var(--b-faint)',
+                        borderRadius: '6px', cursor: 'pointer',
+                        display: 'flex', flexDirection: 'column', gap: '6px',
+                        transition: 'background 0.15s ease'
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <span style={{
+                          padding: '2px 6px', borderRadius: '4px', fontSize: '0.62rem',
+                          fontFamily: 'var(--f-mono)', fontWeight: 700,
+                          background: 'rgba(255,255,255,0.06)', color: cfg.color
+                        }}>
+                          {ed.relation}
+                        </span>
+                        <span style={{ fontSize: '0.62rem', fontFamily: 'var(--f-mono)', color: 'var(--green-light)', fontWeight: 700 }}>
+                          {Math.round((ed.confidence || 0.95) * 100)}%
+                        </span>
+                      </div>
+
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.74rem' }}>
+                        <span style={{ color: '#fff', fontWeight: 600 }}>{srcLabel}</span>
+                        <span style={{ color: cfg.color }}>→</span>
+                        <span style={{ color: '#fff', fontWeight: 600 }}>{tgtLabel}</span>
+                      </div>
+
+                      {ed.explainability && (
+                        <div style={{ fontSize: '0.68rem', color: 'var(--t-muted)', lineHeight: 1.3 }}>
+                          {ed.explainability}
+                        </div>
+                      )}
                     </div>
                   );
                 })}
