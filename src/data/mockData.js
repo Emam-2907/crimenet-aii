@@ -288,21 +288,46 @@ export const NEXUS_GRAPH_DATA = {
     { id: "S1", label: "Viktor Chen (Cipher_Ghost)", type: "suspect", tier: "Tier 1", radius: 26, color: "#ff2a5f", details: "Syndicate Kingpin • High Flight Risk • Cyber Weapons Specialist" },
     { id: "S2", label: "Marek Rostov", type: "suspect", tier: "Tier 2", radius: 22, color: "#ff5277", details: "Tactical Logistics Chief • Prior Smuggling Convictions" },
     { id: "S3", label: "Elena Thorne", type: "suspect", tier: "Tier 3", radius: 18, color: "#f59e0b", details: "Identity Forger • Synthetic Media Creator" },
+    { id: "S4", label: "Apex_Cell Operative", type: "suspect", tier: "Tier 2", radius: 18, color: "#ff2a5f", details: "Field Interceptor • Linked to Substation Surveillance" },
+    { id: "S5", label: "Viktor Voronin (The Architect)", type: "suspect", tier: "Tier 1", radius: 28, color: "#ff2a5f", details: "Executive Network Director • Transnational Extortion & Money Laundering" },
+    { id: "S6", label: "Elena Rostov (Valkyrie)", type: "suspect", tier: "Tier 2", radius: 22, color: "#ff5277", details: "Darknet Escrow Broker • GhostNet Logistics Manager" },
+    { id: "S7", label: "Darius Vance (Ironclad)", type: "suspect", tier: "Tier 2", radius: 22, color: "#ff5277", details: "Armed Escort & Warehouse Security Head • Kowloon Cartel" },
+    { id: "S8", label: "Marcus Kane (Specter)", type: "suspect", tier: "Tier 3", radius: 18, color: "#f59e0b", details: "RF Tap & SCADA Saboteur • Railway Switching Override" },
+    { id: "S9", label: "Tariq Al-Mansoor (The Alchemist)", type: "suspect", tier: "Tier 1", radius: 24, color: "#ff2a5f", details: "Cryptocurrency Mixer Operator • $14M Monitored Tumbler Volume" },
+    { id: "S10", label: "Katya Orlova (Red Phantom)", type: "suspect", tier: "Tier 2", radius: 20, color: "#ff5277", details: "Industrial Control Systems Intruder • Critical Infrastructure Targeter" },
+    { id: "S11", label: "Arturo Ruiz (El Silencio)", type: "suspect", tier: "Tier 2", radius: 20, color: "#ff5277", details: "Terminal C Harbor Logistics Insider • Contraband Berth Controller" },
+    { id: "S12", label: "Jin Park (ZeroTrace)", type: "suspect", tier: "Tier 3", radius: 18, color: "#f59e0b", details: "Tor Gateway Provider • Encrypted Bulletproof Hosting Admin" },
     { id: "W1", label: "Crypto Wallet 0x8F9...41D", type: "asset", tier: "Asset", radius: 16, color: "#00f0ff", details: "Mixer Deposit Address • $4.2M Monitored Inflow" },
+    { id: "W2", label: "Tether Wallet 0x889...F1C", type: "asset", tier: "Asset", radius: 16, color: "#00f0ff", details: "Offshore Escrow Wallet • Multi-Sig Authorization" },
     { id: "P1", label: "Burner IMSI #310-410", type: "device", tier: "Device", radius: 15, color: "#a855f7", details: "Encrypted Satellite Comms • Pinging Sector Bravo Cell Tower" },
+    { id: "P2", label: "RF 868MHz Pulse Jammer", type: "device", tier: "Device", radius: 15, color: "#a855f7", details: "Customs Checkpoint Jammer • Triangulated at Pier 4" },
     { id: "V1", label: "Armored SUV NY-889XQ", type: "vehicle", tier: "Vehicle", radius: 17, color: "#38bdf8", details: "Black GMC Yukon • Stolen VIN Registered to Shell LLC" },
+    { id: "V2", label: "Black Escalade (8B9-CYP)", type: "vehicle", tier: "Vehicle", radius: 17, color: "#38bdf8", details: "Getaway Transport • Captured on Toll Camera Exit 14" },
     { id: "H1", label: "Safehouse Node - Warehouse 14", type: "location", tier: "Location", radius: 20, color: "#00ff9d", details: "Suspected Server Rack & Hardware Storage Facility" },
-    { id: "S4", label: "Apex_Cell Operative", type: "suspect", tier: "Tier 2", radius: 18, color: "#ff2a5f", details: "Field Interceptor • Linked to Substation Surveillance" }
+    { id: "H2", label: "Terminal C Harbor Depot", type: "location", tier: "Location", radius: 20, color: "#00ff9d", details: "Sector 4 Customs Warehouse & Container Staging Yard" }
   ],
   links: [
+    { source: "S5", target: "S1", relation: "Executive Contract", strength: 0.98 },
+    { source: "S5", target: "S6", relation: "Directs Escrow", strength: 0.96 },
+    { source: "S5", target: "S7", relation: "Commands Enforcers", strength: 0.95 },
     { source: "S1", target: "W1", relation: "Controls Fund Outflow", strength: 0.9 },
     { source: "S1", target: "P1", relation: "Encrypted P2P Voice", strength: 0.8 },
     { source: "S1", target: "S2", relation: "Direct Command", strength: 0.95 },
+    { source: "S1", target: "S12", relation: "Tor Infrastructure", strength: 0.91 },
     { source: "S2", target: "V1", relation: "Primary Driver", strength: 0.85 },
     { source: "S2", target: "H1", relation: "Frequent Visits (3x weekly)", strength: 0.75 },
     { source: "S3", target: "S1", relation: "Supplies Synthesized Credentials", strength: 0.65 },
+    { source: "S3", target: "S6", relation: "Forged Identity Pipeline", strength: 0.88 },
     { source: "S4", target: "P1", relation: "Cell Tower Geo-Coincidence", strength: 0.7 },
-    { source: "S4", target: "H1", relation: "Guarding Perimeter", strength: 0.8 }
+    { source: "S4", target: "H1", relation: "Guarding Perimeter", strength: 0.8 },
+    { source: "S6", target: "W2", relation: "Manages Multi-Sig", strength: 0.97 },
+    { source: "S7", target: "V2", relation: "Armed Escort Pilot", strength: 0.94 },
+    { source: "S7", target: "H2", relation: "Perimeter Security", strength: 0.89 },
+    { source: "S8", target: "P2", relation: "RF Jammer Operator", strength: 0.93 },
+    { source: "S8", target: "S10", relation: "SCADA Sabotage Team", strength: 0.9 },
+    { source: "S9", target: "W2", relation: "Mixer Tumbling Feed", strength: 0.96 },
+    { source: "S11", target: "H2", relation: "Berth Manifest Clearance", strength: 0.95 },
+    { source: "S11", target: "S7", relation: "Contraband Handoff", strength: 0.92 }
   ]
 };
 

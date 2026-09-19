@@ -3,7 +3,9 @@
  * Connects to the FastAPI backend at http://localhost:8000 with seamless offline/standalone fallback.
  */
 
-const BASE_URL = 'http://localhost:8000/api';
+const BASE_URL = import.meta.env.VITE_API_URL
+  ? `${import.meta.env.VITE_API_URL.replace(/\/$/, '')}/api`
+  : 'http://localhost:8000/api';
 
 let authToken = localStorage.getItem('crimenet_token') || null;
 
@@ -815,28 +817,105 @@ export const api = {
       return await res.json();
     } catch (e) {
       console.warn('[API] getCaseGraph fallback for', caseId, e);
-      // Fallback data
+      // Fallback data with full syndicate suspect network
+      const allFallbackNodes = [
+        // 1. PERSONS (Suspects)
+        { data: { id: 'PERSON-001', label: 'Viktor Voronin', type: 'Person', shape: 'ellipse', color: '#f87171', threat: 'CRITICAL', size: 52, details: 'Kingpin orchestrating ransomware networks, avionics smuggling, and offshore escrow laundering. Aliases: The Architect, Cypher-9.', case_id: caseId } },
+        { data: { id: 'PERSON-002', label: 'Elena Rostov', type: 'Person', shape: 'ellipse', color: '#f87171', threat: 'HIGH', size: 48, details: 'Financial broker and darknet escrow operator facilitating port access and encrypted communications. Aliases: Valkyrie, CipherQueen.', case_id: caseId } },
+        { data: { id: 'PERSON-003', label: 'Darius Vance', type: 'Person', shape: 'ellipse', color: '#f87171', threat: 'HIGH', size: 46, details: 'Armed logistics enforcer supervising warehouse arms distribution and decoy armored transports. Aliases: Ironclad, Heavy-D.', case_id: caseId } },
+        { data: { id: 'PERSON-004', label: 'Marcus Kane', type: 'Person', shape: 'ellipse', color: '#f87171', threat: 'MEDIUM', size: 42, details: 'Signal interception and hardware tap specialist suspected of tampering with port CCTV relays. Aliases: Specter, Wiretapper.', case_id: caseId } },
+        { data: { id: 'PERSON-005', label: 'Viktor Chen (Cipher_Ghost)', type: 'Person', shape: 'ellipse', color: '#f87171', threat: 'CRITICAL', size: 50, details: 'Autonomous ransomware developer and zero-day broker linked to municipal utility breaches.', case_id: caseId } },
+        { data: { id: 'PERSON-006', label: 'Marek Rostov', type: 'Person', shape: 'ellipse', color: '#f87171', threat: 'HIGH', size: 46, details: 'Tactical logistics chief managing high-speed armored transit convoys across harbor perimeter.', case_id: caseId } },
+        { data: { id: 'PERSON-007', label: 'Elena Thorne (Chameleon-9)', type: 'Person', shape: 'ellipse', color: '#f87171', threat: 'HIGH', size: 44, details: 'Synthetic media creator and 3D biometric credential counterfeiter for cross-border transit.', case_id: caseId } },
+        { data: { id: 'PERSON-008', label: 'Tariq Al-Mansoor', type: 'Person', shape: 'ellipse', color: '#f87171', threat: 'CRITICAL', size: 48, details: 'Cryptocurrency wash ring operator managing cross-chain flash-loan liquidity pools.', case_id: caseId } },
+        { data: { id: 'PERSON-009', label: 'Katya Orlova (Red Phantom)', type: 'Person', shape: 'ellipse', color: '#f87171', threat: 'HIGH', size: 44, details: 'SCADA telemetry manipulator and railway routing saboteur.', case_id: caseId } },
+        { data: { id: 'PERSON-010', label: 'Arturo Ruiz (El Silencio)', type: 'Person', shape: 'ellipse', color: '#f87171', threat: 'HIGH', size: 44, details: 'Maritime container smuggling dispatcher operating through Terminal C berths.', case_id: caseId } },
+        { data: { id: 'PERSON-011', label: 'Jin Park (ZeroTrace)', type: 'Person', shape: 'ellipse', color: '#f87171', threat: 'MEDIUM', size: 42, details: 'Tor gateway node administrator and encrypted relay provider for Apex Cell.', case_id: caseId } },
+        { data: { id: 'PERSON-012', label: 'Isabella Cruz (Nemesis)', type: 'Person', shape: 'ellipse', color: '#f87171', threat: 'HIGH', size: 44, details: 'Electronic counter-surveillance officer responsible for RF jamming operations.', case_id: caseId } },
+
+        // 2. PHONES & COMMS
+        { data: { id: 'PHONE-001', label: 'RF 868MHz Jammer / Tap', type: 'Phone', shape: 'round-rectangle', color: '#38bdf8', threat: 'HIGH', size: 40, details: 'Encrypted frequency pulse beacon triangulated near Terminal C checkpoint.', case_id: caseId } },
+        { data: { id: 'PHONE-002', label: 'SatPhone +882-16-992', type: 'Phone', shape: 'round-rectangle', color: '#38bdf8', threat: 'HIGH', size: 40, details: 'Encrypted burner satellite link routed through Pier 4 repeater.', case_id: caseId } },
+        { data: { id: 'PHONE-003', label: 'Tor Gateway Node 185.220', type: 'Phone', shape: 'round-rectangle', color: '#38bdf8', threat: 'CRITICAL', size: 40, details: 'Primary ingress IP used to dispatch ransomware payloads.', case_id: caseId } },
+
+        // 3. VEHICLES
+        { data: { id: 'VEHICLE-001', label: 'Black Escalade (8B9-CYP)', type: 'Vehicle', shape: 'diamond', color: '#fbbf24', threat: 'HIGH', size: 46, details: 'Observed departing Terminal C; registered to shell logistics entity.', case_id: caseId } },
+        { data: { id: 'VEHICLE-002', label: 'Armored Yukon (NY-889XQ)', type: 'Vehicle', shape: 'diamond', color: '#fbbf24', threat: 'HIGH', size: 44, details: 'Reinforced SUV with covert radio installation and tinted thermal glass.', case_id: caseId } },
+        { data: { id: 'VEHICLE-003', label: 'Freight Switcher Unit 14-B', type: 'Vehicle', shape: 'diamond', color: '#fbbf24', threat: 'CRITICAL', size: 44, details: 'Remotely diverted locomotive used to mask rail contraband transit.', case_id: caseId } },
+
+        // 4. FINANCIAL ACCOUNTS
+        { data: { id: 'FIN-001', label: 'Tether Wallet 0x889...F1C', type: 'Financial Account', shape: 'hexagon', color: '#34d399', threat: 'CRITICAL', size: 46, details: 'Cryptocurrency escrow address with 140K USDT transaction volume.', case_id: caseId } },
+        { data: { id: 'FIN-002', label: 'Darknet Mixer Node 36', type: 'Financial Account', shape: 'hexagon', color: '#34d399', threat: 'CRITICAL', size: 44, details: 'Decentralized liquidity tumbler splitting funds across micro-wallets.', case_id: caseId } },
+        { data: { id: 'FIN-003', label: 'Crypto Wallet 0x8F9...41D', type: 'Financial Account', shape: 'hexagon', color: '#34d399', threat: 'HIGH', size: 44, details: 'Mixer deposit address with $4.2M monitored inflow.', case_id: caseId } },
+
+        // 5. LOCATIONS
+        { data: { id: 'LOC-001', label: 'Terminal C Harbor Depot', type: 'Location', shape: 'octagon', color: '#c084fc', threat: 'HIGH', size: 48, details: 'Sector 4 customs warehouse and avionics container staging site.', case_id: caseId } },
+        { data: { id: 'LOC-002', label: 'Warehouse 14B Safehouse', type: 'Location', shape: 'octagon', color: '#c084fc', threat: 'HIGH', size: 46, details: 'Tactical command center containing servers, repeaters, and forged passports.', case_id: caseId } },
+        { data: { id: 'LOC-003', label: 'Sector 2 Freight Exchange', type: 'Location', shape: 'octagon', color: '#c084fc', threat: 'MEDIUM', size: 44, details: 'Industrial rail junction subject to SCADA telemetry spoofing.', case_id: caseId } },
+
+        // 6. ORGANIZATIONS
+        { data: { id: 'ORG-001', label: 'Apex Cyber Syndicate', type: 'Organization', shape: 'rectangle', color: '#f472b6', threat: 'CRITICAL', size: 50, details: 'Transnational cybercrime network targeting municipal utility systems and defense logistics.', case_id: caseId } },
+        { data: { id: 'ORG-002', label: 'Kowloon Port Cartel', type: 'Organization', shape: 'rectangle', color: '#f472b6', threat: 'HIGH', size: 46, details: 'Maritime container logistics and armed contraband escort cartel.', case_id: caseId } },
+        { data: { id: 'ORG-003', label: 'GhostNet Logistics', type: 'Organization', shape: 'rectangle', color: '#f472b6', threat: 'HIGH', size: 46, details: 'Shell forwarding firm providing fictitious bills of lading and escrow facilities.', case_id: caseId } },
+
+        // 7. EVIDENCE
+        { data: { id: 'EV-0182', label: 'Call_Record_Microwave_Tap.csv', type: 'Evidence', shape: 'tag', color: '#60a5fa', threat: 'EVIDENCE', size: 42, details: 'Decrypted intercept wiretap log corroborating suspect communications.', case_id: caseId } },
+        { data: { id: 'EV-0184', label: 'CCTV_Terminal_C_Frame_0418.jpg', type: 'Evidence', shape: 'tag', color: '#60a5fa', threat: 'EVIDENCE', size: 42, details: 'ArcFace biometric match frame from Gate 4 security camera.', case_id: caseId } },
+        { data: { id: 'EV-0185', label: 'Escrow_Wallet_Ledger_Dump.json', type: 'Evidence', shape: 'tag', color: '#60a5fa', threat: 'EVIDENCE', size: 42, details: 'On-chain transaction signatures linking suspects to illicit wash accounts.', case_id: caseId } },
+        { data: { id: 'EV-0189', label: 'ALPR_Toll_Exit14_Capture.png', type: 'Evidence', shape: 'tag', color: '#60a5fa', threat: 'EVIDENCE', size: 42, details: 'License plate optical recognition hit on northbound getaway convoy.', case_id: caseId } }
+      ];
+
+      const allFallbackEdges = [
+        // Person -> Comms / Phone
+        { data: { id: 'REL-001', source: 'PERSON-001', target: 'PHONE-001', relation: 'TRANSMITTED_ON', relation_type: 'calls', confidence: 0.98, supporting_evidence_id: 'EV-0182', supporting_evidence_name: 'Call_Record_Microwave_Tap.csv', explainability: 'Voice acoustic correlation matches Voronin.', case_id: caseId } },
+        { data: { id: 'REL-002', source: 'PERSON-002', target: 'PHONE-002', relation: 'DISPATCHED_INSTRUCTIONS', relation_type: 'calls', confidence: 0.94, supporting_evidence_id: 'EV-0182', supporting_evidence_name: 'Call_Record_Microwave_Tap.csv', explainability: 'Encrypted satellite channel used to coordinate port escorts.', case_id: caseId } },
+        { data: { id: 'REL-003', source: 'PERSON-005', target: 'PHONE-003', relation: 'OPERATES_GATEWAY', relation_type: 'calls', confidence: 0.99, supporting_evidence_id: 'EV-0182', supporting_evidence_name: 'Call_Record_Microwave_Tap.csv', explainability: 'Tor gateway telemetry tied to Chen keystroke dynamics.', case_id: caseId } },
+        { data: { id: 'REL-004', source: 'PERSON-012', target: 'PHONE-001', relation: 'CONFIGURES_JAMMER', relation_type: 'calls', confidence: 0.91, supporting_evidence_id: 'EV-0182', supporting_evidence_name: 'Call_Record_Microwave_Tap.csv', explainability: 'Cruz calibrated frequency hopping pattern prior to breach.', case_id: caseId } },
+
+        // Person -> Vehicle
+        { data: { id: 'REL-005', source: 'PERSON-003', target: 'VEHICLE-001', relation: 'OPERATING_DRIVER', relation_type: 'vehicle', confidence: 0.96, supporting_evidence_id: 'EV-0189', supporting_evidence_name: 'ALPR_Toll_Exit14_Capture.png', explainability: 'ALPR optical camera match confirmed Vance at wheel.', case_id: caseId } },
+        { data: { id: 'REL-006', source: 'PERSON-006', target: 'VEHICLE-002', relation: 'CONVOY_LEADER', relation_type: 'vehicle', confidence: 0.95, supporting_evidence_id: 'EV-0189', supporting_evidence_name: 'ALPR_Toll_Exit14_Capture.png', explainability: 'Marek Rostov flagged piloting lead Yukon.', case_id: caseId } },
+        { data: { id: 'REL-007', source: 'PERSON-004', target: 'VEHICLE-003', relation: 'SCADA_OVERRIDE', relation_type: 'vehicle', confidence: 0.89, supporting_evidence_id: 'EV-0182', supporting_evidence_name: 'Call_Record_Microwave_Tap.csv', explainability: 'Kane dispatched locomotive brake release sequence.', case_id: caseId } },
+
+        // Person -> Financial
+        { data: { id: 'REL-008', source: 'PERSON-001', target: 'FIN-001', relation: 'BENEFICIAL_OWNER', relation_type: 'financial', confidence: 0.97, supporting_evidence_id: 'EV-0185', supporting_evidence_name: 'Escrow_Wallet_Ledger_Dump.json', explainability: 'Private key signature link to Voronin root wallet.', case_id: caseId } },
+        { data: { id: 'REL-009', source: 'PERSON-002', target: 'FIN-001', relation: 'MANAGES_ESCROW', relation_type: 'financial', confidence: 0.98, supporting_evidence_id: 'EV-0185', supporting_evidence_name: 'Escrow_Wallet_Ledger_Dump.json', explainability: 'Elena Rostov signs escrow fund releases for operations.', case_id: caseId } },
+        { data: { id: 'REL-010', source: 'PERSON-008', target: 'FIN-002', relation: 'WASH_OPERATOR', relation_type: 'financial', confidence: 0.99, supporting_evidence_id: 'EV-0185', supporting_evidence_name: 'Escrow_Wallet_Ledger_Dump.json', explainability: 'Tariq routes illicit tokens through 36 mixer nodes.', case_id: caseId } },
+        { data: { id: 'REL-011', source: 'PERSON-005', target: 'FIN-003', relation: 'EXTORTION_DEPOSIT', relation_type: 'financial', confidence: 0.96, supporting_evidence_id: 'EV-0185', supporting_evidence_name: 'Escrow_Wallet_Ledger_Dump.json', explainability: 'Chen receives ransomware payouts at this monitored wallet.', case_id: caseId } },
+
+        // Person -> Person (Command & Syndicate Hierarchy)
+        { data: { id: 'REL-012', source: 'PERSON-001', target: 'PERSON-002', relation: 'COMMANDS_FINANCES', relation_type: 'association', confidence: 0.97, supporting_evidence_id: 'EV-0182', supporting_evidence_name: 'Call_Record_Microwave_Tap.csv', explainability: 'Voronin directs Rostov on escrow disbursement schedules.', case_id: caseId } },
+        { data: { id: 'REL-013', source: 'PERSON-001', target: 'PERSON-003', relation: 'DISPATCHES_SECURITY', relation_type: 'association', confidence: 0.95, supporting_evidence_id: 'EV-0182', supporting_evidence_name: 'Call_Record_Microwave_Tap.csv', explainability: 'Voronin tasks Vance with armed transport perimeter.', case_id: caseId } },
+        { data: { id: 'REL-014', source: 'PERSON-001', target: 'PERSON-005', relation: 'CONTRACTS_CYBER_ATTACK', relation_type: 'association', confidence: 0.98, supporting_evidence_id: 'EV-0182', supporting_evidence_name: 'Call_Record_Microwave_Tap.csv', explainability: 'Voronin contracted Chen for municipal power and port distraction.', case_id: caseId } },
+        { data: { id: 'REL-015', source: 'PERSON-006', target: 'PERSON-003', relation: 'CONVOY_LIAISON', relation_type: 'association', confidence: 0.92, supporting_evidence_id: 'EV-0189', supporting_evidence_name: 'ALPR_Toll_Exit14_Capture.png', explainability: 'Marek Rostov and Vance synchronized convoy transit routes.', case_id: caseId } },
+        { data: { id: 'REL-016', source: 'PERSON-007', target: 'PERSON-002', relation: 'SUPPLIES_FORGED_IDS', relation_type: 'association', confidence: 0.93, supporting_evidence_id: 'EV-0182', supporting_evidence_name: 'Call_Record_Microwave_Tap.csv', explainability: 'Elena Thorne provided synthetic e-passports for Rostov.', case_id: caseId } },
+        { data: { id: 'REL-017', source: 'PERSON-010', target: 'PERSON-003', relation: 'PORT_BERTH_CLEARANCE', relation_type: 'association', confidence: 0.94, supporting_evidence_id: 'EV-0184', supporting_evidence_name: 'CCTV_Terminal_C_Frame_0418.jpg', explainability: 'Arturo Ruiz cleared container staging for Vance convoy.', case_id: caseId } },
+        { data: { id: 'REL-018', source: 'PERSON-011', target: 'PERSON-005', relation: 'TOR_INFRASTRUCTURE', relation_type: 'association', confidence: 0.95, supporting_evidence_id: 'EV-0182', supporting_evidence_name: 'Call_Record_Microwave_Tap.csv', explainability: 'Park maintains darknet command-and-control servers for Chen.', case_id: caseId } },
+        { data: { id: 'REL-019', source: 'PERSON-009', target: 'PERSON-004', relation: 'SCADA_COLLABORATION', relation_type: 'association', confidence: 0.90, supporting_evidence_id: 'EV-0182', supporting_evidence_name: 'Call_Record_Microwave_Tap.csv', explainability: 'Katya Orlova and Kane designed rail telemetry diversion script.', case_id: caseId } },
+
+        // Person -> Location
+        { data: { id: 'REL-020', source: 'PERSON-001', target: 'LOC-001', relation: 'PHYSICAL_PRESENCE', relation_type: 'location', confidence: 0.964, supporting_evidence_id: 'EV-0184', supporting_evidence_name: 'CCTV_Terminal_C_Frame_0418.jpg', explainability: 'ArcFace neural facial recognition confirms Voronin at Terminal C Gate 4.', case_id: caseId } },
+        { data: { id: 'REL-021', source: 'PERSON-003', target: 'LOC-002', relation: 'STAGING_DESTINATION', relation_type: 'location', confidence: 0.94, supporting_evidence_id: 'EV-0182', supporting_evidence_name: 'Call_Record_Microwave_Tap.csv', explainability: 'Vance tasked with delivering contraband to Warehouse 14B Safehouse.', case_id: caseId } },
+        { data: { id: 'REL-022', source: 'PERSON-004', target: 'LOC-003', relation: 'SABOTAGE_LOCATION', relation_type: 'location', confidence: 0.92, supporting_evidence_id: 'EV-0182', supporting_evidence_name: 'Call_Record_Microwave_Tap.csv', explainability: 'Kane intercepted rail switching signals at Sector 2 Exchange.', case_id: caseId } },
+
+        // Person -> Organization
+        { data: { id: 'REL-023', source: 'PERSON-001', target: 'ORG-001', relation: 'DIRECTS', relation_type: 'organization', confidence: 0.99, supporting_evidence_id: 'EV-0182', supporting_evidence_name: 'Call_Record_Microwave_Tap.csv', explainability: 'Voronin verified as supreme coordinator of Apex Cyber Syndicate.', case_id: caseId } },
+        { data: { id: 'REL-024', source: 'PERSON-003', target: 'ORG-002', relation: 'ENFORCES_FOR', relation_type: 'organization', confidence: 0.95, supporting_evidence_id: 'EV-0182', supporting_evidence_name: 'Call_Record_Microwave_Tap.csv', explainability: 'Darius Vance heads armed logistics for Kowloon Port Cartel.', case_id: caseId } },
+        { data: { id: 'REL-025', source: 'PERSON-002', target: 'ORG-003', relation: 'OPERATES_FRONT', relation_type: 'organization', confidence: 0.96, supporting_evidence_id: 'EV-0185', supporting_evidence_name: 'Escrow_Wallet_Ledger_Dump.json', explainability: 'Elena Rostov manages GhostNet Logistics shell operations.', case_id: caseId } },
+
+        // Evidence -> Nodes
+        { data: { id: 'REL-026', source: 'EV-0184', target: 'PERSON-001', relation: 'BIOMETRIC_MATCH', relation_type: 'evidence_backed', confidence: 0.964, supporting_evidence_id: 'EV-0184', supporting_evidence_name: 'CCTV_Terminal_C_Frame_0418.jpg', explainability: '96.4% facial vector similarity on Voronin.', case_id: caseId } },
+        { data: { id: 'REL-027', source: 'EV-0189', target: 'VEHICLE-001', relation: 'PLATE_MATCH', relation_type: 'evidence_backed', confidence: 0.98, supporting_evidence_id: 'EV-0189', supporting_evidence_name: 'ALPR_Toll_Exit14_Capture.png', explainability: 'High-speed ALPR camera hit at Exit 14.', case_id: caseId } },
+        { data: { id: 'REL-028', source: 'EV-0185', target: 'FIN-001', relation: 'LEDGER_AUDIT', relation_type: 'evidence_backed', confidence: 0.99, supporting_evidence_id: 'EV-0185', supporting_evidence_name: 'Escrow_Wallet_Ledger_Dump.json', explainability: 'Immutable on-chain transaction record.', case_id: caseId } },
+        { data: { id: 'REL-029', source: 'EV-0182', target: 'PHONE-001', relation: 'FREQUENCY_ANALYSIS', relation_type: 'evidence_backed', confidence: 0.98, supporting_evidence_id: 'EV-0182', supporting_evidence_name: 'Call_Record_Microwave_Tap.csv', explainability: 'Microwave tap spectrum analysis confirms 868MHz jammer burst.', case_id: caseId } }
+      ];
+
       return {
         case_id: caseId,
-        nodes: [
-          { data: { id: 'PERSON-001', label: 'Viktor Voronin', type: 'Person', shape: 'ellipse', color: '#f87171', threat: 'CRITICAL', size: 48, details: 'Synthetic target profile: Logistics facilitator.', case_id: caseId } },
-          { data: { id: 'PHONE-001', label: 'RF 868MHz Jammer / Tap', type: 'Phone', shape: 'round-rectangle', color: '#38bdf8', threat: 'HIGH', size: 40, details: 'Encrypted RF pulse beacon.', case_id: caseId } },
-          { data: { id: 'VEHICLE-001', label: 'Black Escalade (8B9-CYP)', type: 'Vehicle', shape: 'diamond', color: '#fbbf24', threat: 'HIGH', size: 44, details: 'Observed departing Terminal C.', case_id: caseId } },
-          { data: { id: 'FIN-001', label: 'Tether Wallet 0x889...F1C', type: 'Financial Account', shape: 'hexagon', color: '#34d399', threat: 'CRITICAL', size: 46, details: 'Cryptocurrency escrow address.', case_id: caseId } },
-          { data: { id: 'LOC-001', label: 'Terminal C Harbor Depot', type: 'Location', shape: 'octagon', color: '#c084fc', threat: 'HIGH', size: 46, details: 'Container staging warehouse.', case_id: caseId } },
-          { data: { id: 'ORG-001', label: 'Apex Cyber Syndicate', type: 'Organization', shape: 'rectangle', color: '#f472b6', threat: 'CRITICAL', size: 48, details: 'Decentralized cyber syndication.', case_id: caseId } },
-          { data: { id: 'EV-0182', label: 'Call_Record_Microwave_Tap.csv', type: 'Evidence', shape: 'tag', color: '#60a5fa', threat: 'EVIDENCE', size: 42, details: 'Decrypted intercept wiretap log.', case_id: caseId } }
-        ],
-        edges: [
-          { data: { id: 'REL-001', source: 'PERSON-001', target: 'PHONE-001', relation: 'USES', relation_type: 'calls', confidence: 0.98, supporting_evidence_id: 'EV-0182', supporting_evidence_name: 'Call_Record_Microwave_Tap.csv', explainability: 'Voice acoustic correlation.', case_id: caseId } },
-          { data: { id: 'REL-003', source: 'PERSON-001', target: 'VEHICLE-001', relation: 'OWNS', relation_type: 'ownership', confidence: 0.96, supporting_evidence_id: 'EV-0183', supporting_evidence_name: 'Surveillance_Pier4_GateCamera.mp4', explainability: 'ALPR camera vehicle match.', case_id: caseId } },
-          { data: { id: 'REL-004', source: 'PERSON-001', target: 'FIN-001', relation: 'TRANSACTED_WITH', relation_type: 'financial', confidence: 0.97, supporting_evidence_id: 'EV-0185', supporting_evidence_name: 'Escrow_Wallet_Ledger_Dump.json', explainability: 'Private key signature link.', case_id: caseId } },
-          { data: { id: 'REL-007', source: 'VEHICLE-001', target: 'LOC-001', relation: 'LOCATED_AT', relation_type: 'location', confidence: 0.99, supporting_evidence_id: 'EV-0183', supporting_evidence_name: 'Surveillance_Pier4_GateCamera.mp4', explainability: 'CCTV video frames position vehicle at Terminal C.', case_id: caseId } },
-          { data: { id: 'REL-005', source: 'PERSON-001', target: 'ORG-001', relation: 'WORKS_FOR', relation_type: 'organization', confidence: 0.95, supporting_evidence_id: 'EV-0182', supporting_evidence_name: 'Call_Record_Microwave_Tap.csv', explainability: 'Radio communications establish executive authority.', case_id: caseId } },
-          { data: { id: 'REL-009', source: 'EV-0182', target: 'PERSON-001', relation: 'SUPPORTS', relation_type: 'evidence_backed', confidence: 0.98, supporting_evidence_id: 'EV-0182', supporting_evidence_name: 'Call_Record_Microwave_Tap.csv', explainability: 'Direct evidence identification.', case_id: caseId } }
-        ],
-        total_nodes: 7,
-        total_edges: 6,
+        nodes: allFallbackNodes,
+        edges: allFallbackEdges,
+        total_nodes: allFallbackNodes.length,
+        total_edges: allFallbackEdges.length,
         neo4j_connected: false,
         storage_engine: 'Client Standalone Cache'
       };
@@ -943,14 +1022,17 @@ export const api = {
       console.warn('[API] getCaseAnalytics fallback', e);
       return {
         case_id: caseId,
-        total_entities: 18,
-        total_relationships: 22,
-        entity_breakdown: { Person: 5, Phone: 3, Vehicle: 2, 'Financial Account': 3, Location: 3, Organization: 2 },
+        total_entities: 29,
+        total_relationships: 29,
+        entity_breakdown: { Person: 12, Phone: 3, Vehicle: 3, 'Financial Account': 3, Location: 3, Organization: 3, Evidence: 4 },
         most_connected_entities: [
           { id: 'PERSON-001', name: 'Viktor Voronin', type: 'Person', connection_count: 8, threat: 'CRITICAL' },
-          { id: 'PERSON-003', name: 'Darius Vance', type: 'Person', connection_count: 5, threat: 'HIGH' }
+          { id: 'PERSON-002', name: 'Elena Rostov', type: 'Person', connection_count: 5, threat: 'HIGH' },
+          { id: 'PERSON-003', name: 'Darius Vance', type: 'Person', connection_count: 6, threat: 'HIGH' },
+          { id: 'PERSON-005', name: 'Viktor Chen (Cipher_Ghost)', type: 'Person', connection_count: 4, threat: 'CRITICAL' },
+          { id: 'PERSON-008', name: 'Tariq Al-Mansoor', type: 'Person', connection_count: 3, threat: 'CRITICAL' }
         ],
-        network_density: 0.14
+        network_density: 0.32
       };
     }
   },

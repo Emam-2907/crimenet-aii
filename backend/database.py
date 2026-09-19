@@ -187,6 +187,126 @@ CYTOSCAPE_GRAPH_DATA = {
                 "case_id": "CASE #CR-2026-0089"
             }
         },
+        {
+            "data": {
+                "id": "ent-person-chen",
+                "label": "Viktor Chen (Cipher_Ghost)",
+                "type": "Person",
+                "shape": "ellipse",
+                "threat": "CRITICAL",
+                "syndicate": "Apex Cyber Syndicate",
+                "color": "#f87171",
+                "size": 50,
+                "details": "Autonomous ransomware developer and zero-day exploit author targeting utility SCADA protocols.",
+                "aliases": ["Cipher_Ghost", "ZeroVector"],
+                "case_id": "CASE #CR-2026-0142"
+            }
+        },
+        {
+            "data": {
+                "id": "ent-person-marek",
+                "label": "Marek Rostov",
+                "type": "Person",
+                "shape": "ellipse",
+                "threat": "HIGH",
+                "syndicate": "Kowloon Port Cartel",
+                "color": "#f87171",
+                "size": 46,
+                "details": "Tactical logistics chief managing high-speed armored transit convoys across harbor perimeter.",
+                "aliases": ["The Vanguard Driver"],
+                "case_id": "CASE #CR-2026-0142"
+            }
+        },
+        {
+            "data": {
+                "id": "ent-person-elena-thorne",
+                "label": "Elena Thorne (Chameleon-9)",
+                "type": "Person",
+                "shape": "ellipse",
+                "threat": "HIGH",
+                "syndicate": "ForgeNet",
+                "color": "#f87171",
+                "size": 44,
+                "details": "Synthetic media creator and 3D biometric credential counterfeiter for cross-border transit.",
+                "aliases": ["Chameleon-9"],
+                "case_id": "CASE #CR-2026-0142"
+            }
+        },
+        {
+            "data": {
+                "id": "ent-person-tariq",
+                "label": "Tariq Al-Mansoor",
+                "type": "Person",
+                "shape": "ellipse",
+                "threat": "CRITICAL",
+                "syndicate": "GhostNet Logistics",
+                "color": "#f87171",
+                "size": 48,
+                "details": "Cryptocurrency wash ring operator managing cross-chain flash-loan liquidity pools.",
+                "aliases": ["The Alchemist", "NebulaBroker"],
+                "case_id": "CASE #CR-2026-0142"
+            }
+        },
+        {
+            "data": {
+                "id": "ent-person-katya",
+                "label": "Katya Orlova (Red Phantom)",
+                "type": "Person",
+                "shape": "ellipse",
+                "threat": "HIGH",
+                "syndicate": "Apex Cyber Syndicate",
+                "color": "#f87171",
+                "size": 44,
+                "details": "SCADA telemetry manipulator and railway routing saboteur.",
+                "aliases": ["Red Phantom"],
+                "case_id": "CASE #CR-2026-0142"
+            }
+        },
+        {
+            "data": {
+                "id": "ent-person-arturo",
+                "label": "Arturo Ruiz (El Silencio)",
+                "type": "Person",
+                "shape": "ellipse",
+                "threat": "HIGH",
+                "syndicate": "Kowloon Port Cartel",
+                "color": "#f87171",
+                "size": 44,
+                "details": "Maritime container smuggling dispatcher operating through Terminal C berths.",
+                "aliases": ["El Silencio"],
+                "case_id": "CASE #CR-2026-0142"
+            }
+        },
+        {
+            "data": {
+                "id": "ent-person-jin",
+                "label": "Jin Park (ZeroTrace)",
+                "type": "Person",
+                "shape": "ellipse",
+                "threat": "MEDIUM",
+                "syndicate": "Apex Cyber Syndicate",
+                "color": "#f87171",
+                "size": 42,
+                "details": "Tor gateway node administrator and encrypted relay provider for Apex Cell.",
+                "aliases": ["ZeroTrace"],
+                "case_id": "CASE #CR-2026-0142"
+            }
+        },
+        {
+            "data": {
+                "id": "ent-person-isabella",
+                "label": "Isabella Cruz (Nemesis)",
+                "type": "Person",
+                "shape": "ellipse",
+                "threat": "HIGH",
+                "syndicate": "Apex Cyber Syndicate",
+                "color": "#f87171",
+                "size": 44,
+                "details": "Electronic counter-surveillance officer responsible for RF jamming operations.",
+                "aliases": ["Nemesis"],
+                "case_id": "CASE #CR-2026-0142"
+            }
+        },
 
         # 2. PHONE / COMM (shape: round-rectangle)
         {
