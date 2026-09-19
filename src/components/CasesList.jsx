@@ -308,12 +308,18 @@ export default function CasesList() {
                       </span>
                     </td>
 
-                    {/* Case Title */}
-                    <td style={{ maxWidth: '280px' }}>
+                    {/* Case Title & Primary Criminal */}
+                    <td style={{ maxWidth: '320px' }}>
                       <div style={{ fontSize: '0.84rem', fontWeight: 600, color: 'var(--text-primary)', lineHeight: 1.3 }}>
                         {c.title}
                       </div>
-                      <div style={{ fontSize: '0.70rem', color: 'var(--text-muted)', marginTop: '2px' }}>
+                      {c.primary_suspect && (
+                        <div style={{ fontSize: '0.70rem', color: '#F87171', fontFamily: 'var(--font-mono)', marginTop: '3px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          <span style={{ color: '#F87171', fontWeight: 700 }}>🎯 TARGET:</span>
+                          <span style={{ color: '#fca5a5', fontWeight: 600 }}>{c.primary_suspect}</span>
+                        </div>
+                      )}
+                      <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', marginTop: '2px' }}>
                         Updated: {c.last_updated}
                       </div>
                     </td>
@@ -448,9 +454,15 @@ export default function CasesList() {
 
                 {/* Title & Description */}
                 <div>
-                  <h4 style={{ fontSize: '0.94rem', fontWeight: 700, color: '#fff', lineHeight: 1.3, marginBottom: '6px' }}>
+                  <h4 style={{ fontSize: '0.94rem', fontWeight: 700, color: '#fff', lineHeight: 1.3, marginBottom: '4px' }}>
                     {c.title}
                   </h4>
+                  {c.primary_suspect && (
+                    <div style={{ fontSize: '0.72rem', color: '#F87171', fontFamily: 'var(--font-mono)', marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <span style={{ color: '#F87171', fontWeight: 700 }}>🎯 TARGET:</span>
+                      <span style={{ color: '#fca5a5', fontWeight: 600 }}>{c.primary_suspect}</span>
+                    </div>
+                  )}
                   <p style={{
                     fontSize: '0.78rem', color: 'var(--t-muted)', lineHeight: 1.45,
                     display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden'

@@ -850,24 +850,32 @@ CASES_STORE = [
     {
         "id": "CASE #CR-2026-0142",
         "title": "Organized Network Infiltration (Port Sovereign)",
+        "primary_suspect": "Viktor Voronin (The Architect / Cypher-9)",
+        "suspects": [
+            "Viktor Voronin (The Architect)", "Elena Rostov (Valkyrie)", "Darius Vance (Ironclad)",
+            "Marcus Kane (Specter)", "Viktor Chen (Cipher_Ghost)", "Marek Rostov (The Vanguard)",
+            "Elena Thorne (Chameleon-9)", "Tariq Al-Mansoor (The Alchemist)", "Katya Orlova (Red Phantom)",
+            "Arturo Ruiz (El Silencio)", "Jin Park (ZeroTrace)", "Isabella Cruz (Nemesis)"
+        ],
         "case_type": "Organized Syndicate",
         "status": "Active",
-        "priority": "High",
+        "priority": "Critical",
         "created_date": "2026-09-14 08:30 UTC",
         "last_updated": "2026-09-18 11:42 UTC",
         "investigator": "Special Agent Marcus Vance",
         "reference_no": "DOJ-FED-8841-B",
-        "tags": ["Port Security", "Crypto Laundering", "Apex Syndicate", "Avionics Smuggling"],
+        "tags": ["Port Security", "Crypto Laundering", "Apex Syndicate", "Avionics Smuggling", "SCADA Sabotage"],
         "description": "Cross-border taskforce investigation into the synchronized heist of avionics hardware at Harbor Terminal C, darknet escrow channels, and perimeter surveillance disruption.",
-        "evidence_count": 5,
-        "entity_count": 8,
-        "investigation_status": "Active Surveillance / Wiretap Active",
-        "is_synthetic": True,
-        "classification": "RESTRICTED-LEO"
+        "evidence_count": 8,
+        "entity_count": 29,
+        "investigation_status": "Active Surveillance / Multi-Node Wiretap Active",
+        "is_synthetic": True
     },
     {
         "id": "CASE #CR-2026-0089",
         "title": "Phantom Rail Logistics & Cyber Diversion",
+        "primary_suspect": "Marcus Kane (Specter) & Katya Orlova",
+        "suspects": ["Marcus Kane (Specter)", "Katya Orlova (Red Phantom)", "Elena Rostov (Valkyrie)"],
         "case_type": "Cyber Warfare",
         "status": "Critical",
         "priority": "Critical",
@@ -876,30 +884,30 @@ CASES_STORE = [
         "investigator": "Special Agent Sarah Reyes",
         "reference_no": "DOT-FRAUD-9912-X",
         "tags": ["SCADA Bypass", "Freight Rail", "GhostNet", "Interception"],
-        "description": "Technical counter-sabotage probe into automated SCADA track switcher manipulation along Sector 2 industrial corridor facilitating illicit cargo extraction.",
-        "evidence_count": 2,
-        "entity_count": 4,
+        "description": "Technical probe into automated SCADA track switcher manipulation along Sector 2 industrial rail corridor.",
+        "evidence_count": 3,
+        "entity_count": 8,
         "investigation_status": "Forensic Extraction Ongoing",
-        "is_synthetic": True,
-        "classification": "RESTRICTED-LEO"
+        "is_synthetic": True
     },
     {
         "id": "CASE #CR-2026-0044",
         "title": "Nightfall Escrow Laundering & Syndicate Mesh",
+        "primary_suspect": "Tariq Al-Mansoor (The Alchemist)",
+        "suspects": ["Tariq Al-Mansoor (The Alchemist)", "Elena Rostov (Valkyrie)", "Viktor Chen (Cipher_Ghost)"],
         "case_type": "Financial Fraud",
         "status": "Under Review",
-        "priority": "Medium",
+        "priority": "High",
         "created_date": "2026-09-02 11:00 UTC",
         "last_updated": "2026-09-17 18:40 UTC",
         "investigator": "Special Agent David Torres",
         "reference_no": "FINCEN-SAR-3310-F",
-        "tags": ["FinCEN", "Tether", "Tumbler", "Darknet"],
+        "tags": ["FinCEN", "Tether", "Tumbler", "Darknet", "Flash Loans"],
         "description": "Multi-jurisdictional financial tracking of offshore liquidity drained via flash-loan exploits into decentralized tumbler addresses.",
-        "evidence_count": 2,
-        "entity_count": 5,
+        "evidence_count": 3,
+        "entity_count": 7,
         "investigation_status": "Asset Freeze Pending",
-        "is_synthetic": True,
-        "classification": "RESTRICTED-LEO"
+        "is_synthetic": True
     }
 ]
 

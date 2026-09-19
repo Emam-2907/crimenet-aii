@@ -457,23 +457,32 @@ export const api = {
         {
           id: 'CASE #CR-2026-0142',
           title: 'Organized Network Infiltration (Port Sovereign)',
+          primary_suspect: 'Viktor Voronin (The Architect / Cypher-9)',
+          suspects: [
+            'Viktor Voronin (The Architect)', 'Elena Rostov (Valkyrie)', 'Darius Vance (Ironclad)',
+            'Marcus Kane (Specter)', 'Viktor Chen (Cipher_Ghost)', 'Marek Rostov (The Vanguard)',
+            'Elena Thorne (Chameleon-9)', 'Tariq Al-Mansoor (The Alchemist)', 'Katya Orlova (Red Phantom)',
+            'Arturo Ruiz (El Silencio)', 'Jin Park (ZeroTrace)', 'Isabella Cruz (Nemesis)'
+          ],
           case_type: 'Organized Syndicate',
           status: 'Active',
-          priority: 'High',
+          priority: 'Critical',
           created_date: '2026-09-14 08:30 UTC',
           last_updated: '2026-09-18 11:42 UTC',
           investigator: 'Special Agent Marcus Vance',
           reference_no: 'DOJ-FED-8841-B',
-          tags: ['Port Security', 'Crypto Laundering', 'Apex Syndicate', 'Avionics Smuggling'],
+          tags: ['Port Security', 'Crypto Laundering', 'Apex Syndicate', 'Avionics Smuggling', 'SCADA Sabotage'],
           description: 'Cross-border taskforce investigation into the synchronized heist of avionics hardware at Harbor Terminal C, darknet escrow channels, and perimeter surveillance disruption.',
-          evidence_count: 5,
-          entity_count: 8,
-          investigation_status: 'Active Surveillance / Wiretap Active',
+          evidence_count: 8,
+          entity_count: 29,
+          investigation_status: 'Active Surveillance / Multi-Node Wiretap Active',
           is_synthetic: true
         },
         {
           id: 'CASE #CR-2026-0089',
           title: 'Phantom Rail Logistics & Cyber Diversion',
+          primary_suspect: 'Marcus Kane (Specter) & Katya Orlova',
+          suspects: ['Marcus Kane (Specter)', 'Katya Orlova (Red Phantom)', 'Elena Rostov (Valkyrie)'],
           case_type: 'Cyber Warfare',
           status: 'Critical',
           priority: 'Critical',
@@ -483,25 +492,27 @@ export const api = {
           reference_no: 'DOT-FRAUD-9912-X',
           tags: ['SCADA Bypass', 'Freight Rail', 'GhostNet', 'Interception'],
           description: 'Technical probe into automated SCADA track switcher manipulation along Sector 2 industrial rail corridor.',
-          evidence_count: 2,
-          entity_count: 4,
+          evidence_count: 3,
+          entity_count: 8,
           investigation_status: 'Forensic Extraction Ongoing',
           is_synthetic: true
         },
         {
           id: 'CASE #CR-2026-0044',
           title: 'Nightfall Escrow Laundering & Syndicate Mesh',
+          primary_suspect: 'Tariq Al-Mansoor (The Alchemist)',
+          suspects: ['Tariq Al-Mansoor (The Alchemist)', 'Elena Rostov (Valkyrie)', 'Viktor Chen (Cipher_Ghost)'],
           case_type: 'Financial Fraud',
           status: 'Under Review',
-          priority: 'Medium',
+          priority: 'High',
           created_date: '2026-09-02 11:00 UTC',
           last_updated: '2026-09-17 18:40 UTC',
           investigator: 'Special Agent David Torres',
           reference_no: 'FINCEN-SAR-3310-F',
-          tags: ['FinCEN', 'Tether', 'Tumbler', 'Darknet'],
+          tags: ['FinCEN', 'Tether', 'Tumbler', 'Darknet', 'Flash Loans'],
           description: 'Multi-jurisdictional financial tracking of offshore liquidity drained via flash-loan exploits into decentralized tumbler addresses.',
-          evidence_count: 2,
-          entity_count: 5,
+          evidence_count: 3,
+          entity_count: 7,
           investigation_status: 'Asset Freeze Pending',
           is_synthetic: true
         }
@@ -518,25 +529,64 @@ export const api = {
       console.warn('[API] getCase fallback', e);
       const all = await api.getCases();
       const found = all.find(c => c.id === caseId || c.id.replace('CASE #', '').trim() === caseId.replace('CASE #', '').trim()) || all[0];
+      const allEv = await api.getEvidence({ caseId: found.id });
+
+      // Return full 12 suspects and 29 entities for Case 0142
+      const fullEntities = [
+        { id: 'PERSON-001', name: 'Viktor Voronin', type: 'Person', confidence: 0.98, threat: 'CRITICAL', role: 'Syndicate Kingpin', alias: 'The Architect / Cypher-9' },
+        { id: 'PERSON-002', name: 'Elena Rostov', type: 'Person', confidence: 0.96, threat: 'HIGH', role: 'Darknet Escrow Broker', alias: 'Valkyrie / CipherQueen' },
+        { id: 'PERSON-003', name: 'Darius Vance', type: 'Person', confidence: 0.95, threat: 'HIGH', role: 'Armed Logistics Enforcer', alias: 'Ironclad / Heavy-D' },
+        { id: 'PERSON-004', name: 'Marcus Kane', type: 'Person', confidence: 0.92, threat: 'MEDIUM', role: 'Hardware & Wiretap Specialist', alias: 'Specter / Wiretapper' },
+        { id: 'PERSON-005', name: 'Viktor Chen', type: 'Person', confidence: 0.99, threat: 'CRITICAL', role: 'Ransomware Developer', alias: 'Cipher_Ghost' },
+        { id: 'PERSON-006', name: 'Marek Rostov', type: 'Person', confidence: 0.94, threat: 'HIGH', role: 'Convoy Transit Chief', alias: 'The Vanguard Driver' },
+        { id: 'PERSON-007', name: 'Elena Thorne', type: 'Person', confidence: 0.93, threat: 'HIGH', role: 'Identity & Deepfake Forger', alias: 'Chameleon-9' },
+        { id: 'PERSON-008', name: 'Tariq Al-Mansoor', type: 'Person', confidence: 0.97, threat: 'CRITICAL', role: 'Crypto Mixer Operator', alias: 'The Alchemist' },
+        { id: 'PERSON-009', name: 'Katya Orlova', type: 'Person', confidence: 0.91, threat: 'HIGH', role: 'SCADA Saboteur', alias: 'Red Phantom' },
+        { id: 'PERSON-010', name: 'Arturo Ruiz', type: 'Person', confidence: 0.94, threat: 'HIGH', role: 'Port Berth Dispatcher', alias: 'El Silencio' },
+        { id: 'PERSON-011', name: 'Jin Park', type: 'Person', confidence: 0.89, threat: 'MEDIUM', role: 'Tor Gateway Admin', alias: 'ZeroTrace' },
+        { id: 'PERSON-012', name: 'Isabella Cruz', type: 'Person', confidence: 0.92, threat: 'HIGH', role: 'RF Jammer Specialist', alias: 'Nemesis' },
+        { id: 'PHONE-001', name: 'RF 868MHz Jammer / Tap', type: 'Phone', confidence: 0.98, threat: 'HIGH' },
+        { id: 'PHONE-002', name: 'SatPhone +882-16-992', type: 'Phone', confidence: 0.94, threat: 'HIGH' },
+        { id: 'PHONE-003', name: 'Tor Gateway Node 185.220', type: 'Phone', confidence: 0.99, threat: 'CRITICAL' },
+        { id: 'VEHICLE-001', name: 'Black Escalade (8B9-CYP)', type: 'Vehicle', confidence: 0.96, threat: 'HIGH' },
+        { id: 'VEHICLE-002', name: 'Armored Yukon (NY-889XQ)', type: 'Vehicle', confidence: 0.95, threat: 'HIGH' },
+        { id: 'VEHICLE-003', name: 'Freight Switcher Unit 14-B', type: 'Vehicle', confidence: 0.91, threat: 'CRITICAL' },
+        { id: 'FIN-001', name: 'Tether Wallet 0x889...F1C', type: 'Bank Account', confidence: 0.98, threat: 'CRITICAL' },
+        { id: 'FIN-002', name: 'Darknet Mixer Node 36', type: 'Bank Account', confidence: 0.96, threat: 'CRITICAL' },
+        { id: 'FIN-003', name: 'Crypto Wallet 0x8F9...41D', type: 'Bank Account', confidence: 0.94, threat: 'HIGH' },
+        { id: 'LOC-001', name: 'Terminal C Harbor Depot', type: 'Location', confidence: 0.99, threat: 'HIGH' },
+        { id: 'LOC-002', name: 'Warehouse 14B Safehouse', type: 'Location', confidence: 0.96, threat: 'HIGH' },
+        { id: 'LOC-003', name: 'Sector 2 Freight Exchange', type: 'Location', confidence: 0.92, threat: 'MEDIUM' },
+        { id: 'ORG-001', name: 'Apex Cyber Syndicate', type: 'Organization', confidence: 0.99, threat: 'CRITICAL' },
+        { id: 'ORG-002', name: 'Kowloon Port Cartel', type: 'Organization', confidence: 0.95, threat: 'HIGH' },
+        { id: 'ORG-003', name: 'GhostNet Logistics', type: 'Organization', confidence: 0.96, threat: 'HIGH' }
+      ];
+
       return {
         ...found,
-        evidence: await api.getEvidence({ caseId: found.id }),
-        entities: [
-          { id: 'ent-1', name: 'Viktor Voronin', type: 'Person', confidence: 0.98, threat: 'CRITICAL' },
-          { id: 'ent-2', name: 'Darius Vance', type: 'Person', confidence: 0.94, threat: 'HIGH' },
-          { id: 'ent-5', name: 'Black Escalade (Plate 8B9-CYP)', type: 'Vehicle', confidence: 0.96, threat: 'HIGH' },
-          { id: 'ent-8', name: 'Tether Wallet 0x889...F1C', type: 'Bank Account', confidence: 0.95, threat: 'CRITICAL' },
-          { id: 'ent-9', name: 'Terminal C Harbor Depot', type: 'Location', confidence: 0.99, threat: 'HIGH' }
-        ],
+        evidence: allEv,
+        entities: fullEntities,
         relationships: [
-          { source: 'Viktor Voronin', relation: 'ORDERED_CONVOY_TO', target: 'Darius Vance', confidence: 0.96 },
-          { source: 'Darius Vance', relation: 'OPERATING_VEHICLE', target: 'Black Escalade (Plate 8B9-CYP)', confidence: 0.94 },
-          { source: 'Viktor Voronin', relation: 'RENDEZVOUS_AT', target: 'Terminal C Harbor Depot', confidence: 0.92 }
+          { source: 'Viktor Voronin', relation: 'COMMANDS_FINANCES', target: 'Elena Rostov', confidence: 0.97 },
+          { source: 'Viktor Voronin', relation: 'DISPATCHES_SECURITY', target: 'Darius Vance', confidence: 0.96 },
+          { source: 'Viktor Voronin', relation: 'CONTRACTS_CYBER_ATTACK', target: 'Viktor Chen', confidence: 0.98 },
+          { source: 'Darius Vance', relation: 'OPERATING_VEHICLE', target: 'Black Escalade (8B9-CYP)', confidence: 0.96 },
+          { source: 'Marek Rostov', relation: 'CONVOY_LEADER', target: 'Armored Yukon (NY-889XQ)', confidence: 0.95 },
+          { source: 'Elena Rostov', relation: 'MANAGES_ESCROW', target: 'Tether Wallet 0x889...F1C', confidence: 0.98 },
+          { source: 'Tariq Al-Mansoor', relation: 'WASH_OPERATOR', target: 'Darknet Mixer Node 36', confidence: 0.99 },
+          { source: 'Viktor Voronin', relation: 'RENDEZVOUS_AT', target: 'Terminal C Harbor Depot', confidence: 0.964 },
+          { source: 'Darius Vance', relation: 'STAGING_DESTINATION', target: 'Warehouse 14B Safehouse', confidence: 0.94 },
+          { source: 'Elena Thorne', relation: 'SUPPLIES_FORGED_IDS', target: 'Elena Rostov', confidence: 0.93 },
+          { source: 'Arturo Ruiz', relation: 'PORT_BERTH_CLEARANCE', target: 'Darius Vance', confidence: 0.94 },
+          { source: 'Katya Orlova', relation: 'SCADA_COLLABORATION', target: 'Marcus Kane', confidence: 0.91 }
         ],
         timeline: [
-          { date: '2026-09-14 08:30 UTC', event: 'Case opened: Organized Network Infiltration (Port Sovereign)', author: 'S/A Vance', type: 'case_created' },
-          { date: '2026-09-18 03:22 UTC', event: 'Call_Record_Microwave_Tap.csv ingested & processed', author: 'System NLP', type: 'evidence_processed' },
-          { date: '2026-09-18 05:10 UTC', event: 'CCTV Frame 04:18 analyzed: Biometric match Viktor Voronin (96.4%)', author: 'Forensic Face Lab', type: 'biometric_match' }
+          { date: '2026-09-14 08:30 UTC', event: 'Case opened: Organized Network Infiltration targeting Apex Syndicate', author: 'S/A Vance', type: 'case_created' },
+          { date: '2026-09-18 03:22 UTC', event: 'Call_Record_Microwave_Tap.csv ingested: Voronin & Vance intercept confirmed', author: 'System NLP', type: 'evidence_processed' },
+          { date: '2026-09-18 04:18 UTC', event: 'CCTV Frame 04:18: ArcFace biometric confirmation Viktor Voronin (96.4%)', author: 'Forensic Face Lab', type: 'biometric_match' },
+          { date: '2026-09-18 05:40 UTC', event: 'ALPR Exit 14 hit: Black Escalade & Armored Yukon registered to syndicate convoy', author: 'ALPR Network', type: 'vehicle_hit' },
+          { date: '2026-09-18 09:15 UTC', event: 'FinCEN SAR audit traces 140 USDT escrow to Elena Rostov private key', author: 'FinCEN Node', type: 'financial_flag' },
+          { date: '2026-09-18 11:42 UTC', event: 'Taskforce warrants authorized for Warehouse 14B and Terminal C Harbor Depot', author: 'Judicial Liaison', type: 'warrant_issued' }
         ]
       };
     }
@@ -604,7 +654,7 @@ export const api = {
       return data.evidence || [];
     } catch (e) {
       console.warn('[API] getEvidence fallback', e);
-      return [
+      const allEvidenceFiles = [
         {
           id: 'EV-0182',
           name: 'Call_Record_Microwave_Tap.csv',
@@ -619,15 +669,17 @@ export const api = {
           extracted_entities_count: 14,
           detected_relationships_count: 27,
           entities: [
-            { id: 'ent-1', name: 'Viktor Voronin', type: 'Person', confidence: 0.98, threat: 'CRITICAL' },
-            { id: 'ent-2', name: 'Darius Vance', type: 'Person', confidence: 0.94, threat: 'HIGH' },
-            { id: 'ent-3', name: '868MHz Jammer Frequency', type: 'Technical', confidence: 0.96, threat: 'MEDIUM' }
+            { id: 'PERSON-001', name: 'Viktor Voronin', type: 'Person', confidence: 0.98, threat: 'CRITICAL', role: 'Syndicate Kingpin' },
+            { id: 'PERSON-002', name: 'Elena Rostov', type: 'Person', confidence: 0.96, threat: 'HIGH', role: 'Escrow Broker' },
+            { id: 'PERSON-003', name: 'Darius Vance', type: 'Person', confidence: 0.94, threat: 'HIGH', role: 'Convoy Enforcer' },
+            { id: 'PHONE-001', name: 'RF 868MHz Jammer / Tap', type: 'Technical', confidence: 0.98, threat: 'HIGH' }
           ],
           relationships: [
-            { source: 'Viktor Voronin', relation: 'ORDERED_CONVOY_TO', target: 'Darius Vance', confidence: 0.96 }
+            { source: 'Viktor Voronin', relation: 'TRANSMITTED_ON', target: 'RF 868MHz Jammer / Tap', confidence: 0.98 },
+            { source: 'RF 868MHz Jammer / Tap', relation: 'DIRECTED_CONVOY', target: 'Darius Vance', confidence: 0.94 }
           ],
           used_by_graph: true,
-          notes: 'Intercept transcript contains direct tactical rendezvous coordinates.',
+          notes: 'Intercept transcript contains direct tactical rendezvous coordinates and convoy orders.',
           is_synthetic: true
         },
         {
@@ -644,12 +696,16 @@ export const api = {
           extracted_entities_count: 18,
           detected_relationships_count: 31,
           entities: [
-            { id: 'ent-9', name: 'Terminal C Harbor Depot', type: 'Location', confidence: 0.99, threat: 'HIGH' },
-            { id: 'ent-10', name: 'Container TXUS-2291', type: 'Evidence', confidence: 0.95, threat: 'CRITICAL' }
+            { id: 'LOC-001', name: 'Terminal C Harbor Depot', type: 'Location', confidence: 0.99, threat: 'HIGH' },
+            { id: 'PERSON-010', name: 'Arturo Ruiz', type: 'Person', confidence: 0.94, threat: 'HIGH', role: 'Port Dispatcher' },
+            { id: 'ORG-001', name: 'Apex Cyber Syndicate', type: 'Organization', confidence: 0.99, threat: 'CRITICAL' },
+            { id: 'ORG-002', name: 'Kowloon Port Cartel', type: 'Organization', confidence: 0.95, threat: 'HIGH' }
           ],
-          relationships: [],
+          relationships: [
+            { source: 'Apex Cyber Syndicate', relation: 'TACTICAL_ALLIANCE', target: 'Kowloon Port Cartel', confidence: 0.92 }
+          ],
           used_by_graph: true,
-          notes: 'First Information Report documenting physical seal breach on avionics crate.',
+          notes: 'First Information Report documenting physical seal breach on avionics crate and syndicate presence.',
           is_synthetic: true
         },
         {
@@ -664,18 +720,156 @@ export const api = {
           status: 'Verified',
           processing_state: 'ANALYZED',
           preview_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=500&q=80',
-          extracted_entities_count: 3,
-          detected_relationships_count: 5,
+          extracted_entities_count: 4,
+          detected_relationships_count: 8,
           entities: [
-            { id: 'ent-1', name: 'Viktor Voronin', type: 'Person', confidence: 0.964, threat: 'CRITICAL' },
-            { id: 'ent-5', name: 'Black SUV (VIN: 7829-K)', type: 'Vehicle', confidence: 0.91, threat: 'HIGH' }
+            { id: 'PERSON-001', name: 'Viktor Voronin', type: 'Person', confidence: 0.964, threat: 'CRITICAL', role: 'Identified Target' },
+            { id: 'VEHICLE-001', name: 'Black Escalade (8B9-CYP)', type: 'Vehicle', confidence: 0.95, threat: 'HIGH' }
           ],
-          relationships: [],
+          relationships: [
+            { source: 'Viktor Voronin', relation: 'PHYSICAL_PRESENCE', target: 'Terminal C Harbor Depot', confidence: 0.964 }
+          ],
           used_by_graph: true,
           notes: 'Facial biometric match confirmed at 96.4% confidence by ArcFace neural engine.',
           is_synthetic: true
+        },
+        {
+          id: 'EV-0185',
+          name: 'Escrow_Wallet_Ledger_Dump.json',
+          type: 'Financial Data',
+          category: 'Financial Data',
+          case_id: 'CASE #CR-2026-0142',
+          upload_date: '2026-09-18 06:30 UTC',
+          file_size: '4.1 MB',
+          source: 'FinCEN Blockchain Explorer Node',
+          status: 'Verified',
+          processing_state: 'ANALYZED',
+          extracted_entities_count: 12,
+          detected_relationships_count: 24,
+          entities: [
+            { id: 'PERSON-002', name: 'Elena Rostov', type: 'Person', confidence: 0.98, threat: 'HIGH', role: 'Escrow Signer' },
+            { id: 'PERSON-008', name: 'Tariq Al-Mansoor', type: 'Person', confidence: 0.97, threat: 'CRITICAL', role: 'Mixer Master' },
+            { id: 'FIN-001', name: 'Tether Wallet 0x889...F1C', type: 'Bank Account', confidence: 0.99, threat: 'CRITICAL' },
+            { id: 'FIN-003', name: 'Crypto Wallet 0x8F9...41D', type: 'Bank Account', confidence: 0.96, threat: 'HIGH' }
+          ],
+          relationships: [
+            { source: 'Elena Rostov', relation: 'MANAGES_ESCROW', target: 'Tether Wallet 0x889...F1C', confidence: 0.98 },
+            { source: 'Tariq Al-Mansoor', relation: 'WASH_OPERATOR', target: 'Tether Wallet 0x889...F1C', confidence: 0.97 }
+          ],
+          used_by_graph: true,
+          notes: 'Cryptographic ledger signatures tie 140K USDT escrow transfers directly to Elena Rostov and Tariq Al-Mansoor.',
+          is_synthetic: true
+        },
+        {
+          id: 'EV-0186',
+          name: 'Drone_Recon_Sector2_Exchange.mp4',
+          type: 'Videos',
+          category: 'Videos',
+          case_id: 'CASE #CR-2026-0089',
+          upload_date: '2026-09-18 07:15 UTC',
+          file_size: '28.4 MB',
+          source: 'UAV Wing 09 Airborne Scan',
+          status: 'Verified',
+          processing_state: 'ANALYZED',
+          extracted_entities_count: 6,
+          detected_relationships_count: 10,
+          entities: [
+            { id: 'PERSON-004', name: 'Marcus Kane', type: 'Person', confidence: 0.93, threat: 'MEDIUM', role: 'Wiretap Specialist' },
+            { id: 'PERSON-009', name: 'Katya Orlova', type: 'Person', confidence: 0.91, threat: 'HIGH', role: 'SCADA Saboteur' },
+            { id: 'PHONE-002', name: 'SatPhone +882-16-992', type: 'Phone', confidence: 0.94, threat: 'HIGH' }
+          ],
+          relationships: [
+            { source: 'Marcus Kane', relation: 'DISPATCHED_INSTRUCTIONS', target: 'SatPhone +882-16-992', confidence: 0.93 }
+          ],
+          used_by_graph: true,
+          notes: 'High-altitude thermal video captures suspects positioning satellite receiver adjacent to rail exchange.',
+          is_synthetic: true
+        },
+        {
+          id: 'EV-0187',
+          name: 'Freight_SCADA_Telemetry_Log.txt',
+          type: 'Technical Logs',
+          category: 'Technical Logs',
+          case_id: 'CASE #CR-2026-0089',
+          upload_date: '2026-09-18 08:20 UTC',
+          file_size: '912 KB',
+          source: 'Rail Traffic Control System',
+          status: 'Verified',
+          processing_state: 'ANALYZED',
+          extracted_entities_count: 5,
+          detected_relationships_count: 7,
+          entities: [
+            { id: 'VEHICLE-003', name: 'Freight Switcher Unit 14-B', type: 'Vehicle', confidence: 0.97, threat: 'CRITICAL' },
+            { id: 'LOC-003', name: 'Sector 2 Freight Exchange', type: 'Location', confidence: 0.95, threat: 'MEDIUM' },
+            { id: 'PERSON-004', name: 'Marcus Kane', type: 'Person', confidence: 0.91, threat: 'MEDIUM' }
+          ],
+          relationships: [
+            { source: 'Marcus Kane', relation: 'SCADA_OVERRIDE', target: 'Freight Switcher Unit 14-B', confidence: 0.91 }
+          ],
+          used_by_graph: true,
+          notes: 'SCADA command log records remote brake release command issued via hardware tap.',
+          is_synthetic: true
+        },
+        {
+          id: 'EV-0188',
+          name: 'FinCEN_Suspicious_Activity_Report.pdf',
+          type: 'Documents',
+          category: 'Documents',
+          case_id: 'CASE #CR-2026-0044',
+          upload_date: '2026-09-18 09:45 UTC',
+          file_size: '1.2 MB',
+          source: 'FinCEN Intelligence Division',
+          status: 'Verified',
+          processing_state: 'ANALYZED',
+          extracted_entities_count: 8,
+          detected_relationships_count: 14,
+          entities: [
+            { id: 'PERSON-008', name: 'Tariq Al-Mansoor', type: 'Person', confidence: 0.98, threat: 'CRITICAL', role: 'Mixer Master' },
+            { id: 'FIN-002', name: 'Darknet Mixer Node 36', type: 'Bank Account', confidence: 0.99, threat: 'CRITICAL' },
+            { id: 'PERSON-005', name: 'Viktor Chen', type: 'Person', confidence: 0.96, threat: 'CRITICAL' }
+          ],
+          relationships: [
+            { source: 'Tariq Al-Mansoor', relation: 'TUMBLED_THROUGH', target: 'Darknet Mixer Node 36', confidence: 0.98 }
+          ],
+          used_by_graph: true,
+          notes: 'SAR filing details 36 micro-tumbling outputs dispersing $4.2M in ransom tokens.',
+          is_synthetic: true
+        },
+        {
+          id: 'EV-0189',
+          name: 'ALPR_Toll_Exit14_Capture.png',
+          type: 'Images',
+          category: 'Images',
+          case_id: 'CASE #CR-2026-0142',
+          upload_date: '2026-09-18 10:15 UTC',
+          file_size: '2.9 MB',
+          source: 'State Highway Patrol ALPR Network',
+          status: 'Verified',
+          processing_state: 'ANALYZED',
+          preview_url: 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=500&q=80',
+          extracted_entities_count: 5,
+          detected_relationships_count: 9,
+          entities: [
+            { id: 'PERSON-003', name: 'Darius Vance', type: 'Person', confidence: 0.96, threat: 'HIGH', role: 'Lead Driver' },
+            { id: 'PERSON-006', name: 'Marek Rostov', type: 'Person', confidence: 0.94, threat: 'HIGH', role: 'Convoy Leader' },
+            { id: 'VEHICLE-001', name: 'Black Escalade (8B9-CYP)', type: 'Vehicle', confidence: 0.98, threat: 'HIGH' },
+            { id: 'VEHICLE-002', name: 'Armored Yukon (NY-889XQ)', type: 'Vehicle', confidence: 0.95, threat: 'HIGH' }
+          ],
+          relationships: [
+            { source: 'Darius Vance', relation: 'OPERATING_DRIVER', target: 'Black Escalade (8B9-CYP)', confidence: 0.96 },
+            { source: 'Marek Rostov', relation: 'CONVOY_LEADER', target: 'Armored Yukon (NY-889XQ)', confidence: 0.95 }
+          ],
+          used_by_graph: true,
+          notes: 'High-speed automated license plate recognition capture showing convoy fleeing north on Interstate 95.',
+          is_synthetic: true
         }
       ];
+
+      if (params.caseId && params.caseId !== 'ALL') {
+        const normCase = params.caseId.replace('CASE #', '').trim();
+        return allEvidenceFiles.filter(e => e.case_id.includes(normCase));
+      }
+      return allEvidenceFiles;
     }
   },
 
@@ -770,9 +964,24 @@ export const api = {
         .map(e => ({ id: e.id, title: e.name, subtitle: `${e.type} · ${e.case_id}`, status: e.processing_state, category: 'EVIDENCE' }));
 
       const entities = [
-        { id: 'suspect-1', title: 'Viktor Voronin', subtitle: 'PERSON OF INTEREST · Apex Cyber Syndicate', status: 'CRITICAL', category: 'ENTITY' },
-        { id: 'veh-771', title: 'Black SUV (VIN: 7829-K)', subtitle: 'VEHICLE · Kowloon Port Cartel', status: 'HIGH', category: 'ENTITY' },
-        { id: 'plate-8b9', title: 'Plate 8B9-CYP', subtitle: 'VEHICLE IDENTIFIER · ALPR Hit', status: 'HIGH', category: 'ENTITY' }
+        { id: 'PERSON-001', title: 'Viktor Voronin', subtitle: 'CRIMINAL TARGET • The Architect / Cypher-9 • Apex Syndicate', status: 'CRITICAL', category: 'SUSPECT' },
+        { id: 'PERSON-002', title: 'Elena Rostov', subtitle: 'SUSPECT • Valkyrie / CipherQueen • Darknet Escrow Broker', status: 'HIGH', category: 'SUSPECT' },
+        { id: 'PERSON-003', title: 'Darius Vance', subtitle: 'SUSPECT • Ironclad / Heavy-D • Armed Logistics Enforcer', status: 'HIGH', category: 'SUSPECT' },
+        { id: 'PERSON-004', title: 'Marcus Kane', subtitle: 'SUSPECT • Specter / Wiretapper • Hardware & RF Specialist', status: 'MEDIUM', category: 'SUSPECT' },
+        { id: 'PERSON-005', title: 'Viktor Chen', subtitle: 'CRIMINAL TARGET • Cipher_Ghost • Autonomous Ransomware Author', status: 'CRITICAL', category: 'SUSPECT' },
+        { id: 'PERSON-006', title: 'Marek Rostov', subtitle: 'SUSPECT • The Vanguard Driver • Convoy Logistics Chief', status: 'HIGH', category: 'SUSPECT' },
+        { id: 'PERSON-007', title: 'Elena Thorne', subtitle: 'SUSPECT • Chameleon-9 • Synthetic Media & Credentials Forger', status: 'HIGH', category: 'SUSPECT' },
+        { id: 'PERSON-008', title: 'Tariq Al-Mansoor', subtitle: 'CRIMINAL TARGET • The Alchemist • Darknet Crypto Mixer Master', status: 'CRITICAL', category: 'SUSPECT' },
+        { id: 'PERSON-009', title: 'Katya Orlova', subtitle: 'SUSPECT • Red Phantom • SCADA Telemetry & Rail Saboteur', status: 'HIGH', category: 'SUSPECT' },
+        { id: 'PERSON-010', title: 'Arturo Ruiz', subtitle: 'SUSPECT • El Silencio • Terminal C Port Contraband Berth Dispatcher', status: 'HIGH', category: 'SUSPECT' },
+        { id: 'PERSON-011', title: 'Jin Park', subtitle: 'SUSPECT • ZeroTrace • Tor Gateway Node Administrator', status: 'MEDIUM', category: 'SUSPECT' },
+        { id: 'PERSON-012', title: 'Isabella Cruz', subtitle: 'SUSPECT • Nemesis • Electronic Counter-Surveillance & Jamming', status: 'HIGH', category: 'SUSPECT' },
+        { id: 'VEHICLE-001', title: 'Black Escalade (8B9-CYP)', subtitle: 'VEHICLE • Kowloon Port Cartel Getaway SUV', status: 'HIGH', category: 'ENTITY' },
+        { id: 'VEHICLE-002', title: 'Armored Yukon (NY-889XQ)', subtitle: 'VEHICLE • Reinforced Convoy Lead Vehicle', status: 'HIGH', category: 'ENTITY' },
+        { id: 'FIN-001', title: 'Tether Wallet 0x889...F1C', subtitle: 'FINANCIAL • Offshore Escrow 140K USDT Address', status: 'CRITICAL', category: 'ENTITY' },
+        { id: 'LOC-001', title: 'Terminal C Harbor Depot', subtitle: 'LOCATION • Customs Warehouse & Staging Yard', status: 'HIGH', category: 'LOCATION' },
+        { id: 'LOC-002', title: 'Warehouse 14B Safehouse', subtitle: 'LOCATION • Tactical Staging & Hardware Racks', status: 'HIGH', category: 'LOCATION' },
+        { id: 'ORG-001', title: 'Apex Cyber Syndicate', subtitle: 'ORGANIZATION • Transnational Cybercrime Network', status: 'CRITICAL', category: 'ORGANIZATION' }
       ].filter(ent => ent.title.toLowerCase().includes(q) || ent.subtitle.toLowerCase().includes(q));
 
       return {

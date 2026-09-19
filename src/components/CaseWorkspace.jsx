@@ -158,14 +158,29 @@ export default function CaseWorkspace() {
           </button>
         </div>
 
-        {/* Title and Scope */}
+        {/* Title, Scope & Primary Target */}
         <div>
           <h2 style={{
             fontFamily: 'var(--font-display)', fontSize: '1.4rem',
-            fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.01em', marginBottom: '4px'
+            fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.01em', marginBottom: '6px'
           }}>
             {current.title}
           </h2>
+          {current.primary_suspect && (
+            <div style={{
+              display: 'inline-flex', alignItems: 'center', gap: '8px',
+              padding: '4px 12px', background: 'rgba(248, 113, 113, 0.12)',
+              border: '1px solid rgba(248, 113, 113, 0.3)', borderRadius: '6px',
+              marginBottom: '8px'
+            }}>
+              <span style={{ fontSize: '0.70rem', fontFamily: 'var(--font-mono)', color: '#f87171', fontWeight: 700 }}>
+                🎯 PRIMARY CRIMINAL TARGET:
+              </span>
+              <strong style={{ fontSize: '0.84rem', color: '#fff', letterSpacing: '0.02em' }}>
+                {current.primary_suspect}
+              </strong>
+            </div>
+          )}
           <p style={{ fontSize: '0.84rem', color: 'var(--text-secondary)', lineHeight: 1.5, maxWidth: '850px' }}>
             {current.description || 'Active synchronized investigation tracking contraband, digital forensics, and suspect infrastructure.'}
           </p>

@@ -223,6 +223,12 @@ export default function Dashboard({ currentUser, onSwitchPersona }) {
                       <div style={{ fontSize: '0.82rem', color: 'var(--text-primary)', fontWeight: 600 }}>
                         {c.title}
                       </div>
+                      {c.primary_suspect && (
+                        <div style={{ fontSize: '0.68rem', color: '#F87171', fontFamily: 'var(--font-mono)', marginTop: '2px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          <span style={{ fontWeight: 700 }}>🎯 Target:</span>
+                          <span style={{ color: '#fca5a5' }}>{c.primary_suspect}</span>
+                        </div>
+                      )}
                       <div style={{ fontSize: '0.70rem', color: 'var(--text-muted)' }}>
                         {c.case_type} · Ref: {c.reference_no}
                       </div>
@@ -360,21 +366,31 @@ export default function Dashboard({ currentUser, onSwitchPersona }) {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
             <div style={{ padding: '10px 14px', background: 'var(--bg-elevated)', borderRadius: '6px', border: '1px solid var(--border-default)' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <strong style={{ fontSize: '0.80rem', color: 'var(--text-primary)' }}>Terminal C Contraband Movement</strong>
+                <strong style={{ fontSize: '0.80rem', color: 'var(--text-primary)' }}>🎯 Viktor Voronin & Darius Vance: Terminal C Escape Convoy</strong>
                 <span className="badge badge-critical" style={{ fontSize: '0.64rem' }}>IMMEDIATE ACTION</span>
               </div>
               <p style={{ fontSize: '0.74rem', color: 'var(--text-secondary)', marginTop: '4px', lineHeight: 1.4 }}>
-                Darius Vance vehicle sighting confirmed near Terminal C. Telemetry cross-referenced with microwave dispatch log.
+                ALPR Exit 14 hit confirmed: Vance piloting Black Escalade (8B9-CYP) alongside Marek Rostov lead Yukon. Telemetry cross-referenced with microwave tap.
               </p>
             </div>
 
             <div style={{ padding: '10px 14px', background: 'var(--bg-elevated)', borderRadius: '6px', border: '1px solid var(--border-default)' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <strong style={{ fontSize: '0.80rem', color: 'var(--text-primary)' }}>Offshore Escrow & Liquidation Audit</strong>
+                <strong style={{ fontSize: '0.80rem', color: 'var(--text-primary)' }}>🎯 Elena Rostov & Tariq Al-Mansoor: Escrow Mixer Laundering</strong>
                 <span className="badge badge-warning" style={{ fontSize: '0.64rem' }}>ELEVATED RISK</span>
               </div>
               <p style={{ fontSize: '0.74rem', color: 'var(--text-secondary)', marginTop: '4px', lineHeight: 1.4 }}>
-                140 USDT flagged transfer via wallet 0x889...F1C connected to customs depot access bypass.
+                140K USDT multi-sig escrow transfer via Tether wallet 0x889...F1C routed across 36 darknet mixer nodes by Tariq Al-Mansoor.
+              </p>
+            </div>
+
+            <div style={{ padding: '10px 14px', background: 'var(--bg-elevated)', borderRadius: '6px', border: '1px solid var(--border-default)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <strong style={{ fontSize: '0.80rem', color: 'var(--text-primary)' }}>🎯 Viktor Chen (Cipher_Ghost): Tor Gateway Ransomware Ingress</strong>
+                <span className="badge badge-critical" style={{ fontSize: '0.64rem' }}>CYBER THREAT</span>
+              </div>
+              <p style={{ fontSize: '0.74rem', color: 'var(--text-secondary)', marginTop: '4px', lineHeight: 1.4 }}>
+                Tor gateway IP 185.220 flagged delivering zero-day SCADA exploit payload under Chen keystroke fingerprint.
               </p>
             </div>
           </div>
