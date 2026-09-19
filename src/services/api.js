@@ -3,11 +3,11 @@
  * Connects to the FastAPI backend at http://localhost:8000 with seamless offline/standalone fallback.
  */
 
-const BASE_URL = import.meta.env.VITE_API_URL
+const BASE_URL = (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_API_URL)
   ? `${import.meta.env.VITE_API_URL.replace(/\/$/, '')}/api`
   : 'http://localhost:8000/api';
 
-let authToken = localStorage.getItem('crimenet_token') || null;
+let authToken = (typeof localStorage !== 'undefined' ? localStorage.getItem('crimenet_token') : null) || null;
 
 export const api = {
   setToken: (token) => {
@@ -1119,12 +1119,64 @@ export const api = {
         { data: { id: 'REL-029', source: 'EV-0182', target: 'PHONE-001', relation: 'FREQUENCY_ANALYSIS', relation_type: 'evidence_backed', confidence: 0.98, supporting_evidence_id: 'EV-0182', supporting_evidence_name: 'Call_Record_Microwave_Tap.csv', explainability: 'Microwave tap spectrum analysis confirms 868MHz jammer burst.', case_id: caseId } }
       ];
 
+      // 1. Case-isolated filtering
+      let caseNodes = allFallbackNodes;
+      let caseEdges = allFallbackEdges;
+
+      const normCase = (caseId || '').replace('CASE #', '').trim();
+      if (normCase === 'CR-2026-0089') {
+        const allowedIds = new Set(['PERSON-004', 'PERSON-009', 'PERSON-002', 'PHONE-001', 'VEHICLE-003', 'LOC-003', 'ORG-001', 'EV-0182']);
+        caseNodes = allFallbackNodes.filter(n => allowedIds.has(n.data.id));
+      } else if (normCase === 'CR-2026-0044') {
+        const allowedIds = new Set(['PERSON-008', 'PERSON-002', 'PERSON-005', 'PHONE-003', 'FIN-001', 'FIN-002', 'FIN-003', 'ORG-003', 'EV-0185']);
+        caseNodes = allFallbackNodes.filter(n => allowedIds.has(n.data.id));
+      }
+
+      // 2. Filter by typeFilter (Person, Phone, Vehicle, Financial Account, Location, Organization, Evidence)
+      let filteredNodes = caseNodes;
+      if (filters.typeFilter && filters.typeFilter !== 'ALL') {
+        const tf = filters.typeFilter.toLowerCase();
+        filteredNodes = filteredNodes.filter(n => {
+          const t = (n.data.type || '').toLowerCase();
+          if (tf === 'financial account' || tf === 'financial' || tf === 'bank account') {
+            return t === 'financial account' || t === 'financial' || t === 'bank account';
+          }
+          return t === tf;
+        });
+      }
+
+      // 3. Filter by threatFilter (CRITICAL, HIGH, MEDIUM)
+      if (filters.threatFilter && filters.threatFilter !== 'ALL') {
+        const thf = filters.threatFilter.toUpperCase();
+        filteredNodes = filteredNodes.filter(n => {
+          const th = (n.data.threat || '').toUpperCase();
+          return th === thf;
+        });
+      }
+
+      // 4. Critical: Edge Safety Pruning so Cytoscape NEVER crashes on missing source/target!
+      const validNodeIds = new Set(filteredNodes.map(n => n.data.id));
+      let filteredEdges = caseEdges.filter(e => validNodeIds.has(e.data.source) && validNodeIds.has(e.data.target));
+
+      // 5. Filter by relationFilter (calls, financial, ownership/vehicle, location, evidence_backed)
+      if (filters.relationFilter && filters.relationFilter !== 'ALL') {
+        const rf = filters.relationFilter.toLowerCase();
+        filteredEdges = filteredEdges.filter(e => {
+          const rt = (e.data.relation_type || '').toLowerCase();
+          const r = (e.data.relation || '').toLowerCase();
+          if (rf === 'ownership' || rf === 'vehicle') {
+            return rt === 'ownership' || rt === 'vehicle' || r.includes('vehicle') || r.includes('driver') || r.includes('convoy');
+          }
+          return rt === rf || r.includes(rf);
+        });
+      }
+
       return {
         case_id: caseId,
-        nodes: allFallbackNodes,
-        edges: allFallbackEdges,
-        total_nodes: allFallbackNodes.length,
-        total_edges: allFallbackEdges.length,
+        nodes: filteredNodes,
+        edges: filteredEdges,
+        total_nodes: filteredNodes.length,
+        total_edges: filteredEdges.length,
         neo4j_connected: false,
         storage_engine: 'Client Standalone Cache'
       };
@@ -1186,17 +1238,74 @@ export const api = {
       if (!res.ok) throw new Error('Path finding query failed');
       return await res.json();
     } catch (e) {
-      console.warn('[API] findCasePath fallback', e);
-      return {
-        found: true,
-        case_id: caseId,
-        source_id: sourceId,
-        target_id: targetId,
-        hops: 2,
-        path_node_ids: [sourceId, 'PHONE-001', targetId],
-        path_edge_ids: ['REL-001', 'REL-003'],
-        supporting_evidence: ['EV-0182']
-      };
+      console.warn('[API] findCasePath fallback BFS computation', e);
+      const graph = await api.getCaseGraph(caseId);
+      const edges = graph.edges || [];
+
+      // Build bidirectional adjacency graph
+      const adj = new Map();
+      edges.forEach(e => {
+        const u = e.data.source;
+        const v = e.data.target;
+        if (!adj.has(u)) adj.set(u, []);
+        if (!adj.has(v)) adj.set(v, []);
+        adj.get(u).push({ neighbor: v, edgeId: e.data.id });
+        adj.get(v).push({ neighbor: u, edgeId: e.data.id });
+      });
+
+      // BFS to find shortest path
+      const queue = [[sourceId]];
+      const edgeQueue = [[]];
+      const visited = new Set([sourceId]);
+      let foundPath = null;
+      let foundEdges = null;
+
+      while (queue.length > 0) {
+        const path = queue.shift();
+        const edgePath = edgeQueue.shift();
+        const curr = path[path.length - 1];
+
+        if (curr === targetId) {
+          foundPath = path;
+          foundEdges = edgePath;
+          break;
+        }
+
+        if (path.length <= maxHops) {
+          const neighbors = adj.get(curr) || [];
+          for (const { neighbor, edgeId } of neighbors) {
+            if (!visited.has(neighbor)) {
+              visited.add(neighbor);
+              queue.push([...path, neighbor]);
+              edgeQueue.push([...edgePath, edgeId]);
+            }
+          }
+        }
+      }
+
+      if (foundPath) {
+        return {
+          found: true,
+          case_id: caseId,
+          source_id: sourceId,
+          target_id: targetId,
+          hops: foundPath.length - 1,
+          path_node_ids: foundPath,
+          path_edge_ids: foundEdges,
+          supporting_evidence: ['EV-0182', 'EV-0185']
+        };
+      } else {
+        return {
+          found: false,
+          case_id: caseId,
+          source_id: sourceId,
+          target_id: targetId,
+          hops: 0,
+          path_node_ids: [],
+          path_edge_ids: [],
+          supporting_evidence: []
+        };
+      }
     }
   },
 
@@ -1210,12 +1319,58 @@ export const api = {
       if (!res.ok) throw new Error('Node expansion query failed');
       return await res.json();
     } catch (e) {
-      console.warn('[API] expandCaseNode fallback', e);
+      console.warn('[API] expandCaseNode fallback 1-hop discovery', e);
+      const discoveredCatalog = {
+        'PERSON-001': {
+          new_nodes: [
+            { data: { id: 'PHONE-004', label: 'Burner SIM (+44-7911-002)', type: 'Phone', shape: 'round-rectangle', color: '#38bdf8', threat: 'HIGH', size: 44, details: 'Disposable UK VoIP line active during warehouse staging window.', case_id: caseId } },
+            { data: { id: 'FIN-004', label: 'Zurich Escrow #CH-9921', type: 'Financial Account', shape: 'hexagon', color: '#34d399', threat: 'CRITICAL', size: 46, details: 'Disclosed offshore escrow account receiving fragmented Tether deposits.', case_id: caseId } }
+          ],
+          new_edges: [
+            { data: { id: 'REL-EXP-001', source: 'PERSON-001', target: 'PHONE-004', relation: 'CARRIES_BURNER', relation_type: 'calls', confidence: 0.96, case_id: caseId } },
+            { data: { id: 'REL-EXP-002', source: 'PERSON-001', target: 'FIN-004', relation: 'AUTHORIZED_SIGNER', relation_type: 'financial', confidence: 0.98, case_id: caseId } }
+          ]
+        },
+        'PERSON-002': {
+          new_nodes: [
+            { data: { id: 'FIN-005', label: 'Cayman Shell Account #8812', type: 'Financial Account', shape: 'hexagon', color: '#34d399', threat: 'CRITICAL', size: 46, details: 'Offshore shell entity utilized for port clearance fee wire routing.', case_id: caseId } }
+          ],
+          new_edges: [
+            { data: { id: 'REL-EXP-003', source: 'PERSON-002', target: 'FIN-005', relation: 'BENEFICIAL_OWNER', relation_type: 'financial', confidence: 0.97, case_id: caseId } }
+          ]
+        },
+        'PERSON-003': {
+          new_nodes: [
+            { data: { id: 'VEHICLE-004', label: 'Cargo Van (NJ-441-TRK)', type: 'Vehicle', shape: 'diamond', color: '#fbbf24', threat: 'HIGH', size: 44, details: 'Secondary transport van spotted at Sector 4 loading dock.', case_id: caseId } }
+          ],
+          new_edges: [
+            { data: { id: 'REL-EXP-004', source: 'PERSON-003', target: 'VEHICLE-004', relation: 'REGISTERED_DRIVER', relation_type: 'vehicle', confidence: 0.95, case_id: caseId } }
+          ]
+        },
+        'PERSON-005': {
+          new_nodes: [
+            { data: { id: 'PHONE-005', label: 'Encrypted Matrix Relay (IP 194.26.29.1)', type: 'Phone', shape: 'round-rectangle', color: '#38bdf8', threat: 'CRITICAL', size: 44, details: 'Anonymous command-and-control server beaconing to SCADA exploit nodes.', case_id: caseId } }
+          ],
+          new_edges: [
+            { data: { id: 'REL-EXP-005', source: 'PERSON-005', target: 'PHONE-005', relation: 'BEACONS_TO', relation_type: 'calls', confidence: 0.99, case_id: caseId } }
+          ]
+        }
+      };
+
+      const exp = discoveredCatalog[entityId] || {
+        new_nodes: [
+          { data: { id: 'DISC-' + entityId + '-A', label: 'Discovered Associate (' + entityId + ')', type: 'Phone', shape: 'round-rectangle', color: '#38bdf8', threat: 'HIGH', size: 42, details: 'Discovered 1-hop link connected to ' + entityId + '.', case_id: caseId } }
+        ],
+        new_edges: [
+          { data: { id: 'REL-DISC-' + entityId, source: entityId, target: 'DISC-' + entityId + '-A', relation: 'DIRECT_ASSOCIATE', relation_type: 'association', confidence: 0.93, case_id: caseId } }
+        ]
+      };
+
       return {
         expanded: true,
-        new_nodes: [],
-        new_edges: [],
-        count: 0
+        new_nodes: exp.new_nodes,
+        new_edges: exp.new_edges,
+        count: exp.new_nodes.length
       };
     }
   },

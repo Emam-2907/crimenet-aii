@@ -37,8 +37,10 @@ const RELATION_CONFIG = {
   calls: { style: 'dashed', color: '#38BDF8', label: 'Communication / Calls' },
   financial: { style: 'solid', color: '#10B981', label: 'Financial / Escrow', width: 2.5 },
   ownership: { style: 'solid', color: '#FBBF24', label: 'Ownership / Vehicle' },
+  vehicle: { style: 'solid', color: '#FBBF24', label: 'Ownership / Vehicle' },
   location: { style: 'dashed', color: '#A855F7', label: 'Geographic / Location' },
   evidence_backed: { style: 'solid', color: '#60A5FA', label: 'Evidence-Backed' },
+  organization: { style: 'solid', color: '#F472B6', label: 'Syndicate / Org' },
   association: { style: 'solid', color: '#94A3B8', label: 'Association / Other' }
 };
 
@@ -177,9 +179,18 @@ export default function CytoscapeGraph() {
       });
       setGraphData(data);
       if (data.nodes && data.nodes.length > 0) {
-        setSelectedNode(data.nodes[0].data);
-        if (!pathSource) setPathSource(data.nodes[0].data.id);
-        if (!pathTarget && data.nodes.length > 1) setPathTarget(data.nodes[1].data.id);
+        setSelectedNode(prev => {
+          if (prev && data.nodes.some(n => n.data.id === prev.id)) return prev;
+          return data.nodes[0].data;
+        });
+        setPathSource(prev => {
+          if (prev && data.nodes.some(n => n.data.id === prev)) return prev;
+          return data.nodes[0].data.id;
+        });
+        setPathTarget(prev => {
+          if (prev && data.nodes.some(n => n.data.id === prev)) return prev;
+          return data.nodes.length > 1 ? data.nodes[1].data.id : data.nodes[0].data.id;
+        });
       } else {
         setSelectedNode(null);
       }
@@ -226,11 +237,17 @@ export default function CytoscapeGraph() {
         cyRef.current.destroy();
       }
 
+      // Safe elements: ensure every edge has valid source and target to prevent Cytoscape errors
+      const nodeIds = new Set(graphData.nodes.map(n => n.data.id));
+      const safeEdges = (graphData.edges || []).filter(
+        e => nodeIds.has(e.data.source) && nodeIds.has(e.data.target)
+      );
+
       const cy = cytoscape({
         container: containerRef.current,
         elements: {
           nodes: graphData.nodes,
-          edges: graphData.edges
+          edges: safeEdges
         },
         style: [
           // Base Node Style - Refined Intelligence Card
@@ -269,12 +286,12 @@ export default function CytoscapeGraph() {
               'border-width': 2,
               'border-color': (ele) => {
                 const t = ele.data('type') || '';
-                return ENTITY_CONFIG[t]?.color || ele.data('color') || '#38BDF8';
+                return ele.data('color') || ENTITY_CONFIG[t]?.color || '#38BDF8';
               },
               'border-opacity': 1.0,
               'shape': (ele) => {
                 const t = ele.data('type') || '';
-                return ENTITY_CONFIG[t]?.shape || 'ellipse';
+                return ele.data('shape') || ENTITY_CONFIG[t]?.shape || 'ellipse';
               },
               'shadow-blur': 10,
               'shadow-color': 'rgba(0, 0, 0, 0.65)',
@@ -722,6 +739,15 @@ export default function CytoscapeGraph() {
               Inspector
             </button>
             <button
+              onClick={() => setActiveSideDrawer('ENTITIES')}
+              style={{
+                padding: '4px 8px', background: activeSideDrawer === 'ENTITIES' ? 'rgba(255,255,255,0.1)' : 'transparent',
+                border: 'none', borderRadius: '4px', color: '#fff', fontSize: '0.68rem', cursor: 'pointer'
+              }}
+            >
+              Entities ({graphData.nodes?.length || 0})
+            </button>
+            <button
               onClick={() => setActiveSideDrawer('PATHFINDER')}
               style={{
                 padding: '4px 8px', background: activeSideDrawer === 'PATHFINDER' ? 'rgba(255,255,255,0.1)' : 'transparent',
@@ -869,6 +895,26 @@ export default function CytoscapeGraph() {
               </button>
             ))}
           </div>
+
+          {/* Reset Filters when any filter is active */}
+          {(typeFilter !== 'ALL' || relationFilter !== 'ALL' || threatFilter !== 'ALL') && (
+            <button
+              onClick={() => {
+                setTypeFilter('ALL');
+                setRelationFilter('ALL');
+                setThreatFilter('ALL');
+              }}
+              style={{
+                padding: '3px 8px', borderRadius: '4px', fontSize: '0.64rem',
+                fontFamily: 'var(--f-mono)', background: 'rgba(255, 42, 95, 0.15)',
+                border: '1px solid rgba(255, 42, 95, 0.3)', color: 'var(--red-light)',
+                cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px'
+              }}
+            >
+              <X size={12} />
+              <span>Reset Filters</span>
+            </button>
+          )}
         </div>
       </div>
 
@@ -1146,11 +1192,145 @@ export default function CytoscapeGraph() {
                   </div>
                 </div>
               ) : (
-                <div style={{ textAlign: 'center', padding: '40px 10px', color: 'var(--t-dim)' }}>
-                  <Eye size={32} style={{ opacity: 0.4, marginBottom: '10px' }} />
-                  <div style={{ fontSize: '0.80rem' }}>Click any entity node or relationship edge to inspect its forensic properties.</div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                  <div style={{ textAlign: 'center', padding: '24px 10px 14px', color: 'var(--t-dim)' }}>
+                    <Eye size={28} style={{ opacity: 0.4, marginBottom: '8px' }} />
+                    <div style={{ fontSize: '0.78rem', color: '#fff', fontWeight: 600 }}>Forensic Node Inspector</div>
+                    <div style={{ fontSize: '0.72rem', color: 'var(--t-muted)', marginTop: '4px' }}>
+                      Click any entity on the canvas or select from the docket below:
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    <div style={{ fontSize: '0.66rem', color: 'var(--t-dim)', fontFamily: 'var(--f-mono)', textTransform: 'uppercase' }}>
+                      Docket Entities ({graphData.nodes?.length || 0})
+                    </div>
+                    {(graphData.nodes || []).slice(0, 8).map(n => (
+                      <div
+                        key={n.data.id}
+                        onClick={() => {
+                          const cy = cyRef.current;
+                          if (cy) {
+                            const ele = cy.getElementById(n.data.id);
+                            if (ele.length > 0) {
+                              cy.animate({ center: { eles: ele }, zoom: 1.6, duration: 400 });
+                            }
+                          }
+                          setSelectedNode(n.data);
+                          setSelectedEdge(null);
+                          soundFx.click();
+                        }}
+                        style={{
+                          padding: '8px 10px', background: 'var(--ink-2)', borderRadius: '6px',
+                          border: '1px solid var(--b-faint)', cursor: 'pointer',
+                          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                          transition: 'all 0.15s ease'
+                        }}
+                      >
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <span style={{
+                            width: '10px', height: '10px', borderRadius: n.data.shape === 'ellipse' ? '50%' : '2px',
+                            background: n.data.color || '#38bdf8'
+                          }} />
+                          <span style={{ fontSize: '0.74rem', color: '#fff', fontWeight: 600 }}>
+                            {n.data.label || n.data.id}
+                          </span>
+                        </div>
+                        <span style={{
+                          fontSize: '0.62rem', fontFamily: 'var(--f-mono)', padding: '2px 6px',
+                          borderRadius: '3px', background: 'rgba(255,255,255,0.06)',
+                          color: n.data.threat === 'CRITICAL' ? 'var(--red-light)' : 'var(--amber-light)'
+                        }}>
+                          {n.data.type}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
+            </div>
+          )}
+
+          {/* PANEL: DOCKET ENTITY ROSTER */}
+          {activeSideDrawer === 'ENTITIES' && (
+            <div style={{ padding: '18px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div style={{ fontSize: '0.68rem', color: 'var(--t-dim)', fontFamily: 'var(--f-mono)' }}>
+                  CASE ENTITY ROSTER ({graphData.nodes?.length || 0})
+                </div>
+                <span style={{ fontSize: '0.66rem', color: 'var(--green-light)', fontFamily: 'var(--f-mono)' }}>
+                  {currentCaseId}
+                </span>
+              </div>
+
+              <p style={{ fontSize: '0.74rem', color: 'var(--t-muted)', lineHeight: 1.4 }}>
+                All mapped forensic nodes currently active under selected filters. Click any entity to center and inspect.
+              </p>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', maxHeight: 'calc(100vh - 280px)', overflowY: 'auto' }}>
+                {(graphData.nodes || []).map((n) => {
+                  const d = n.data;
+                  const isSelected = selectedNode?.id === d.id;
+                  return (
+                    <div
+                      key={d.id}
+                      onClick={() => {
+                        const cy = cyRef.current;
+                        if (cy) {
+                          const ele = cy.getElementById(d.id);
+                          if (ele.length > 0) {
+                            cy.animate({ center: { eles: ele }, zoom: 1.6, duration: 400 });
+                          }
+                        }
+                        setSelectedNode(d);
+                        setSelectedEdge(null);
+                        setActiveSideDrawer('INSPECTOR');
+                        soundFx.click();
+                      }}
+                      style={{
+                        padding: '10px 12px',
+                        background: isSelected ? 'rgba(56, 189, 248, 0.12)' : 'var(--ink-2)',
+                        border: isSelected ? '1px solid var(--blue)' : '1px solid var(--b-faint)',
+                        borderRadius: '6px', cursor: 'pointer',
+                        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                        transition: 'background 0.15s ease'
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <span style={{
+                          width: '12px', height: '12px',
+                          borderRadius: d.shape === 'ellipse' ? '50%' : '3px',
+                          background: d.color || '#38bdf8',
+                          boxShadow: `0 0 6px ${d.color || '#38bdf8'}`
+                        }} />
+                        <div>
+                          <div style={{ fontSize: '0.76rem', color: '#fff', fontWeight: 600 }}>
+                            {d.label || d.id}
+                          </div>
+                          <div style={{ fontSize: '0.64rem', color: 'var(--t-dim)', fontFamily: 'var(--f-mono)' }}>
+                            {d.id}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '3px' }}>
+                        <span style={{
+                          fontSize: '0.62rem', fontFamily: 'var(--f-mono)', padding: '2px 6px',
+                          borderRadius: '3px', background: 'rgba(255,255,255,0.06)', color: 'var(--blue-light)'
+                        }}>
+                          {d.type}
+                        </span>
+                        <span style={{
+                          fontSize: '0.58rem', fontFamily: 'var(--f-mono)', fontWeight: 700,
+                          color: d.threat === 'CRITICAL' ? 'var(--red-light)' : d.threat === 'HIGH' ? 'var(--amber-light)' : 'var(--green-light)'
+                        }}>
+                          {d.threat || 'MEDIUM'}
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           )}
 
