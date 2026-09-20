@@ -39,7 +39,7 @@ export default function CrimeAIChat() {
     updateSubject
   } = useCIRA();
 
-  const currentCaseId = activeCase?.id || 'CASE #CR-2026-0142';
+  const currentCaseId = activeCase?.id || 'CR-204';
 
   // ── Component State ─────────────────────────────────────────────────────────
   const [conversations, setConversations] = useState([]);

@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { useInvestigation } from '../context/InvestigationContext.jsx';
+import { useCIRA } from '../context/CIRAContext.jsx';
 import {
   Camera, MapPin, Clock, AlertTriangle, Shield, Check, X,
   ExternalLink, User, Truck, FileText, CheckCircle, HelpCircle,
-  Eye, Info
+  Eye, Info, GitFork, MessageSquare
 } from 'lucide-react';
 
 export default function CameraDetailsPanel() {
@@ -13,6 +14,14 @@ export default function CameraDetailsPanel() {
     selectEntity,
     activeTimestamp
   } = useInvestigation();
+
+  let navigate = null;
+  try {
+    const ciraCtx = useCIRA();
+    navigate = ciraCtx?.navigate;
+  } catch (e) {
+    // optional fallback if rendered standalone
+  }
 
   const [verificationStatus, setVerificationStatus] = useState(
     selectedFaceMatch?.human_review_status || 'PENDING_VERIFICATION'
@@ -145,6 +154,61 @@ export default function CameraDetailsPanel() {
             >
               🎯 Track {selectedCamera.events[0].entityId}
             </button>
+          )}
+          {navigate && (
+            <>
+              <button
+                type="button"
+                onClick={() => navigate('graph')}
+                style={{
+                  padding: '3px 8px',
+                  backgroundColor: 'rgba(96, 165, 250, 0.15)',
+                  border: '1px solid rgba(96, 165, 250, 0.3)',
+                  borderRadius: '4px',
+                  color: '#60a5fa',
+                  fontSize: '0.66rem',
+                  fontWeight: 600,
+                  cursor: 'pointer'
+                }}
+                title="Inspect this camera and connected suspects in Graph Analysis"
+              >
+                📊 Graph Analysis
+              </button>
+              <button
+                type="button"
+                onClick={() => navigate('evidence')}
+                style={{
+                  padding: '3px 8px',
+                  backgroundColor: 'rgba(52, 211, 153, 0.15)',
+                  border: '1px solid rgba(52, 211, 153, 0.3)',
+                  borderRadius: '4px',
+                  color: '#34d399',
+                  fontSize: '0.66rem',
+                  fontWeight: 600,
+                  cursor: 'pointer'
+                }}
+                title="View verified evidence artifacts attached to this case"
+              >
+                📋 Case Evidence
+              </button>
+              <button
+                type="button"
+                onClick={() => navigate('chat')}
+                style={{
+                  padding: '3px 8px',
+                  backgroundColor: 'rgba(244, 114, 182, 0.15)',
+                  border: '1px solid rgba(244, 114, 182, 0.3)',
+                  borderRadius: '4px',
+                  color: '#f472b6',
+                  fontSize: '0.66rem',
+                  fontWeight: 600,
+                  cursor: 'pointer'
+                }}
+                title="Query CIRA AI assistant about this camera's sightings"
+              >
+                🤖 Query CIRA
+              </button>
+            </>
           )}
         </div>
       </div>

@@ -29,7 +29,12 @@ const ENTITY_CONFIG = {
   financial: { shape: 'round-rectangle', color: '#10B981', label: 'Financial / Escrow', icon: CreditCard, code: 'ESC' },
   Location: { shape: 'ellipse', color: '#A855F7', label: 'Location', icon: MapPin, code: 'LOC' },
   Organization: { shape: 'round-rectangle', color: '#F472B6', label: 'Organization', icon: Building, code: 'ORG' },
-  Evidence: { shape: 'round-rectangle', color: '#60A5FA', label: 'Evidence Asset', icon: FileText, code: 'EV' }
+  Evidence: { shape: 'round-rectangle', color: '#60A5FA', label: 'Evidence Asset', icon: FileText, code: 'EV' },
+  Camera: { shape: 'round-rectangle', color: '#34D399', label: 'CCTV Camera', icon: Eye, code: 'CAM' },
+  'Face Match': { shape: 'diamond', color: '#F472B6', label: 'Biometric Candidate (87%)', icon: UserCheck, code: 'FM' },
+  Biometric: { shape: 'diamond', color: '#F472B6', label: 'Biometric Candidate (87%)', icon: UserCheck, code: 'FM' },
+  Incident: { shape: 'octagon', color: '#EF4444', label: 'Incident Breach', icon: AlertTriangle, code: 'INC' },
+  Case: { shape: 'diamond', color: '#38BDF8', label: 'Case Docket', icon: Shield, code: 'CASE' }
 };
 
 // Distinguishable Relationship Styles (Clean Link Analysis)
@@ -129,7 +134,7 @@ export default function CytoscapeGraph() {
   const cyRef = useRef(null);
 
   // Active Case Context
-  const currentCaseId = activeCase?.id || 'CASE #CR-2026-0142';
+  const currentCaseId = activeCase?.id || 'CR-204';
 
   // State Management
   const [graphData, setGraphData] = useState({ nodes: [], edges: [] });

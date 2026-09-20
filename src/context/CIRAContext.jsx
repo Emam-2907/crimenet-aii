@@ -16,7 +16,7 @@ export function CIRAProvider({ children }) {
   const [selectedEvidence, setSelectedEvidence] = useState(null);
   const [isSearchOpen, setIsSearchOpen]       = useState(false);
   const [isCreateCaseOpen, setIsCreateCaseOpen] = useState(false);
-  const [activeCaseTab, setActiveCaseTab]     = useState('OVERVIEW');
+  const [activeCaseTab, setActiveCaseTab]     = useState('CCTV_MAP');
 
   // Load cases on mount
   const refreshCases = useCallback(async () => {
@@ -57,8 +57,8 @@ export function CIRAProvider({ children }) {
     }
   }, []);
 
-  // Open dedicated Case Workspace
-  const openCaseWorkspace = useCallback(async (caseIdOrObj, defaultTab = 'OVERVIEW') => {
+  // Open dedicated Case Workspace (default to CCTV_MAP for CR-204)
+  const openCaseWorkspace = useCallback(async (caseIdOrObj, defaultTab = null) => {
     let target = caseIdOrObj;
     if (typeof caseIdOrObj === 'string') {
       try {
@@ -68,7 +68,8 @@ export function CIRAProvider({ children }) {
       }
     }
     setActiveCase(target);
-    setActiveCaseTab(defaultTab);
+    const tabToSet = defaultTab || (target?.id === 'CR-204' ? 'CCTV_MAP' : 'OVERVIEW');
+    setActiveCaseTab(tabToSet);
     navigate('workspace');
   }, [cases, navigate]);
 

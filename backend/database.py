@@ -1202,6 +1202,126 @@ CASES_STORE = [
 # Evidence Intelligence Store (Phase 2)
 EVIDENCE_STORE = [
     {
+        "id": "EVID-CCTV-04",
+        "name": "Gate_4_South_HighRes_CCTV_Frame_1409.jpg",
+        "type": "Images",
+        "category": "Images",
+        "case_id": "CR-204",
+        "case_name": "CR-204: South Pier High-Value Cargo Theft & Syndicate Infiltration",
+        "upload_date": "2026-09-18 14:12 UTC",
+        "file_size": "3.4 MB",
+        "mime_type": "image/jpeg",
+        "source": "Port Authority CCTV Server (Sector 4 Gate 4)",
+        "status": "Under Review",
+        "processing_state": "ANALYZED",
+        "checksum": "sha256:4a8c9e120f34b8d712e5c6a1",
+        "preview_url": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=500&q=80",
+        "extracted_entities_count": 4,
+        "detected_relationships_count": 6,
+        "entities": [
+            {"id": "FM-042", "name": "Biometric Candidate FM-042", "type": "Face Match", "confidence": 0.87, "threat": "HIGH"},
+            {"id": "P-017", "name": "Elena Rostov (P-017)", "type": "Person", "confidence": 0.87, "threat": "HIGH"},
+            {"id": "CCTV-04", "name": "CCTV-04: Port Gate 4 South Relay", "type": "Camera", "confidence": 0.99, "threat": "INFO"},
+            {"id": "L-08", "name": "Location L-08: South Pier Depot", "type": "Location", "confidence": 0.99, "threat": "INFO"}
+        ],
+        "relationships": [
+            {"source": "P-017", "relation": "BIOMETRIC_CANDIDATE", "target": "FM-042", "confidence": 0.87},
+            {"source": "FM-042", "relation": "CAPTURED_BY", "target": "CCTV-04", "confidence": 0.99},
+            {"source": "CCTV-04", "relation": "COVERS_ZONE", "target": "L-08", "confidence": 0.99}
+        ],
+        "used_by_graph": True,
+        "notes": "Clear optical IR frame of subject entering turnstile with partial facial view. 87% model similarity. Human verification required.",
+        "is_synthetic": True
+    },
+    {
+        "id": "EVID-ALPR-1402",
+        "name": "Gate_4_Checkpoint_ALPR_Entry_Log.csv",
+        "type": "Documents",
+        "category": "Documents",
+        "case_id": "CR-204",
+        "case_name": "CR-204: South Pier High-Value Cargo Theft & Syndicate Infiltration",
+        "upload_date": "2026-09-18 14:03 UTC",
+        "file_size": "42 KB",
+        "mime_type": "text/csv",
+        "source": "Terminal Access Control System (Gate 4)",
+        "status": "Verified",
+        "processing_state": "ANALYZED",
+        "checksum": "sha256:88bc23190e4f5a6b7c8d9e0f",
+        "extracted_entities_count": 2,
+        "detected_relationships_count": 4,
+        "entities": [
+            {"id": "V-102", "name": "Vehicle V-102: Black Full-Size SUV", "type": "Vehicle", "confidence": 0.98, "threat": "HIGH"},
+            {"id": "L-08", "name": "Location L-08: South Pier Depot - Gate 4", "type": "Location", "confidence": 0.99, "threat": "INFO"},
+            {"id": "CCTV-04", "name": "CCTV-04: Port Gate 4 South Relay", "type": "Camera", "confidence": 0.99, "threat": "INFO"}
+        ],
+        "relationships": [
+            {"source": "V-102", "relation": "DETECTED_AT", "target": "CCTV-04", "confidence": 0.98},
+            {"source": "L-08", "relation": "VEHICLE_DETECTION", "target": "V-102", "confidence": 0.98}
+        ],
+        "used_by_graph": True,
+        "notes": "Direct ALPR entry detection of plate NY-889XQ at Gate 4 checkpoint at 14:02 UTC.",
+        "is_synthetic": True
+    },
+    {
+        "id": "EVID-CCTV-07-1415",
+        "name": "Corridor_East_Fixed_Camera_Frame_1415.jpg",
+        "type": "Images",
+        "category": "Images",
+        "case_id": "CR-204",
+        "case_name": "CR-204: South Pier High-Value Cargo Theft & Syndicate Infiltration",
+        "upload_date": "2026-09-18 14:16 UTC",
+        "file_size": "4.1 MB",
+        "mime_type": "image/jpeg",
+        "source": "East Corridor Traffic Relay (CCTV-07)",
+        "status": "Verified",
+        "processing_state": "ANALYZED",
+        "checksum": "sha256:33fe44129a0b1c2d3e4f5a6b",
+        "preview_url": "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&w=500&q=80",
+        "extracted_entities_count": 2,
+        "detected_relationships_count": 3,
+        "entities": [
+            {"id": "V-102", "name": "Vehicle V-102: Black Full-Size SUV", "type": "Vehicle", "confidence": 0.97, "threat": "HIGH"},
+            {"id": "CCTV-07", "name": "CCTV-07: Pier Corridor East Fixed Relay", "type": "Camera", "confidence": 0.99, "threat": "INFO"},
+            {"id": "L-10", "name": "Location L-10: Pier Corridor East Junction", "type": "Location", "confidence": 0.99, "threat": "INFO"}
+        ],
+        "relationships": [
+            {"source": "V-102", "relation": "DETECTED_AT", "target": "CCTV-07", "confidence": 0.97},
+            {"source": "CCTV-07", "relation": "COVERS_ZONE", "target": "L-10", "confidence": 0.99}
+        ],
+        "used_by_graph": True,
+        "notes": "Direct detection of vehicle V-102 at Corridor East fixed camera at 14:15 UTC. Continuous transit between CCTV-04 and CCTV-07 was inferred.",
+        "is_synthetic": True
+    },
+    {
+        "id": "EVID-INC-204-ALARM",
+        "name": "Warehouse_14B_SCADA_Intrusion_Alarm.json",
+        "type": "Documents",
+        "category": "Documents",
+        "case_id": "CR-204",
+        "case_name": "CR-204: South Pier High-Value Cargo Theft & Syndicate Infiltration",
+        "upload_date": "2026-09-18 14:19 UTC",
+        "file_size": "18 KB",
+        "mime_type": "application/json",
+        "source": "Sector 4 Security Operations Center (SCADA Hub)",
+        "status": "Verified",
+        "processing_state": "ANALYZED",
+        "checksum": "sha256:77aa88bb99cc00dd11ee22ff",
+        "extracted_entities_count": 3,
+        "detected_relationships_count": 4,
+        "entities": [
+            {"id": "INC-204", "name": "Incident INC-204: Warehouse 14B Breach", "type": "Incident", "confidence": 0.99, "threat": "CRITICAL"},
+            {"id": "L-12", "name": "Location L-12: Warehouse 14B North Cargo Bay", "type": "Location", "confidence": 0.99, "threat": "INFO"},
+            {"id": "CCTV-11", "name": "CCTV-11: Industrial Access Spur North Relay", "type": "Camera", "confidence": 0.99, "threat": "INFO"}
+        ],
+        "relationships": [
+            {"source": "INC-204", "relation": "OCCURRED_AT", "target": "L-12", "confidence": 0.99},
+            {"source": "CCTV-11", "relation": "VICINITY_MONITORING", "target": "INC-204", "confidence": 0.95}
+        ],
+        "used_by_graph": True,
+        "notes": "Physical alarm sensor trip on Door 3 at Warehouse 14B at 14:18 UTC.",
+        "is_synthetic": True
+    },
+    {
         "id": "EV-0182",
         "name": "Call_Record_Microwave_Tap.csv",
         "type": "Call Records",
@@ -1611,10 +1731,10 @@ class IntelligenceDB:
         for ev in case_evidence:
             ev_node_id = f"ent-evid-{ev['id'].lower()}"
             for rel in ev.get("relationships", []):
-                src_name = rel.get("source", "").lower()
-                tgt_name = rel.get("target", "").lower()
-                src_id = node_label_map.get(src_name)
-                tgt_id = node_label_map.get(tgt_name)
+                src_name = rel.get("source", "")
+                tgt_name = rel.get("target", "")
+                src_id = node_label_map.get(src_name.lower()) or (src_name if src_name in node_id_set else None) or (src_name.upper() if src_name.upper() in node_id_set else None)
+                tgt_id = node_label_map.get(tgt_name.lower()) or (tgt_name if tgt_name in node_id_set else None) or (tgt_name.upper() if tgt_name.upper() in node_id_set else None)
 
                 if src_id and tgt_id:
                     dynamic_edge_id = f"dyn-edge-{src_id}-{tgt_id}"

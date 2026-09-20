@@ -1165,12 +1165,15 @@ export const api = {
         results = results.filter(e => (e.case_id || '').toLowerCase().includes(normCase));
       }
 
-      if (params.category && params.category !== 'ALL') {
-        results = results.filter(e => e.category === params.category || e.type === params.category);
+      const category = (typeof params === 'object' && params !== null) ? (params.category || 'ALL') : 'ALL';
+      const searchStr = (typeof params === 'object' && params !== null && typeof params.search === 'string') ? params.search.trim() : '';
+
+      if (category && category !== 'ALL') {
+        results = results.filter(e => e.category === category || e.type === category);
       }
 
-      if (params.search) {
-        const q = params.search.toLowerCase();
+      if (searchStr) {
+        const q = searchStr.toLowerCase();
         results = results.filter(e =>
           (e.name || '').toLowerCase().includes(q) ||
           (e.id || '').toLowerCase().includes(q) ||
@@ -1320,7 +1323,7 @@ export const api = {
     }
   },
 
-  getCaseGraph: async (caseId = 'CASE #CR-2026-0142', filters = {}) => {
+  getCaseGraph: async (caseId = 'CR-204', filters = {}) => {
     try {
       const params = new URLSearchParams();
       if (filters.threatFilter && filters.threatFilter !== 'ALL') params.append('threat_filter', filters.threatFilter);

@@ -23,10 +23,10 @@ const TYPE_COLORS = {
 };
 
 export default function EvidenceLibrary() {
-  const { cases, openCaseWorkspace, selectedEvidence, setSelectedEvidence } = useCIRA();
+  const { cases, activeCase, openCaseWorkspace, selectedEvidence, setSelectedEvidence } = useCIRA();
 
   const [evidenceList, setEvidenceList] = useState([]);
-  const [selectedCaseId, setSelectedCaseId] = useState('ALL');
+  const [selectedCaseId, setSelectedCaseId] = useState(activeCase?.id || 'CR-204');
   const [selectedCategory, setSelectedCategory] = useState('ALL');
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(false);
@@ -51,7 +51,9 @@ export default function EvidenceLibrary() {
   // Filtered evidence items
   const filteredEvidence = useMemo(() => {
     return evidenceList.filter(item => {
-      const matchesCase = selectedCaseId === 'ALL' || item.case_id === selectedCaseId;
+      const normSelected = selectedCaseId.toLowerCase().replace('case #', '').trim();
+      const normItem = (item.case_id || '').toLowerCase().replace('case #', '').trim();
+      const matchesCase = selectedCaseId === 'ALL' || normSelected === normItem || normItem.includes(normSelected);
       const matchesCategory = selectedCategory === 'ALL' || item.category === selectedCategory || item.type === selectedCategory;
       const matchesSearch = !search.trim() || (
         item.name.toLowerCase().includes(search.toLowerCase()) ||
