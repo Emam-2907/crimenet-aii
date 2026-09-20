@@ -109,10 +109,10 @@ Ask a question or select a prompt below to investigate.`,
   ];
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', padding: '16px 20px', backgroundColor: 'var(--bg-main)', color: 'var(--text-primary)' }}>
+    <main className="cr204-investigation-view min-h-screen" role="main" aria-label="CR-204 Investigation Matrix" style={{ display: 'flex', flexDirection: 'column', gap: '16px', padding: '16px 20px', backgroundColor: 'var(--bg-main)', color: 'var(--text-primary)' }}>
 
       {/* Top Investigation Banner with Case Context & Synchronization Indicator */}
-      <div style={{
+      <header role="banner" style={{
         backgroundColor: 'var(--bg-surface)',
         border: '1px solid var(--border-default)',
         borderRadius: '8px',
@@ -158,7 +158,7 @@ Ask a question or select a prompt below to investigate.`,
         </div>
 
         {/* Global Synchronization Context Pill */}
-        <div style={{
+        <nav aria-label="Investigation Synchronization Status" style={{
           display: 'flex',
           alignItems: 'center',
           gap: '14px',
@@ -183,14 +183,14 @@ Ask a question or select a prompt below to investigate.`,
             <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: 'var(--success)' }} />
             <span>MODULES SYNCED</span>
           </div>
-        </div>
-      </div>
+        </nav>
+      </header>
 
-      {/* Main Multi-Pane Layout: 2 Columns */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.2fr) minmax(0, 1fr)', gap: '16px' }}>
+      {/* Main Multi-Pane Layout: Responsive 2 Columns -> 1 Column */}
+      <div className="cr204-grid-layout">
 
         {/* LEFT COLUMN: Graph, Map & CCTV, Timeline */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <section aria-label="Investigation Media and Relational Graphs" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
 
           {/* Pane 1: Synchronized Knowledge Graph */}
           <div style={{
@@ -610,10 +610,10 @@ Ask a question or select a prompt below to investigate.`,
             </div>
           </div>
 
-        </div>
+        </section>
 
         {/* RIGHT COLUMN: Truthfulness Biometric Card & CIRA Dynamic Chat */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <aside aria-label="Biometric Intelligence and CIRA Copilot" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
 
           {/* Pane 4: Truthfulness Biometric Card (FM-042) */}
           <div style={{
@@ -802,7 +802,7 @@ Ask a question or select a prompt below to investigate.`,
             </div>
 
             {/* Chat Messages Container */}
-            <div style={{
+            <div aria-live="polite" aria-atomic="false" style={{
               flex: 1,
               maxHeight: '340px',
               overflowY: 'auto',
@@ -866,6 +866,7 @@ Ask a question or select a prompt below to investigate.`,
               />
               <button
                 type="submit"
+                className="min-h-[44px]"
                 style={{
                   padding: '9px 16px',
                   backgroundColor: 'var(--accent)',
@@ -886,10 +887,10 @@ Ask a question or select a prompt below to investigate.`,
             </form>
           </div>
 
-        </div>
+        </aside>
 
       </div>
 
-    </div>
+    </main>
   );
 }
