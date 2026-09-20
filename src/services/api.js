@@ -2,6 +2,8 @@
  * CRIMENET AI - Central API Client Service
  * Connects to the FastAPI backend at http://localhost:8000 with seamless offline/standalone fallback.
  */
+import { cr204InvestigationData } from '../data/cr204_investigation.js';
+import { ciraService } from './ciraService.js';
 
 const getBaseUrl = () => {
   if (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_API_URL) {
@@ -288,18 +290,6 @@ export const api = {
     }
   },
 
-  getEvidence: async (caseId = null) => {
-    try {
-      const url = caseId ? `${BASE_URL}/cases/${encodeURIComponent(caseId)}/evidence` : `${BASE_URL}/evidence`;
-      const res = await fetch(url, { headers: api.getHeaders() });
-      if (!res.ok) throw new Error('Failed to fetch evidence');
-      return await res.json();
-    } catch (e) {
-      console.warn('[API] getEvidence error:', e);
-      return null;
-    }
-  },
-
   // Face Intelligence & Identity Resolution endpoints
   analyzeFace: async (caseId, payload) => {
     try {
@@ -498,6 +488,25 @@ export const api = {
       console.warn('[API] getCases fallback to cached or default store', e);
       return [
         {
+          id: 'CR-204',
+          title: 'CR-204: South Pier High-Value Cargo Theft & Syndicate Infiltration',
+          primary_suspect: 'Elena Rostov (Valkyrie) & Person P-017',
+          suspects: ['Elena Rostov (Valkyrie / P-017)', 'Driver of V-102 (Unidentified)'],
+          case_type: 'Organized Syndicate Cargo Theft',
+          status: 'Active',
+          priority: 'High',
+          created_date: '2026-09-18 13:45 UTC',
+          last_updated: '2026-09-18 14:20 UTC',
+          investigator: 'Special Agent Marcus Vance',
+          reference_no: 'DOJ-FED-CR204-X',
+          tags: ['CCTV Network', 'Biometric Match', 'Vehicle Tracking', 'Port Security'],
+          description: 'Investigation into unauthorized container breach and hardware extraction at South Pier Logistics Depot Gate 4. Involves vehicle V-102 and person of interest P-017.',
+          evidence_count: 4,
+          entity_count: 17,
+          investigation_status: 'Geographic CCTV Surveillance Active',
+          is_synthetic: true
+        },
+        {
           id: 'CASE #CR-2026-0142',
           title: 'Organized Network Infiltration (Port Sovereign)',
           primary_suspect: 'Viktor Voronin (The Architect / Cypher-9)',
@@ -570,6 +579,138 @@ export const api = {
       return await res.json();
     } catch (e) {
       console.warn('[API] getCase fallback', e);
+      const normCase = (caseId || '').replace('CASE #', '').trim();
+      if (normCase === 'CR-204' || normCase.includes('204')) {
+        const cr204Evidence = [
+          {
+            id: 'EVID-CCTV-04',
+            name: 'Gate_4_South_HighRes_CCTV_Frame_1409.jpg',
+            type: 'Images',
+            category: 'Images',
+            case_id: 'CR-204',
+            upload_date: '2026-09-18 14:12 UTC',
+            file_size: '3.4 MB',
+            source: 'Port Authority CCTV Server (Sector 4)',
+            status: 'Under Review',
+            processing_state: 'ANALYZED',
+            preview_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=500&q=80',
+            extracted_entities_count: 4,
+            detected_relationships_count: 6,
+            entities: [
+              { id: 'FM-042', name: 'Biometric Candidate FM-042', type: 'Face Match', confidence: 0.87, threat: 'HIGH' },
+              { id: 'P-017', name: 'Elena Rostov', type: 'Person', confidence: 0.87, threat: 'HIGH' },
+              { id: 'CCTV-04', name: 'CCTV-04: Port Gate 4 South Relay', type: 'Camera', confidence: 0.99, threat: 'INFO' },
+              { id: 'L-08', name: 'Location L-08: South Pier Depot', type: 'Location', confidence: 0.99, threat: 'INFO' }
+            ],
+            relationships: [
+              { source: 'P-017', relation: 'BIOMETRIC_CANDIDATE', target: 'FM-042', confidence: 0.87 },
+              { source: 'FM-042', relation: 'CAPTURED_BY', target: 'CCTV-04', confidence: 0.99 }
+            ],
+            used_by_graph: true,
+            notes: 'Clear optical IR frame of subject entering turnstile with partial facial view. 87% model similarity. Human verification required.',
+            is_synthetic: true
+          },
+          {
+            id: 'EVID-ALPR-1402',
+            name: 'Gate_4_Checkpoint_ALPR_Entry_Log.csv',
+            type: 'Documents',
+            category: 'Documents',
+            case_id: 'CR-204',
+            upload_date: '2026-09-18 14:03 UTC',
+            file_size: '42 KB',
+            source: 'Terminal Access Control System',
+            status: 'Verified',
+            processing_state: 'ANALYZED',
+            extracted_entities_count: 2,
+            detected_relationships_count: 4,
+            entities: [
+              { id: 'V-102', name: 'Vehicle V-102: Black Full-Size SUV', type: 'Vehicle', confidence: 0.98, threat: 'HIGH' },
+              { id: 'L-08', name: 'Location L-08: South Pier Depot - Gate 4', type: 'Location', confidence: 0.99, threat: 'INFO' }
+            ],
+            relationships: [
+              { source: 'L-08', relation: 'VEHICLE_DETECTION', target: 'V-102', confidence: 0.98 }
+            ],
+            used_by_graph: true,
+            notes: 'Direct ALPR entry detection of plate NY-889XQ at Gate 4 checkpoint.',
+            is_synthetic: true
+          },
+          {
+            id: 'EVID-CCTV-07-1415',
+            name: 'Corridor_East_Fixed_Camera_Frame_1415.jpg',
+            type: 'Images',
+            category: 'Images',
+            case_id: 'CR-204',
+            upload_date: '2026-09-18 14:16 UTC',
+            file_size: '4.1 MB',
+            source: 'East Corridor Traffic Relay',
+            status: 'Verified',
+            processing_state: 'ANALYZED',
+            preview_url: 'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&w=500&q=80',
+            extracted_entities_count: 2,
+            detected_relationships_count: 3,
+            entities: [
+              { id: 'V-102', name: 'Vehicle V-102: Black Full-Size SUV', type: 'Vehicle', confidence: 0.97, threat: 'HIGH' },
+              { id: 'CCTV-07', name: 'CCTV-07: Pier Corridor East Fixed Relay', type: 'Camera', confidence: 0.99, threat: 'INFO' }
+            ],
+            relationships: [
+              { source: 'V-102', relation: 'DETECTED_AT', target: 'CCTV-07', confidence: 0.97 }
+            ],
+            used_by_graph: true,
+            notes: 'Direct detection of vehicle V-102 at Corridor East fixed camera. Transit between CCTV-04 and CCTV-07 is inferred.',
+            is_synthetic: true
+          },
+          {
+            id: 'EVID-INC-204-ALARM',
+            name: 'Warehouse_14B_SCADA_Intrusion_Alarm.json',
+            type: 'Documents',
+            category: 'Documents',
+            case_id: 'CR-204',
+            upload_date: '2026-09-18 14:19 UTC',
+            file_size: '18 KB',
+            source: 'Sector 4 Security Operations Center',
+            status: 'Verified',
+            processing_state: 'ANALYZED',
+            extracted_entities_count: 3,
+            detected_relationships_count: 4,
+            entities: [
+              { id: 'INC-204', name: 'Incident INC-204: Warehouse 14B Breach', type: 'Incident', confidence: 0.99, threat: 'CRITICAL' },
+              { id: 'L-12', name: 'Location L-12: Warehouse 14B North Cargo Bay', type: 'Location', confidence: 0.99, threat: 'INFO' },
+              { id: 'CCTV-11', name: 'CCTV-11: Industrial Access Spur North Relay', type: 'Camera', confidence: 0.99, threat: 'INFO' }
+            ],
+            relationships: [
+              { source: 'INC-204', relation: 'OCCURRED_AT', target: 'L-12', confidence: 0.99 },
+              { source: 'CCTV-11', relation: 'VICINITY_MONITORING', target: 'INC-204', confidence: 0.95 }
+            ],
+            used_by_graph: true,
+            notes: 'Physical alarm sensor break on Door 3 at Warehouse 14B.',
+            is_synthetic: true
+          }
+        ];
+
+        return {
+          id: 'CR-204',
+          title: cr204InvestigationData.title,
+          primary_suspect: 'Elena Rostov (Valkyrie) & Person P-017',
+          suspects: ['Elena Rostov (Valkyrie / P-017)', 'Driver of V-102 (Unidentified)'],
+          case_type: cr204InvestigationData.case_type,
+          status: cr204InvestigationData.status,
+          priority: cr204InvestigationData.priority,
+          created_date: '2026-09-18 13:45 UTC',
+          last_updated: '2026-09-18 14:20 UTC',
+          investigator: cr204InvestigationData.lead_investigator,
+          reference_no: 'DOJ-FED-CR204-X',
+          tags: ['CCTV Network', 'Biometric Match', 'Vehicle Tracking', 'Port Security'],
+          description: cr204InvestigationData.description,
+          evidence_count: cr204Evidence.length,
+          entity_count: Object.keys(cr204InvestigationData.entities).length,
+          investigation_status: 'Geographic CCTV Surveillance Active',
+          is_synthetic: true,
+          evidence: cr204Evidence,
+          entities: Object.values(cr204InvestigationData.entities),
+          relationships: cr204InvestigationData.relations,
+          timeline: cr204InvestigationData.timeline
+        };
+      }
       const all = await api.getCases();
       const found = all.find(c => c.id === caseId || c.id.replace('CASE #', '').trim() === caseId.replace('CASE #', '').trim()) || all[0];
       const allEv = await api.getEvidence({ caseId: found.id });
@@ -685,10 +826,14 @@ export const api = {
   // ── Evidence Intelligence Endpoints (Phase 2) ────────────────────────────
   getEvidence: async (params = {}) => {
     try {
+      const targetCaseId = typeof params === 'string' ? params : (params?.caseId || params?.case_id || 'ALL');
+      const category = typeof params === 'object' ? (params?.category || 'ALL') : 'ALL';
+      const search = typeof params === 'object' ? (params?.search || '') : '';
+
       const query = new URLSearchParams();
-      if (params.caseId) query.append('case_id', params.caseId);
-      if (params.category && params.category !== 'ALL') query.append('category', params.category);
-      if (params.search) query.append('search', params.search);
+      if (targetCaseId && targetCaseId !== 'ALL') query.append('case_id', targetCaseId);
+      if (category && category !== 'ALL') query.append('category', category);
+      if (search) query.append('search', search);
 
       const url = `${BASE_URL}/evidence${query.toString() ? `?${query.toString()}` : ''}`;
       const res = await fetch(url, { headers: api.getHeaders() });
@@ -698,6 +843,111 @@ export const api = {
     } catch (e) {
       console.warn('[API] getEvidence fallback', e);
       const allEvidenceFiles = [
+        // ── CR-204 Evidence Items ──────────────────────────────────────────
+        {
+          id: 'EVID-CCTV-04',
+          name: 'Gate_4_South_HighRes_CCTV_Frame_1409.jpg',
+          type: 'Images',
+          category: 'Images',
+          case_id: 'CR-204',
+          upload_date: '2026-09-18 14:12 UTC',
+          file_size: '3.4 MB',
+          source: 'Port Authority CCTV Server (Sector 4)',
+          status: 'Under Review',
+          processing_state: 'ANALYZED',
+          preview_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=500&q=80',
+          extracted_entities_count: 4,
+          detected_relationships_count: 6,
+          entities: [
+            { id: 'FM-042', name: 'Biometric Candidate FM-042', type: 'Face Match', confidence: 0.87, threat: 'HIGH' },
+            { id: 'P-017', name: 'Elena Rostov', type: 'Person', confidence: 0.87, threat: 'HIGH' },
+            { id: 'CCTV-04', name: 'CCTV-04: Port Gate 4 South Relay', type: 'Camera', confidence: 0.99, threat: 'INFO' },
+            { id: 'L-08', name: 'Location L-08: South Pier Depot', type: 'Location', confidence: 0.99, threat: 'INFO' }
+          ],
+          relationships: [
+            { source: 'P-017', relation: 'BIOMETRIC_CANDIDATE', target: 'FM-042', confidence: 0.87 },
+            { source: 'FM-042', relation: 'CAPTURED_BY', target: 'CCTV-04', confidence: 0.99 }
+          ],
+          used_by_graph: true,
+          notes: 'Clear optical IR frame of subject entering turnstile with partial facial view. 87% model similarity. Human verification required.',
+          is_synthetic: true
+        },
+        {
+          id: 'EVID-ALPR-1402',
+          name: 'Gate_4_Checkpoint_ALPR_Entry_Log.csv',
+          type: 'Documents',
+          category: 'Documents',
+          case_id: 'CR-204',
+          upload_date: '2026-09-18 14:03 UTC',
+          file_size: '42 KB',
+          source: 'Terminal Access Control System',
+          status: 'Verified',
+          processing_state: 'ANALYZED',
+          extracted_entities_count: 2,
+          detected_relationships_count: 4,
+          entities: [
+            { id: 'V-102', name: 'Vehicle V-102: Black Full-Size SUV', type: 'Vehicle', confidence: 0.98, threat: 'HIGH' },
+            { id: 'L-08', name: 'Location L-08: South Pier Depot - Gate 4', type: 'Location', confidence: 0.99, threat: 'INFO' }
+          ],
+          relationships: [
+            { source: 'L-08', relation: 'VEHICLE_DETECTION', target: 'V-102', confidence: 0.98 }
+          ],
+          used_by_graph: true,
+          notes: 'Direct ALPR entry detection of plate NY-889XQ at Gate 4 checkpoint.',
+          is_synthetic: true
+        },
+        {
+          id: 'EVID-CCTV-07-1415',
+          name: 'Corridor_East_Fixed_Camera_Frame_1415.jpg',
+          type: 'Images',
+          category: 'Images',
+          case_id: 'CR-204',
+          upload_date: '2026-09-18 14:16 UTC',
+          file_size: '4.1 MB',
+          source: 'East Corridor Traffic Relay',
+          status: 'Verified',
+          processing_state: 'ANALYZED',
+          preview_url: 'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&w=500&q=80',
+          extracted_entities_count: 2,
+          detected_relationships_count: 3,
+          entities: [
+            { id: 'V-102', name: 'Vehicle V-102: Black Full-Size SUV', type: 'Vehicle', confidence: 0.97, threat: 'HIGH' },
+            { id: 'CCTV-07', name: 'CCTV-07: Pier Corridor East Fixed Relay', type: 'Camera', confidence: 0.99, threat: 'INFO' }
+          ],
+          relationships: [
+            { source: 'V-102', relation: 'DETECTED_AT', target: 'CCTV-07', confidence: 0.97 }
+          ],
+          used_by_graph: true,
+          notes: 'Direct detection of vehicle V-102 at Corridor East fixed camera. Transit between CCTV-04 and CCTV-07 is inferred.',
+          is_synthetic: true
+        },
+        {
+          id: 'EVID-INC-204-ALARM',
+          name: 'Warehouse_14B_SCADA_Intrusion_Alarm.json',
+          type: 'Documents',
+          category: 'Documents',
+          case_id: 'CR-204',
+          upload_date: '2026-09-18 14:19 UTC',
+          file_size: '18 KB',
+          source: 'Sector 4 Security Operations Center',
+          status: 'Verified',
+          processing_state: 'ANALYZED',
+          extracted_entities_count: 3,
+          detected_relationships_count: 4,
+          entities: [
+            { id: 'INC-204', name: 'Incident INC-204: Warehouse 14B Breach', type: 'Incident', confidence: 0.99, threat: 'CRITICAL' },
+            { id: 'L-12', name: 'Location L-12: Warehouse 14B North Cargo Bay', type: 'Location', confidence: 0.99, threat: 'INFO' },
+            { id: 'CCTV-11', name: 'CCTV-11: Industrial Access Spur North Relay', type: 'Camera', confidence: 0.99, threat: 'INFO' }
+          ],
+          relationships: [
+            { source: 'INC-204', relation: 'OCCURRED_AT', target: 'L-12', confidence: 0.99 },
+            { source: 'CCTV-11', relation: 'VICINITY_MONITORING', target: 'INC-204', confidence: 0.95 }
+          ],
+          used_by_graph: true,
+          notes: 'Physical alarm sensor break on Door 3 at Warehouse 14B.',
+          is_synthetic: true
+        },
+        // ── General Case Evidence Items ─────────────────────────────────────
         {
           id: 'EV-0182',
           name: 'Call_Record_Microwave_Tap.csv',
@@ -908,11 +1158,27 @@ export const api = {
         }
       ];
 
-      if (params.caseId && params.caseId !== 'ALL') {
-        const normCase = params.caseId.replace('CASE #', '').trim();
-        return allEvidenceFiles.filter(e => e.case_id.includes(normCase));
+      let results = allEvidenceFiles;
+      const targetCaseId = typeof params === 'string' ? params : (params?.caseId || params?.case_id || 'ALL');
+      if (targetCaseId && targetCaseId !== 'ALL') {
+        const normCase = targetCaseId.replace('CASE #', '').trim().toLowerCase();
+        results = results.filter(e => (e.case_id || '').toLowerCase().includes(normCase));
       }
-      return allEvidenceFiles;
+
+      if (params.category && params.category !== 'ALL') {
+        results = results.filter(e => e.category === params.category || e.type === params.category);
+      }
+
+      if (params.search) {
+        const q = params.search.toLowerCase();
+        results = results.filter(e =>
+          (e.name || '').toLowerCase().includes(q) ||
+          (e.id || '').toLowerCase().includes(q) ||
+          (e.source || '').toLowerCase().includes(q)
+        );
+      }
+
+      return results;
     }
   },
 
@@ -1167,7 +1433,59 @@ export const api = {
       let caseEdges = allFallbackEdges;
 
       const normCase = (caseId || '').replace('CASE #', '').trim();
-      if (normCase === 'CR-2026-0089') {
+      if (normCase === 'CR-204' || normCase.includes('204')) {
+        const cr204GraphNodes = [
+          // 1. Person
+          { data: { id: 'P-017', label: 'Elena Rostov (P-017)', type: 'Person', shape: 'ellipse', color: '#f87171', threat: 'HIGH', size: 50, details: 'Financial broker & logistics operative. Potential biometric match to CCTV-04. Aliases: Valkyrie / CipherQueen.', case_id: caseId } },
+          // 2. Biometric Candidate
+          { data: { id: 'FM-042', label: 'FM-042 (87% Match)', type: 'Face Match', shape: 'diamond', color: '#f472b6', threat: 'HIGH', size: 46, details: 'Potential Match · 87% Model Similarity · Under Review · Human Verification Required. Captured at CCTV-04 (14:09 UTC).', case_id: caseId } },
+          // 3. Vehicle
+          { data: { id: 'V-102', label: 'V-102: SUV (NY-889XQ)', type: 'Vehicle', shape: 'diamond', color: '#fbbf24', threat: 'HIGH', size: 48, details: 'Black Escalade SUV sighted entering Gate 4 (14:02), Corridor East (14:15), and near Warehouse 14B (14:18). Route between detections is inferred.', case_id: caseId } },
+          // 4. Locations
+          { data: { id: 'L-08', label: 'L-08: South Pier Gate 4', type: 'Location', shape: 'octagon', color: '#c084fc', threat: 'HIGH', size: 46, details: 'South Pier Logistics Depot Gate 4 checkpoint & turnstiles.', case_id: caseId } },
+          { data: { id: 'L-10', label: 'L-10: Pier Corridor East', type: 'Location', shape: 'octagon', color: '#c084fc', threat: 'MEDIUM', size: 44, details: 'High-volume freight arterial road connecting Gate 4 to warehouse sector.', case_id: caseId } },
+          { data: { id: 'L-12', label: 'L-12: Warehouse 14B', type: 'Location', shape: 'octagon', color: '#c084fc', threat: 'CRITICAL', size: 48, details: 'Secure bonded cargo facility. Site of Incident INC-204 breach alarm.', case_id: caseId } },
+          // 5. Incident
+          { data: { id: 'INC-204', label: 'INC-204: Warehouse Breach', type: 'Incident', shape: 'round-rectangle', color: '#ef4444', threat: 'CRITICAL', size: 48, details: 'Forced entry sensor triggered at Warehouse 14B door 3 (14:18 UTC). Manifest M-902 conflict.', case_id: caseId } },
+          // 6. Cameras
+          { data: { id: 'CCTV-01', label: 'CCTV-01: Port North Gate', type: 'Camera', shape: 'round-rectangle', color: '#38bdf8', threat: 'INFO', size: 40, details: 'Online · Port North Gate entry gantry. Normal freight logs.', case_id: caseId } },
+          { data: { id: 'CCTV-02', label: 'CCTV-02: Berth 4 Quay', type: 'Camera', shape: 'round-rectangle', color: '#38bdf8', threat: 'INFO', size: 40, details: 'Online · Container Berth 4 quay crane perimeter.', case_id: caseId } },
+          { data: { id: 'CCTV-03', label: 'CCTV-03: Customs Shed', type: 'Camera', shape: 'round-rectangle', color: '#38bdf8', threat: 'INFO', size: 40, details: 'Online · Customs inspection shed outer apron.', case_id: caseId } },
+          { data: { id: 'CCTV-04', label: 'CCTV-04: Gate 4 South Relay', type: 'Camera', shape: 'round-rectangle', color: '#38bdf8', threat: 'HIGH', size: 52, details: 'Online · Gate 4 turnstile and vehicle lane. Captured V-102 (14:02) and FM-042 (14:09). Key surveillance node.', case_id: caseId } },
+          { data: { id: 'CCTV-05', label: 'CCTV-05: Fence South', type: 'Camera', shape: 'round-rectangle', color: '#38bdf8', threat: 'INFO', size: 40, details: 'Online · Sector 4 perimeter fence south segment.', case_id: caseId } },
+          { data: { id: 'CCTV-06', label: 'CCTV-06: Staging Yard', type: 'Camera', shape: 'round-rectangle', color: '#38bdf8', threat: 'INFO', size: 40, details: 'Online · Central staging yard intersection.', case_id: caseId } },
+          { data: { id: 'CCTV-07', label: 'CCTV-07: Corridor East Relay', type: 'Camera', shape: 'round-rectangle', color: '#38bdf8', threat: 'HIGH', size: 48, details: 'Online · Corridor East fixed relay. Recorded V-102 eastbound at 14:15 UTC.', case_id: caseId } },
+          { data: { id: 'CCTV-08', label: 'CCTV-08: Cold Storage Gate', type: 'Camera', shape: 'round-rectangle', color: '#38bdf8', threat: 'INFO', size: 40, details: 'Offline · Cold storage access gate. Scheduled telemetry maintenance.', case_id: caseId } },
+          { data: { id: 'CCTV-09', label: 'CCTV-09: Fueling Depot', type: 'Camera', shape: 'round-rectangle', color: '#38bdf8', threat: 'INFO', size: 40, details: 'Online · Terminal fueling depot access.', case_id: caseId } },
+          { data: { id: 'CCTV-10', label: 'CCTV-10: Rail Interchange', type: 'Camera', shape: 'round-rectangle', color: '#38bdf8', threat: 'MEDIUM', size: 42, details: 'Warning · Central rail interchange junction. Switcher discrepancy reported.', case_id: caseId } },
+          { data: { id: 'CCTV-11', label: 'CCTV-11: Spur North Relay', type: 'Camera', shape: 'round-rectangle', color: '#38bdf8', threat: 'HIGH', size: 48, details: 'Online · Industrial access spur north relay. Monitored Warehouse 14B perimeter breach at 14:18 UTC.', case_id: caseId } },
+          { data: { id: 'CCTV-12', label: 'CCTV-12: Warehouse 14B Gate', type: 'Camera', shape: 'round-rectangle', color: '#38bdf8', threat: 'HIGH', size: 44, details: 'Online · Warehouse 14B perimeter gate. Spotlight triggered at 14:19 UTC.', case_id: caseId } },
+          // 7. Evidence
+          { data: { id: 'EVID-CCTV-04', label: 'EVID-CCTV-04 (Frame 14:09)', type: 'Evidence', shape: 'tag', color: '#60a5fa', threat: 'EVIDENCE', size: 42, details: 'High-res optical IR frame from CCTV-04 at 14:09:12 UTC. ArcFace candidate match FM-042.', case_id: caseId } },
+          { data: { id: 'EVID-ALPR-1402', label: 'EVID-ALPR-1402 (Log 14:02)', type: 'Evidence', shape: 'tag', color: '#60a5fa', threat: 'EVIDENCE', size: 42, details: 'Gate 4 Checkpoint ALPR Entry Log recording plate NY-889XQ at 14:02 UTC.', case_id: caseId } },
+          { data: { id: 'EVID-CCTV-07-1415', label: 'EVID-CCTV-07 (Frame 14:15)', type: 'Evidence', shape: 'tag', color: '#60a5fa', threat: 'EVIDENCE', size: 42, details: 'Corridor East fixed camera frame recording V-102 at 14:15 UTC.', case_id: caseId } },
+          { data: { id: 'EVID-INC-204-ALARM', label: 'EVID-INC-204 (Alarm Log)', type: 'Evidence', shape: 'tag', color: '#60a5fa', threat: 'EVIDENCE', size: 42, details: 'Warehouse 14B SCADA intrusion alarm telemetry at 14:18 UTC.', case_id: caseId } }
+        ];
+
+        const cr204GraphEdges = [
+          { data: { id: 'REL-01', source: 'P-017', target: 'FM-042', relation: 'BIOMETRIC_CANDIDATE', relation_type: 'association', confidence: 0.87, supporting_evidence_id: 'EVID-CCTV-04', supporting_evidence_name: 'Gate_4_South_HighRes_CCTV_Frame_1409.jpg', explainability: '87% model similarity to gallery mugshot. Human verification required.', case_id: caseId } },
+          { data: { id: 'REL-02', source: 'FM-042', target: 'CCTV-04', relation: 'CAPTURED_BY', relation_type: 'location', confidence: 0.99, supporting_evidence_id: 'EVID-CCTV-04', supporting_evidence_name: 'Gate_4_South_HighRes_CCTV_Frame_1409.jpg', explainability: 'Frame capture at 14:09:12 UTC at Gate 4 turnstile.', case_id: caseId } },
+          { data: { id: 'REL-03', source: 'CCTV-04', target: 'L-08', relation: 'INSTALLED_AT', relation_type: 'location', confidence: 1.0, explainability: 'Fixed mount on Gate 4 gantry post.', case_id: caseId } },
+          { data: { id: 'REL-04', source: 'L-08', target: 'V-102', relation: 'VEHICLE_DETECTION', relation_type: 'vehicle', confidence: 0.98, supporting_evidence_id: 'EVID-ALPR-1402', supporting_evidence_name: 'Gate_4_Checkpoint_ALPR_Entry_Log.csv', explainability: 'Plate NY-889XQ recorded entering Gate 4 at 14:02 UTC.', case_id: caseId } },
+          { data: { id: 'REL-05', source: 'V-102', target: 'CCTV-07', relation: 'DETECTED_AT', relation_type: 'vehicle', confidence: 0.97, supporting_evidence_id: 'EVID-CCTV-07-1415', supporting_evidence_name: 'Corridor_East_Fixed_Camera_Frame_1415.jpg', explainability: 'Plate NY-889XQ recorded eastbound at Corridor East at 14:15 UTC.', case_id: caseId } },
+          { data: { id: 'REL-06', source: 'CCTV-07', target: 'CCTV-11', relation: 'INFERRED_TRANSIT', relation_type: 'location', confidence: 0.75, explainability: 'Inferred transit corridor. Continuous vehicle movement was not directly observed.', case_id: caseId } },
+          { data: { id: 'REL-07', source: 'CCTV-11', target: 'INC-204', relation: 'VICINITY_MONITORING', relation_type: 'location', confidence: 0.95, supporting_evidence_id: 'EVID-INC-204-ALARM', supporting_evidence_name: 'Warehouse_14B_SCADA_Intrusion_Alarm.json', explainability: 'CCTV-11 monitors Warehouse 14B where breach occurred.', case_id: caseId } },
+          { data: { id: 'REL-08', source: 'INC-204', target: 'L-12', relation: 'OCCURRED_AT', relation_type: 'location', confidence: 1.0, supporting_evidence_id: 'EVID-INC-204-ALARM', supporting_evidence_name: 'Warehouse_14B_SCADA_Intrusion_Alarm.json', explainability: 'Physical breach occurred at Warehouse 14B North Cargo Bay.', case_id: caseId } },
+          { data: { id: 'REL-09', source: 'CCTV-12', target: 'L-12', relation: 'PERIMETER_GATE', relation_type: 'location', confidence: 1.0, explainability: 'Perimeter gate for Warehouse 14B.', case_id: caseId } },
+          { data: { id: 'REL-10', source: 'EVID-CCTV-04', target: 'CCTV-04', relation: 'SENSOR_RECORDING', relation_type: 'evidence_backed', confidence: 1.0, supporting_evidence_id: 'EVID-CCTV-04', supporting_evidence_name: 'Gate_4_South_HighRes_CCTV_Frame_1409.jpg', explainability: 'Recorded optical infrared frame.', case_id: caseId } },
+          { data: { id: 'REL-11', source: 'EVID-ALPR-1402', target: 'V-102', relation: 'ALPR_LOCK', relation_type: 'evidence_backed', confidence: 0.98, supporting_evidence_id: 'EVID-ALPR-1402', supporting_evidence_name: 'Gate_4_Checkpoint_ALPR_Entry_Log.csv', explainability: 'Direct ALPR entry detection.', case_id: caseId } },
+          { data: { id: 'REL-12', source: 'EVID-CCTV-07-1415', target: 'CCTV-07', relation: 'SENSOR_RECORDING', relation_type: 'evidence_backed', confidence: 0.97, supporting_evidence_id: 'EVID-CCTV-07-1415', supporting_evidence_name: 'Corridor_East_Fixed_Camera_Frame_1415.jpg', explainability: 'Corridor East fixed camera frame.', case_id: caseId } },
+          { data: { id: 'REL-13', source: 'EVID-INC-204-ALARM', target: 'INC-204', relation: 'TELEMETRY_LOG', relation_type: 'evidence_backed', confidence: 1.0, supporting_evidence_id: 'EVID-INC-204-ALARM', supporting_evidence_name: 'Warehouse_14B_SCADA_Intrusion_Alarm.json', explainability: 'SCADA intrusion alarm telemetry.', case_id: caseId } }
+        ];
+
+        caseNodes = cr204GraphNodes;
+        caseEdges = cr204GraphEdges;
+      } else if (normCase === 'CR-2026-0089') {
         const allowedIds = new Set(['PERSON-004', 'PERSON-009', 'PERSON-002', 'PHONE-001', 'VEHICLE-003', 'LOC-003', 'ORG-001', 'EV-0182']);
         caseNodes = allFallbackNodes.filter(n => allowedIds.has(n.data.id));
       } else if (normCase === 'CR-2026-0044') {
@@ -1250,6 +1568,19 @@ export const api = {
       return await res.json();
     } catch (e) {
       console.warn('[API] getEntityDetail fallback for', entityId, e);
+      if (cr204InvestigationData.entities && cr204InvestigationData.entities[entityId]) {
+        const ent = cr204InvestigationData.entities[entityId];
+        return {
+          id: ent.id,
+          label: ent.name || ent.id,
+          type: ent.type || 'Entity',
+          threat: ent.threat_level || 'HIGH',
+          details: ent.details || ent.notes || 'CR-204 entity intelligence record.',
+          connected_count: 3,
+          connections: [],
+          supporting_evidence: ent.evidence_id ? [ent.evidence_id] : ['EVID-CCTV-04']
+        };
+      }
       return {
         id: entityId,
         label: entityId,
@@ -1273,6 +1604,18 @@ export const api = {
       return await res.json();
     } catch (e) {
       console.warn('[API] getRelationshipDetail fallback for', relId, e);
+      const crRel = cr204InvestigationData.relations?.find(r => r.id === relId);
+      if (crRel) {
+        return {
+          id: crRel.id,
+          relation: crRel.type,
+          confidence: crRel.certainty?.includes('87%') ? 0.87 : 0.95,
+          supporting_evidence_id: crRel.provenance || 'EVID-CCTV-04',
+          supporting_evidence_name: crRel.label,
+          evidence_source: crRel.provenance,
+          explainability: crRel.details
+        };
+      }
       return {
         id: relId,
         relation: 'ASSOCIATED_WITH',
@@ -1281,6 +1624,56 @@ export const api = {
         supporting_evidence_name: 'Call_Record_Microwave_Tap.csv',
         evidence_source: 'Customs Intercept',
         explainability: 'Direct semantic association documented in case evidence records.'
+      };
+    }
+  },
+
+  getCaseAnalytics: async (caseId = 'CR-204') => {
+    try {
+      const res = await fetch(`${BASE_URL}/cases/${encodeURIComponent(caseId)}/analytics`, {
+        headers: api.getHeaders()
+      });
+      if (!res.ok) throw new Error('Analytics fetch failed');
+      return await res.json();
+    } catch (e) {
+      const normCase = (caseId || '').replace('CASE #', '').trim();
+      if (normCase === 'CR-204' || normCase.includes('204')) {
+        return {
+          case_id: 'CR-204',
+          total_nodes: 21,
+          total_edges: 13,
+          density: 0.062,
+          high_degree_nodes: [
+            { id: 'CCTV-04', name: 'CCTV-04: Port Gate 4 South Relay', degree: 4, type: 'Camera' },
+            { id: 'V-102', name: 'Vehicle V-102: Black SUV', degree: 3, type: 'Vehicle' },
+            { id: 'FM-042', name: 'Candidate FM-042 (87%)', degree: 2, type: 'Face Match' },
+            { id: 'P-017', name: 'Elena Rostov (P-017)', degree: 2, type: 'Person' },
+            { id: 'INC-204', name: 'Incident INC-204: Warehouse 14B Breach', degree: 2, type: 'Incident' }
+          ],
+          centrality: {
+            'CCTV-04': 0.85,
+            'V-102': 0.78,
+            'FM-042': 0.72,
+            'P-017': 0.65,
+            'INC-204': 0.80
+          }
+        };
+      }
+      return {
+        case_id: caseId,
+        total_nodes: 29,
+        total_edges: 29,
+        density: 0.071,
+        high_degree_nodes: [
+          { id: 'PERSON-001', name: 'Viktor Voronin', degree: 7, type: 'Person' },
+          { id: 'PERSON-002', name: 'Elena Rostov', degree: 5, type: 'Person' },
+          { id: 'PERSON-003', name: 'Darius Vance', degree: 4, type: 'Person' }
+        ],
+        centrality: {
+          'PERSON-001': 0.95,
+          'PERSON-002': 0.84,
+          'PERSON-003': 0.76
+        }
       };
     }
   },
@@ -1441,6 +1834,23 @@ export const api = {
       return await res.json();
     } catch (e) {
       console.warn('[API] getCaseAnalytics fallback', e);
+      const normCase = (caseId || '').replace('CASE #', '').trim();
+      if (normCase === 'CR-204' || normCase.includes('204')) {
+        return {
+          case_id: 'CR-204',
+          total_entities: 21,
+          total_relationships: 13,
+          entity_breakdown: { Person: 1, 'Face Match': 1, Vehicle: 1, Location: 3, Incident: 1, Camera: 12, Evidence: 4 },
+          most_connected_entities: [
+            { id: 'CCTV-04', name: 'CCTV-04: Port Gate 4 South Relay', connection_count: 4, threat: 'HIGH', type: 'Camera' },
+            { id: 'V-102', name: 'Vehicle V-102: Black SUV', connection_count: 3, threat: 'HIGH', type: 'Vehicle' },
+            { id: 'FM-042', name: 'Candidate FM-042 (87%)', connection_count: 2, threat: 'HIGH', type: 'Face Match' },
+            { id: 'P-017', name: 'Elena Rostov (P-017)', connection_count: 2, threat: 'HIGH', type: 'Person' },
+            { id: 'INC-204', name: 'Incident INC-204: Warehouse 14B Breach', connection_count: 2, threat: 'CRITICAL', type: 'Incident' }
+          ],
+          network_density: 0.24
+        };
+      }
       return {
         case_id: caseId,
         total_entities: 29,
@@ -1472,6 +1882,43 @@ export const api = {
       return await res.json();
     } catch (e) {
       console.warn('[API] sendCiraChatMessage fallback', e);
+      const normCase = (caseId || '').replace('CASE #', '').trim();
+      const userText = payload.message || '';
+
+      if (normCase === 'CR-204' || normCase.includes('204') || /cctv|camera|v-102|p-017|fm-042|pier|gate 4|cargo/i.test(userText)) {
+        const ciraRes = ciraService(cr204InvestigationData, {}, userText);
+        const linkedEntities = ciraRes.linked_entities || [];
+        const entitiesData = linkedEntities.map(id => {
+          const ent = cr204InvestigationData.entities[id];
+          return { id, name: ent?.name || id, type: ent?.type || 'Entity', threat: ent?.threat_level || 'HIGH' };
+        });
+        const sourcesData = (ciraRes.bundle?.evidence || []).map(e => {
+          const id = e.split(':')[0].trim();
+          return { id, name: e, type: 'Evidence' };
+        });
+        const relsData = cr204InvestigationData.relations.filter(r =>
+          linkedEntities.includes(r.source) || linkedEntities.includes(r.target)
+        );
+
+        return {
+          conversation_id: payload.conversation_id || 'conv-cira-cr204',
+          case_id: caseId || 'CR-204',
+          message: ciraRes.answer_markdown,
+          sources: sourcesData,
+          entities: entitiesData,
+          relationships: relsData,
+          tools_used: ['cira_reasoning_engine', 'cctv_network_telemetry', 'biometric_truthfulness_evaluator'],
+          followups: [
+            { label: 'What happened around CCTV-04?', command: 'What happened around CCTV-04?' },
+            { label: 'Cameras connected to V-102', command: 'Show me the cameras connected to this vehicle.' },
+            { label: 'Explain 87% face score', command: 'What does the 87% face score mean?' },
+            { label: 'What information is missing?', command: 'What information is missing?' },
+            { label: 'Are there conflicting records?', command: 'Are there conflicting records?' }
+          ],
+          timestamp: new Date().toISOString()
+        };
+      }
+
       const q = (payload.message || '').toLowerCase().trim();
       let msg = '';
       if (['how are you', 'how are u', "how's it going", 'how are things'].some(p => q.includes(p))) {
@@ -1591,6 +2038,23 @@ export const api = {
       return await res.json();
     } catch (e) {
       console.warn('[API] getCiraCaseContext fallback', e);
+      const normCase = (caseId || '').replace('CASE #', '').trim();
+      if (normCase === 'CR-204' || normCase.includes('204')) {
+        return {
+          case_id: 'CR-204',
+          title: cr204InvestigationData.title,
+          evidence_count: 4,
+          entity_count: 21,
+          relationship_count: 13,
+          density: 0.24,
+          most_connected: [
+            { id: 'CCTV-04', name: 'CCTV-04: Port Gate 4 South Relay', type: 'Camera', connection_count: 4 },
+            { id: 'V-102', name: 'Vehicle V-102: Black SUV', type: 'Vehicle', connection_count: 3 },
+            { id: 'FM-042', name: 'Candidate FM-042 (87%)', type: 'Face Match', connection_count: 2 },
+            { id: 'P-017', name: 'Elena Rostov (P-017)', type: 'Person', connection_count: 2 }
+          ]
+        };
+      }
       return {
         case_id: caseId,
         title: 'Active Case Docket',

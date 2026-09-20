@@ -6,8 +6,8 @@
  * Observed · Inferred · Potential Match · Evidence · Unknown · Next Review.
  *
  * Truthfulness rules strictly enforced:
- * - Vehicle movement: "V-102 was recorded at CCTV-04 and later at CCTV-07. The path between these detections is inferred from the available records; continuous movement was not directly observed."
- * - Face match: "Potential match identified. Model similarity: 87%; human verification required."
+ * - Vehicle movement: "V-102 has recorded detections at CCTV-04, CCTV-07 and CCTV-11 within the CR-204 synthetic dataset. These are recorded camera detections. Movement between camera locations is inferred unless supported by additional evidence."
+ * - Face match: "Potential match identified. Model similarity: 87%; human verification required. Never treat similarity as confirmed identity."
  * - Safe language: "High-priority review recommended"
  */
 
@@ -50,7 +50,7 @@ export function ciraService(investigationData, investigationContext, userQuestio
     );
 
     bundle.potential_match.push(
-      "At 14:09 UTC, biometric candidate match FM-042 was identified from the CCTV-04 optical IR frame against Elena Rostov (P-017). Model similarity: 87%; human verification required."
+      "At 14:09 UTC, biometric candidate match FM-042 was identified from the CCTV-04 optical IR frame against Elena Rostov (P-017). Model similarity: 87%; human verification required. This is a candidate match hypothesis, not confirmed identity."
     );
 
     bundle.evidence.push(
@@ -67,7 +67,42 @@ export function ciraService(investigationData, investigationContext, userQuestio
     );
   }
 
-  // 2. Vehicle V-102 Queries ("Where was V-102 detected?", "Where did V-102 move?")
+  // 2. Specific Vehicle Query: "Show me the cameras connected to this vehicle."
+  else if (
+    q.includes("cameras connected to this vehicle") ||
+    (q.includes("cameras") && q.includes("vehicle")) ||
+    (q.includes("cameras") && q.includes("v-102"))
+  ) {
+    linkEntity("V-102");
+    linkEntity("CCTV-04");
+    linkEntity("CCTV-07");
+    linkEntity("CCTV-11");
+
+    bundle.observed.push(
+      "V-102 has recorded detections at CCTV-04 (14:02 UTC), CCTV-07 (14:15 UTC), and CCTV-11 (14:18 UTC) within the CR-204 synthetic dataset.",
+      "These are recorded camera detections at fixed sensor locations."
+    );
+
+    bundle.inferred.push(
+      "Movement between camera locations is inferred unless supported by additional evidence. Continuous transit between CCTV-04, CCTV-07, and CCTV-11 was not directly observed."
+    );
+
+    bundle.evidence.push(
+      "EVID-ALPR-1402: Gate 4 entry detection at 14:02 UTC.",
+      "EVID-CCTV-07-1415: Corridor East fixed camera detection at 14:15 UTC.",
+      "EVID-INC-204-ALARM: Vicinity perimeter monitoring at CCTV-11 (14:18 UTC)."
+    );
+
+    bundle.unknown.push(
+      "No camera coverage exists during the 3-minute gap between CCTV-04 (14:11 departure) and CCTV-07 (14:15 arrival)."
+    );
+
+    bundle.next_review.push(
+      "High-priority review recommended: Subpoena private warehouse exterior surveillance along South Arterial Way."
+    );
+  }
+
+  // 3. Vehicle V-102 General Queries ("Where was V-102 detected?", "Where did V-102 move?")
   else if (q.includes("v-102") || q.includes("vehicle") || q.includes("move") || q.includes("where was v-102") || (activeEntity?.id === "V-102")) {
     linkEntity("V-102");
     linkEntity("CCTV-04");
@@ -103,7 +138,7 @@ export function ciraService(investigationData, investigationContext, userQuestio
     );
   }
 
-  // 3. Person P-017 Queries ("Why is P-017 connected to this case?", "Show cameras connected to this person")
+  // 4. Person P-017 Queries ("Why is P-017 connected to this case?", "Show cameras connected to this person")
   else if (q.includes("p-017") || q.includes("elena") || q.includes("connected to this case") || q.includes("cameras connected") || (activeEntity?.id === "P-017")) {
     linkEntity("P-017");
     linkEntity("FM-042");
@@ -111,7 +146,7 @@ export function ciraService(investigationData, investigationContext, userQuestio
     linkEntity("CR-204");
 
     bundle.potential_match.push(
-      "Potential match identified. Model similarity: 87%; human verification required. Elena Rostov (P-017) was flagged as a biometric candidate for frame capture FM-042 at CCTV-04."
+      "Potential match identified. Model similarity: 87%; human verification required. Elena Rostov (P-017) was flagged as a biometric candidate for frame capture FM-042 at CCTV-04. Never treat similarity as confirmed identity."
     );
 
     bundle.observed.push(
@@ -136,7 +171,7 @@ export function ciraService(investigationData, investigationContext, userQuestio
     );
   }
 
-  // 4. Time Window Queries ("What happened between 14:00 and 14:20?")
+  // 5. Time Window Queries ("What happened between 14:00 and 14:20?")
   else if (q.includes("14:00") || q.includes("14:20") || q.includes("between") || q.includes("timeline")) {
     linkEntity("V-102");
     linkEntity("CCTV-04");
@@ -177,7 +212,7 @@ export function ciraService(investigationData, investigationContext, userQuestio
     );
   }
 
-  // 5. Missing Information Queries ("What information is missing?")
+  // 6. Missing Information Queries ("What information is missing?")
   else if (q.includes("missing") || q.includes("gap") || q.includes("information gap") || q.includes("what is missing")) {
     linkEntity("CCTV-04");
     linkEntity("CCTV-07");
@@ -198,7 +233,7 @@ export function ciraService(investigationData, investigationContext, userQuestio
     );
   }
 
-  // 6. Conflicting Records Queries ("Are there conflicting records?")
+  // 7. Conflicting Records Queries ("Are there conflicting records?")
   else if (q.includes("conflict") || q.includes("contradict") || q.includes("discrepancy") || q.includes("conflicting records")) {
     linkEntity("INC-204");
     linkEntity("L-12");
@@ -218,7 +253,7 @@ export function ciraService(investigationData, investigationContext, userQuestio
     );
   }
 
-  // 7. Face Score Meaning Queries ("What does the 87% face score mean?")
+  // 8. Face Score Meaning Queries ("What does the 87% face score mean?")
   else if (q.includes("87%") || q.includes("face score") || q.includes("similarity score") || q.includes("fm-042") || q.includes("confidence")) {
     linkEntity("FM-042");
     linkEntity("P-017");
@@ -247,59 +282,7 @@ export function ciraService(investigationData, investigationContext, userQuestio
     );
   }
 
-  // 8. Evidence Supporting Lead Queries ("What evidence supports this lead?")
-  else if (q.includes("evidence supports") || q.includes("support") || q.includes("what evidence")) {
-    linkEntity("EVID-CCTV-04");
-    linkEntity("EVID-ALPR-1402");
-    linkEntity("EVID-CCTV-07-1415");
-    linkEntity("EVID-INC-204-ALARM");
-
-    bundle.evidence.push(
-      "EVID-ALPR-1402: Direct ALPR entry log for vehicle V-102 at Gate 4 (14:02 UTC).",
-      "EVID-CCTV-04: Optical IR frame capture at Gate 4 turnstile generating FM-042 (14:09 UTC).",
-      "EVID-CCTV-07-1415: Fixed camera frame verifying eastbound transit of V-102 (14:15 UTC).",
-      "EVID-INC-204-ALARM: Facility intrusion sensor break at Warehouse 14B (14:18 UTC)."
-    );
-
-    bundle.observed.push(
-      "Evidence items are timestamped electronic telemetry records. None alone constitutes proof of guilt."
-    );
-
-    bundle.next_review.push(
-      "High-priority review recommended: Maintain chain of custody logs and verify electronic digital signatures on all CCTV exports."
-    );
-  }
-
-  // 9. Graph Relationship Explanation ("Explain this graph relationship")
-  else if (q.includes("graph relationship") || q.includes("relationship") || q.includes("explain this graph")) {
-    linkEntity("CR-204");
-    linkEntity("P-017");
-    linkEntity("FM-042");
-    linkEntity("CCTV-04");
-    linkEntity("L-08");
-    linkEntity("V-102");
-    linkEntity("CCTV-07");
-    linkEntity("CCTV-11");
-    linkEntity("INC-204");
-
-    bundle.inferred.push(
-      "The investigation graph connects Case CR-204 to Person of Interest P-017 through Biometric Candidate FM-042 (captured at CCTV-04 / L-08).",
-      "L-08 connects to Vehicle V-102 via ALPR detection at 14:02 UTC.",
-      "V-102 connects CCTV-04 to CCTV-07 via discrete point detections, with transit inferred between them.",
-      "CCTV-11 monitors the perimeter of Incident INC-204 (Warehouse 14B / L-12)."
-    );
-
-    bundle.observed.push(
-      "Solid graph edges represent verified sensor detections or confirmed facility coordinates.",
-      "Dashed edges represent probabilistic biometric matches (FM-042) and inferred transit corridors (V-102)."
-    );
-
-    bundle.next_review.push(
-      "High-priority review recommended: Corroborate inferred edges with additional witness statements or private sensor feeds."
-    );
-  }
-
-  // 10. General / Fallback Case Query
+  // 9. General / Fallback Case Query
   else {
     linkEntity("CR-204");
     linkEntity("P-017");
@@ -353,7 +336,7 @@ export function ciraService(investigationData, investigationContext, userQuestio
   }
 
   if (bundle.potential_match.length > 0) {
-    md += `### 3. POTENTIAL MATCHES [PROBABILISTIC - REQUIRES VERIFICATION]\n`;
+    md += `### 3. POTENTIAL MATCH HYPOTHESIS [BIOMETRIC PROBABILISTIC]\n`;
     bundle.potential_match.forEach(item => {
       md += `- **POTENTIAL MATCH**: ${item}\n`;
     });
@@ -361,7 +344,7 @@ export function ciraService(investigationData, investigationContext, userQuestio
   }
 
   if (bundle.evidence.length > 0) {
-    md += `### 4. EVIDENCE CITATIONS\n`;
+    md += `### 4. EVIDENCE BACKING\n`;
     bundle.evidence.forEach(item => {
       md += `- **EVIDENCE**: ${item}\n`;
     });
@@ -369,15 +352,15 @@ export function ciraService(investigationData, investigationContext, userQuestio
   }
 
   if (bundle.unknown.length > 0) {
-    md += `### 5. UNKNOWN / INFORMATION GAPS\n`;
+    md += `### 5. SURVEILLANCE GAPS & UNKNOWN TELEMETRY\n`;
     bundle.unknown.forEach(item => {
-      md += `- **INFORMATION GAP**: ${item}\n`;
+      md += `- **UNKNOWN**: ${item}\n`;
     });
     md += `\n`;
   }
 
   if (bundle.conflicts.length > 0) {
-    md += `### 6. CONFLICTING RECORDS\n`;
+    md += `### 6. CONFLICTING RECORDS & DISCREPANCIES\n`;
     bundle.conflicts.forEach(item => {
       md += `- **CONFLICT**: ${item}\n`;
     });
@@ -385,18 +368,15 @@ export function ciraService(investigationData, investigationContext, userQuestio
   }
 
   if (bundle.next_review.length > 0) {
-    md += `### 7. NEXT REVIEW RECOMMENDATION\n`;
+    md += `### 7. RECOMMENDED NEXT REVIEW ACTION\n`;
     bundle.next_review.forEach(item => {
-      md += `- **RECOMMENDATION**: ${item}\n`;
+      md += `- **NEXT REVIEW**: ${item}\n`;
     });
-    md += `\n`;
   }
 
   return {
-    query: userQuestion,
     answer_markdown: md.trim(),
-    structured_bundle: bundle,
     linked_entities: bundle.linked_entity_ids,
-    timestamp: new Date().toISOString()
+    bundle
   };
 }

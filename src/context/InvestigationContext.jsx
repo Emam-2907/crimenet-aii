@@ -4,16 +4,20 @@
  *
  * Context properties:
  * - activeCase
- * - selectedEntity
- * - selectedEntityType
- * - selectedPerson
- * - selectedFaceMatch
- * - selectedCamera
- * - selectedVehicle
- * - selectedLocation
+ * - investigationData
+ * - allCameras (CCTV-01 to CCTV-12)
+ * - selectedEntity, selectedEntityId, selectedEntityType
+ * - selectedPerson (P-017)
+ * - selectedFaceMatch (FM-042)
+ * - selectedCamera (CCTV-04 or clicked camera)
+ * - selectedVehicle (V-102)
+ * - selectedLocation (L-08, L-10, L-12, etc.)
  * - selectedTimelineEvent
  * - activeTimestamp
- * - activeFilters
+ * - mapFilter, setMapFilter
+ * - showCoverage, setShowCoverage
+ * - mapFlyToTarget
+ * - selectEntity, selectCamera, selectTimelineEvent, resetSelection
  */
 
 import React, { createContext, useContext, useState, useCallback, useMemo } from 'react';
@@ -27,13 +31,21 @@ export function InvestigationProvider({ children }) {
   const activeCase = investigationData;
 
   // 2. Coordinated Selection State
-  const [selectedEntityId, setSelectedEntityId] = useState("FM-042");
-  const [selectedEntityType, setSelectedEntityType] = useState("face_match");
+  const [selectedEntityId, setSelectedEntityId] = useState("CCTV-04");
+  const [selectedEntityType, setSelectedEntityType] = useState("camera");
   const [selectedTimelineEventId, setSelectedTimelineEventId] = useState("EVT-03"); // 14:09 potential face match
   const [activeTimestamp, setActiveTimestamp] = useState("14:09");
-  const [activeFilters, setActiveFilters] = useState({ threat: "ALL", certainty: "ALL", module: "ALL" });
+
+  // Map Controls State
+  const [mapFilter, setMapFilter] = useState("ALL"); // ALL, ONLINE, OFFLINE, WARNING, CURRENT_CASE, SELECTED_PERSON, SELECTED_VEHICLE, FACE_EVENTS, INCIDENTS, COVERAGE
+  const [showCoverage, setShowCoverage] = useState(true);
+  const [mapFlyToTarget, setMapFlyToTarget] = useState(null); // { lng, lat, zoom }
 
   // 3. Derived active entities from single source of truth
+  const allCameras = useMemo(() => {
+    return Object.values(investigationData.entities).filter(e => e.type === "camera");
+  }, [investigationData]);
+
   const selectedEntity = useMemo(() => {
     return investigationData.entities[selectedEntityId] || null;
   }, [investigationData, selectedEntityId]);
@@ -89,18 +101,32 @@ export function InvestigationProvider({ children }) {
     setSelectedEntityId(entityId);
     setSelectedEntityType(type);
 
+    // If target has coordinates, trigger map flyTo
+    if (targetEntity?.lat !== undefined && targetEntity?.lng !== undefined) {
+      setMapFlyToTarget({
+        lng: targetEntity.lng || targetEntity.longitude,
+        lat: targetEntity.lat || targetEntity.latitude,
+        zoom: 16.5,
+        entityId
+      });
+    }
+
     // Auto-synchronize timeline timestamp based on entity relevance
     if (entityId === "FM-042" || entityId === "P-017") {
       setActiveTimestamp("14:09");
       setSelectedTimelineEventId("EVT-03");
+      const cam = investigationData.entities["CCTV-04"];
+      if (cam) setMapFlyToTarget({ lng: cam.lng, lat: cam.lat, zoom: 16.5, entityId: "CCTV-04" });
     } else if (entityId === "V-102") {
       // Default to first sighting at CCTV-04
       setActiveTimestamp("14:02");
       setSelectedTimelineEventId("EVT-01");
+      const cam = investigationData.entities["CCTV-04"];
+      if (cam) setMapFlyToTarget({ lng: cam.lng, lat: cam.lat, zoom: 15.5, entityId: "V-102" });
     } else if (entityId === "CCTV-04" || entityId === "L-08") {
       setActiveTimestamp("14:09");
       setSelectedTimelineEventId("EVT-03");
-    } else if (entityId === "CCTV-07") {
+    } else if (entityId === "CCTV-07" || entityId === "L-10") {
       setActiveTimestamp("14:15");
       setSelectedTimelineEventId("EVT-05");
     } else if (entityId === "CCTV-11" || entityId === "INC-204" || entityId === "L-12") {
@@ -108,6 +134,10 @@ export function InvestigationProvider({ children }) {
       setSelectedTimelineEventId("EVT-06");
     }
   }, [investigationData]);
+
+  const selectCamera = useCallback((cameraId) => {
+    selectEntity(cameraId, "camera");
+  }, [selectEntity]);
 
   const selectTimelineEvent = useCallback((eventId) => {
     const event = investigationData.timeline.find(e => e.id === eventId);
@@ -122,24 +152,28 @@ export function InvestigationProvider({ children }) {
       const targetEntity = investigationData.entities[primaryId];
       setSelectedEntityId(primaryId);
       setSelectedEntityType(targetEntity?.type || "entity");
+
+      if (event.camera_id && investigationData.entities[event.camera_id]) {
+        const cam = investigationData.entities[event.camera_id];
+        setMapFlyToTarget({ lng: cam.lng, lat: cam.lat, zoom: 16.5, entityId: cam.id });
+      }
     }
   }, [investigationData]);
 
-  const updateFilters = useCallback((newFilters) => {
-    setActiveFilters(prev => ({ ...prev, ...newFilters }));
-  }, []);
-
   const resetSelection = useCallback(() => {
-    setSelectedEntityId("FM-042");
-    setSelectedEntityType("face_match");
+    setSelectedEntityId("CCTV-04");
+    setSelectedEntityType("camera");
     setSelectedTimelineEventId("EVT-03");
     setActiveTimestamp("14:09");
-  }, []);
+    const cam = investigationData.entities["CCTV-04"];
+    if (cam) setMapFlyToTarget({ lng: cam.lng, lat: cam.lat, zoom: 15.2, entityId: "CCTV-04" });
+  }, [investigationData]);
 
   return (
     <InvestigationContext.Provider value={{
       activeCase,
       investigationData,
+      allCameras,
       selectedEntity,
       selectedEntityId,
       selectedEntityType,
@@ -151,10 +185,15 @@ export function InvestigationProvider({ children }) {
       selectedTimelineEvent,
       selectedTimelineEventId,
       activeTimestamp,
-      activeFilters,
+      mapFilter,
+      setMapFilter,
+      showCoverage,
+      setShowCoverage,
+      mapFlyToTarget,
+      setMapFlyToTarget,
       selectEntity,
+      selectCamera,
       selectTimelineEvent,
-      updateFilters,
       resetSelection
     }}>
       {children}
