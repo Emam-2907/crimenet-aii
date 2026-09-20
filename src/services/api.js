@@ -72,39 +72,57 @@ export const api = {
   },
 
   getSystemConnectivity: async () => {
-    try {
-      const res = await fetch(`${BASE_URL}/health`, {
-        headers: api.getHeaders(),
-        credentials: 'include'
-      });
-      if (!res.ok) throw new Error('Connectivity check failed');
-      const data = await res.json();
-      return {
-        ...data,
-        api_online: true
-      };
-    } catch (e) {
-      return {
-        system_status: 'OFFLINE',
-        api_online: false,
-        environment: 'offline',
-        timestamp: new Date().toISOString(),
-        services: {
-          api: { status: 'OFFLINE', error: 'Connection refused or unreachable' },
-          database: { status: 'OFFLINE', connected: false },
-          graph: { status: 'OFFLINE', connected: false },
-          evidence_storage: { status: 'OFFLINE', connected: false },
-          ai: { status: 'OFFLINE', live_inference: false }
-        },
-        disabled_functionality: [
-          'CASE_MUTATIONS',
-          'EVIDENCE_MUTATIONS',
-          'GRAPH_MUTATION',
-          'LIVE_AI_INFERENCE',
-          'UNIT_DISPATCH'
-        ]
-      };
+    // Try multiple endpoints for resilience (avoids CORS/credentials issues on health probes)
+    const endpoints = [
+      `${BASE_URL}/health`,
+      `${BASE_URL}/system/connectivity`,
+      (typeof window !== 'undefined' ? `${window.location.origin}/api/health` : null),
+      '/api/health',
+      '/health'
+    ].filter(Boolean);
+
+    for (const ep of endpoints) {
+      try {
+        const res = await fetch(ep, {
+          method: 'GET',
+          headers: { 'Accept': 'application/json' },
+          cache: 'no-store'
+        });
+        if (res.ok) {
+          const contentType = res.headers.get('content-type') || '';
+          if (contentType.includes('application/json')) {
+            const data = await res.json();
+            return {
+              ...data,
+              api_online: true
+            };
+          }
+        }
+      } catch (err) {
+        // Continue trying fallback endpoints
+      }
     }
+
+    return {
+      system_status: 'OFFLINE',
+      api_online: false,
+      environment: 'offline',
+      timestamp: new Date().toISOString(),
+      services: {
+        api: { status: 'OFFLINE', error: 'Connection refused or unreachable' },
+        database: { status: 'OFFLINE', connected: false },
+        graph: { status: 'OFFLINE', connected: false },
+        evidence_storage: { status: 'OFFLINE', connected: false },
+        ai: { status: 'OFFLINE', live_inference: false }
+      },
+      disabled_functionality: [
+        'CASE_MUTATIONS',
+        'EVIDENCE_MUTATIONS',
+        'GRAPH_MUTATION',
+        'LIVE_AI_INFERENCE',
+        'UNIT_DISPATCH'
+      ]
+    };
   },
 
   getGeminiKey: () => localStorage.getItem('crimenet_gemini_key') || '',

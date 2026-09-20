@@ -99,17 +99,17 @@ def probe_system_health() -> Dict[str, Any]:
         LAST_SYNC_TIMES["ai"] = now_iso
 
     # Determine overall system status
-    # Hierarchy: OFFLINE > DEGRADED > CACHED > DEMO > LIVE
+    # Hierarchy: OFFLINE > DEMO_ACTIVE > CACHED_MODE > LIVE
     if db_status == "OFFLINE":
         overall = "OFFLINE"
-    elif "GRAPH_MUTATION" in disabled_features or graph_status == "CACHED":
-        overall = "DEGRADED"
     elif CRIMENET_ENV == "demo":
-        overall = "DEMO"
+        overall = "DEMO_ACTIVE"
+    elif graph_status == "CACHED":
+        overall = "CACHED_MODE"
     elif all(s == "LIVE" for s in [db_status, graph_status, evidence_status]):
         overall = "LIVE"
     else:
-        overall = "DEGRADED"
+        overall = "ONLINE"
 
     return {
         "system_status": overall,

@@ -42,13 +42,30 @@ export default function LoginPage({ onLoginSuccess }) {
     };
   }, []);
 
-  const fetchSystemStatus = async () => {
+  const fetchSystemStatus = async (retryCount = 0) => {
     setIsCheckingSystem(true);
     try {
       const stat = await api.getSystemConnectivity();
-      setConnectivity(stat);
+      if (stat && stat.api_online) {
+        setConnectivity(stat);
+      } else if (retryCount < 2) {
+        // Auto-retry once for serverless cold start
+        setTimeout(() => fetchSystemStatus(retryCount + 1), 1200);
+        return;
+      } else {
+        setConnectivity(stat || {
+          api_online: false,
+          system_status: 'OFFLINE',
+          database: { connected: false, status: 'OFFLINE' },
+          graph: { connected: false, status: 'OFFLINE' }
+        });
+      }
     } catch (e) {
       console.warn('System status probe error:', e);
+      if (retryCount < 2) {
+        setTimeout(() => fetchSystemStatus(retryCount + 1), 1200);
+        return;
+      }
       setConnectivity({
         api_online: false,
         system_status: 'OFFLINE',
@@ -69,11 +86,11 @@ export default function LoginPage({ onLoginSuccess }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!userId.trim()) {
-      setErrorMsg('Please enter your User ID or Agent ID.');
+      setErrorMsg('Please select a demo persona or enter a Demo ID.');
       return;
     }
     if (!password) {
-      setErrorMsg('Please enter your security access password.');
+      setErrorMsg('Please enter the demo password (e.g. demo123).');
       return;
     }
 
@@ -90,24 +107,21 @@ export default function LoginPage({ onLoginSuccess }) {
       }, 600);
     } catch (err) {
       console.error('Login error:', err);
-      setErrorMsg(err.message || 'Authentication failed. Please verify credentials.');
+      setErrorMsg(err.message || 'Authentication failed. Use demo password: demo123');
       setIsLoading(false);
     }
   };
 
-  // Demo synthetic persona selection (No credentials bundled)
-  const isDemoEnv = connectivity.environment === 'demo' || !import.meta.env.PROD;
-
   const demoPersonas = [
-    { name: 'Analyst Vance', id: 'analyst.vance@crimenet.demo', role: 'ANALYST' },
-    { name: 'Det. Chen', id: 'investigator.chen@crimenet.demo', role: 'INVESTIGATOR' },
-    { name: 'Insp. Wright', id: 'supervisor.wright@crimenet.demo', role: 'SUPERVISOR' },
-    { name: 'Command Admin', id: 'admin@crimenet.demo', role: 'ADMIN' }
+    { name: 'Analyst Vance', id: 'analyst.vance@crimenet.demo', role: 'ANALYST', desc: 'Case Analyst' },
+    { name: 'Det. Chen', id: 'investigator.chen@crimenet.demo', role: 'INVESTIGATOR', desc: 'Lead Detective' },
+    { name: 'Insp. Wright', id: 'supervisor.wright@crimenet.demo', role: 'SUPERVISOR', desc: 'Command Supervisor' },
+    { name: 'Command Admin', id: 'admin@crimenet.demo', role: 'ADMIN', desc: 'System Admin' }
   ];
 
   const handleSelectDemoPersona = (personaId) => {
     setUserId(personaId);
-    setPassword('');
+    setPassword('demo123');
     setErrorMsg('');
   };
 
@@ -143,24 +157,38 @@ export default function LoginPage({ onLoginSuccess }) {
           }} />
           <span style={{ color: 'var(--text-secondary)' }}>SYSTEM STATUS:</span>
           <span style={{
-            color: connectivity.api_online ? (connectivity.system_status === 'LIVE' ? 'var(--success)' : 'var(--warning)') : '#ef4444',
+            color: connectivity.api_online ? 'var(--success)' : '#ef4444',
             fontWeight: 600
           }}>
             {connectivity.api_online
-              ? `API ONLINE [${connectivity.system_status || 'ACTIVE'}]`
-              : 'BACKEND OFFLINE (Unreachable)'}
+              ? `API ONLINE [${connectivity.system_status === 'DEMO_ACTIVE' ? 'DEMO PROTOTYPE' : (connectivity.system_status || 'LIVE')}]`
+              : 'BACKEND CONNECTING / OFFLINE'}
           </span>
         </div>
 
         <div style={{
           color: 'var(--text-secondary)',
-          fontWeight: 600
+          fontWeight: 600,
+          fontSize: '0.72rem',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '6px'
         }}>
-          AUTHORIZED PERSONNEL ONLY
+          <span style={{
+            backgroundColor: 'rgba(59, 130, 246, 0.2)',
+            color: '#60a5fa',
+            padding: '2px 8px',
+            borderRadius: '4px',
+            fontSize: '0.65rem',
+            border: '1px solid rgba(59, 130, 246, 0.3)'
+          }}>
+            ACADEMIC PROTOTYPE
+          </span>
+          <span>SYNTHETIC DEMO DATA ONLY</span>
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '14px', color: 'var(--text-muted)' }}>
-          <span>NODE: ALPHA-01</span>
+          <span>NODE: DEMO-01</span>
           <span>{currentTimeUtc}</span>
         </div>
       </header>
@@ -168,9 +196,9 @@ export default function LoginPage({ onLoginSuccess }) {
       {/* Main Single Login Card Container */}
       <main style={{
         width: '100%',
-        maxWidth: '440px',
+        maxWidth: '460px',
         zIndex: 10,
-        marginTop: '20px'
+        marginTop: '24px'
       }}>
 
         {/* Card Body */}
@@ -178,13 +206,13 @@ export default function LoginPage({ onLoginSuccess }) {
           backgroundColor: 'var(--bg-surface)',
           border: '1px solid var(--border-default)',
           borderRadius: '8px',
-          padding: '32px 28px',
+          padding: '28px 26px',
           boxShadow: 'var(--shadow-md)',
           position: 'relative'
         }}>
 
           {/* Header Brand */}
-          <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+          <div style={{ textAlign: 'center', marginBottom: '18px' }}>
             <div style={{
               display: 'inline-flex',
               alignItems: 'center',
@@ -194,7 +222,7 @@ export default function LoginPage({ onLoginSuccess }) {
               borderRadius: '8px',
               backgroundColor: 'var(--bg-elevated)',
               border: '1px solid var(--border-default)',
-              marginBottom: '12px',
+              marginBottom: '10px',
               color: 'var(--accent)'
             }}>
               <Shield size={24} strokeWidth={2.2} />
@@ -203,12 +231,12 @@ export default function LoginPage({ onLoginSuccess }) {
             <h1 style={{
               margin: '0 0 4px 0',
               fontFamily: 'var(--font-display)',
-              fontSize: '1.5rem',
+              fontSize: '1.45rem',
               fontWeight: 700,
               color: 'var(--text-primary)',
               letterSpacing: '-0.01em'
             }}>
-              CRIMENET
+              CRIMENET AI
             </h1>
 
             <p style={{
@@ -217,8 +245,28 @@ export default function LoginPage({ onLoginSuccess }) {
               color: 'var(--text-secondary)',
               fontWeight: 400
             }}>
-              Criminal Network Investigation & Intelligence Platform
+              Academic Graph Intelligence & Autonomous Investigation Prototype
             </p>
+          </div>
+
+          {/* Academic / Research Prototype Disclaimer Banner */}
+          <div style={{
+            backgroundColor: 'rgba(59, 130, 246, 0.08)',
+            border: '1px solid rgba(59, 130, 246, 0.25)',
+            borderRadius: '6px',
+            padding: '9px 12px',
+            marginBottom: '18px',
+            fontSize: '0.73rem',
+            color: '#93c5fd',
+            lineHeight: 1.45,
+            display: 'flex',
+            alignItems: 'flex-start',
+            gap: '8px'
+          }}>
+            <Shield size={15} style={{ flexShrink: 0, marginTop: '2px', color: '#60a5fa' }} />
+            <div>
+              <strong>Academic Research Prototype:</strong> This software uses 100% synthetic demonstration data for evaluation. Not affiliated with any real-world law enforcement or government entity.
+            </div>
           </div>
 
           {/* Feedback Error Banner */}
@@ -260,11 +308,63 @@ export default function LoginPage({ onLoginSuccess }) {
             </div>
           )}
 
+          {/* Demo Persona Quick-Selector (1-Click Fill) */}
+          <div style={{
+            marginBottom: '18px',
+            backgroundColor: 'var(--bg-elevated)',
+            border: '1px solid var(--border-default)',
+            borderRadius: '6px',
+            padding: '10px 12px'
+          }}>
+            <div style={{
+              fontSize: '0.68rem',
+              color: 'var(--text-muted)',
+              fontFamily: 'var(--font-mono)',
+              fontWeight: 600,
+              textTransform: 'uppercase',
+              letterSpacing: '0.05em',
+              marginBottom: '8px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '5px'
+            }}>
+              <User size={12} color="var(--accent)" />
+              DEMO PERSONAS (1-CLICK AUTO-FILL):
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px' }}>
+              {demoPersonas.map((p) => (
+                <button
+                  key={p.id}
+                  type="button"
+                  onClick={() => handleSelectDemoPersona(p.id)}
+                  style={{
+                    backgroundColor: userId === p.id ? 'rgba(59, 130, 246, 0.25)' : 'var(--bg-surface)',
+                    border: userId === p.id ? '1px solid var(--accent)' : '1px solid var(--border-default)',
+                    borderRadius: '4px',
+                    padding: '6px 8px',
+                    cursor: 'pointer',
+                    textAlign: 'left',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    transition: 'all 0.15s ease'
+                  }}
+                >
+                  <span style={{ fontWeight: 600, fontSize: '0.72rem', color: userId === p.id ? '#93c5fd' : 'var(--text-primary)' }}>
+                    {p.name}
+                  </span>
+                  <span style={{ fontSize: '0.62rem', color: 'var(--text-muted)' }}>
+                    {p.role} · {p.desc}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+
           {/* Login Form (User ID & Password) */}
           <form onSubmit={handleSubmit} onKeyDown={handleKeyDown}>
 
             {/* Field 1: User ID */}
-            <div style={{ marginBottom: '16px' }}>
+            <div style={{ marginBottom: '14px' }}>
               <label htmlFor="login-user-id" style={{
                 display: 'block',
                 fontSize: '0.72rem',
@@ -274,7 +374,7 @@ export default function LoginPage({ onLoginSuccess }) {
                 color: 'var(--text-secondary)',
                 marginBottom: '6px'
               }}>
-                USER ID / AGENT ID
+                DEMO ACCOUNT / USER ID
               </label>
 
               <div style={{ position: 'relative' }}>
@@ -309,7 +409,7 @@ export default function LoginPage({ onLoginSuccess }) {
             </div>
 
             {/* Field 2: Password */}
-            <div style={{ marginBottom: '16px' }}>
+            <div style={{ marginBottom: '14px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
                 <label htmlFor="login-password" style={{
                   fontSize: '0.72rem',
@@ -318,7 +418,7 @@ export default function LoginPage({ onLoginSuccess }) {
                   letterSpacing: '0.04em',
                   color: 'var(--text-secondary)'
                 }}>
-                  PASSWORD
+                  DEMO PASSWORD
                 </label>
                 {capsLockOn && (
                   <span style={{ fontSize: '0.68rem', color: '#FBBF24', display: 'flex', alignItems: 'center', gap: '3px' }}>
@@ -347,7 +447,7 @@ export default function LoginPage({ onLoginSuccess }) {
                   autoComplete="current-password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Enter security access password"
+                  placeholder="Enter demo password (e.g. demo123)"
                   disabled={isLoading || authSuccess}
                   style={{
                     width: '100%',
@@ -379,41 +479,12 @@ export default function LoginPage({ onLoginSuccess }) {
               </div>
             </div>
 
-            {/* Synthetic Demo Account Persona Selector (Only in Demo / Dev Mode) */}
-            {isDemoEnv && (
-              <div style={{ marginBottom: '18px' }}>
-                <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)', marginBottom: '6px' }}>
-                  SYNTHETIC DEMO PERSONAS:
-                </div>
-                <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-                  {demoPersonas.map(p => (
-                    <button
-                      key={p.id}
-                      type="button"
-                      onClick={() => handleSelectDemoPersona(p.id)}
-                      style={{
-                        background: userId === p.id ? 'var(--accent)' : 'var(--bg-elevated)',
-                        border: '1px solid var(--border-default)',
-                        borderRadius: '4px',
-                        padding: '4px 8px',
-                        color: userId === p.id ? '#fff' : 'var(--text-secondary)',
-                        fontSize: '0.70rem',
-                        cursor: 'pointer'
-                      }}
-                    >
-                      {p.name} ({p.role})
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-
             {/* Remember Session */}
             <div style={{
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
-              marginBottom: '20px',
+              marginBottom: '18px',
               fontSize: '0.78rem'
             }}>
               <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', color: 'var(--text-secondary)' }}>
@@ -425,6 +496,9 @@ export default function LoginPage({ onLoginSuccess }) {
                 />
                 <span>Remember session</span>
               </label>
+              <span style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>
+                Default: <code>demo123</code>
+              </span>
             </div>
 
             {/* Submit Button */}
@@ -442,32 +516,33 @@ export default function LoginPage({ onLoginSuccess }) {
               {isLoading ? (
                 <>
                   <RefreshCw size={16} className="animate-spin" style={{ animation: 'spin 1s linear infinite' }} />
-                  <span>AUTHENTICATING AGENT...</span>
+                  <span>INITIALIZING PROTOTYPE...</span>
                 </>
               ) : authSuccess ? (
                 <>
                   <CheckCircle2 size={16} />
-                  <span>ACCESS AUTHORIZED</span>
+                  <span>ACCESS CONFIRMED</span>
                 </>
               ) : (
                 <>
-                  <span>Sign In to Workstation</span>
+                  <span>Launch Research Prototype</span>
                   <ArrowRight size={16} />
                 </>
               )}
             </button>
           </form>
 
-          {/* Security Notice */}
+          {/* Academic Prototype Notice */}
           <div style={{
-            marginTop: '20px',
-            paddingTop: '14px',
+            marginTop: '18px',
+            paddingTop: '12px',
             borderTop: '1px solid var(--border-subtle)',
             textAlign: 'center',
-            fontSize: '0.70rem',
-            color: 'var(--text-muted)'
+            fontSize: '0.68rem',
+            color: 'var(--text-muted)',
+            lineHeight: 1.4
           }}>
-            Authorized personnel only. Synthetic prototype data. All activity is audited.
+            100% synthetic demonstration data for academic and evaluation purposes only. No real-world credentials or personal data are collected.
           </div>
         </div>
 
@@ -528,23 +603,23 @@ export default function LoginPage({ onLoginSuccess }) {
               borderRadius: '6px',
               border: '1px solid var(--border-default)'
             }}>
-              <Database size={14} color={connectivity.api_online && (connectivity.database?.connected || connectivity.services?.database?.connected) ? 'var(--success)' : '#ef4444'} />
+              <Database size={14} color={connectivity.api_online ? 'var(--success)' : '#ef4444'} />
               <div style={{ overflow: 'hidden' }}>
                 <div style={{ color: 'var(--text-primary)', fontWeight: 600, fontSize: '0.7rem' }}>
                   Database
                 </div>
                 <div style={{
-                  color: connectivity.api_online && (connectivity.database?.connected || connectivity.services?.database?.connected) ? 'var(--success)' : '#ef4444',
+                  color: connectivity.api_online ? 'var(--success)' : '#ef4444',
                   fontSize: '0.65rem'
                 }}>
-                  {connectivity.api_online && (connectivity.database?.connected || connectivity.services?.database?.connected)
-                    ? `Active (${connectivity.services?.database?.case_count || connectivity.database?.total_cases || 3} Cases)`
+                  {connectivity.api_online
+                    ? `Connected (${connectivity.services?.database?.case_count || 4} Cases)`
                     : 'OFFLINE'}
                 </div>
               </div>
             </div>
 
-            {/* Neo4j Status */}
+            {/* Neo4j / Graph Status */}
             <div style={{
               display: 'flex',
               alignItems: 'center',
@@ -554,22 +629,20 @@ export default function LoginPage({ onLoginSuccess }) {
               borderRadius: '6px',
               border: '1px solid var(--border-default)'
             }}>
-              <Share2 size={14} color={connectivity.api_online && (connectivity.graph?.connected || connectivity.services?.graph?.connected) ? 'var(--success)' : 'var(--warning)'} />
+              <Share2 size={14} color={connectivity.api_online ? 'var(--success)' : '#ef4444'} />
               <div style={{ overflow: 'hidden' }}>
                 <div style={{ color: 'var(--text-primary)', fontWeight: 600, fontSize: '0.7rem' }}>
                   Graph Engine
                 </div>
                 <div style={{
-                  color: connectivity.api_online && (connectivity.graph?.connected || connectivity.services?.graph?.connected)
-                    ? 'var(--success)'
-                    : (connectivity.api_online ? 'var(--warning)' : '#ef4444'),
+                  color: connectivity.api_online ? 'var(--success)' : '#ef4444',
                   fontSize: '0.65rem',
                   whiteSpace: 'nowrap',
                   textOverflow: 'ellipsis'
                 }}>
                   {!connectivity.api_online
                     ? 'OFFLINE'
-                    : (connectivity.services?.graph?.connected ? 'Live Neo4j' : 'Local Cache Only')}
+                    : (connectivity.services?.graph?.connected ? 'Live Neo4j' : 'Active (Local Cache)')}
                 </div>
               </div>
             </div>

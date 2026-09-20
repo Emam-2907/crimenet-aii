@@ -55,24 +55,26 @@ async def add_security_headers(request: Request, call_next):
     response.headers["X-Frame-Options"] = "DENY"
     response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
     response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()"
+    response.headers["X-Robots-Tag"] = "noindex, nofollow, noarchive"
     response.headers["Content-Security-Policy"] = (
         "default-src 'self'; "
         "script-src 'self'; "
         "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
         "font-src 'self' https://fonts.gstatic.com data:; "
         "img-src 'self' data: blob: https:; "
-        "connect-src 'self' http://localhost:8000 https://crimenet-ai-2.vercel.app; "
+        "connect-src 'self' http://localhost:8000 https://crimenet-ai-2.vercel.app https://*.vercel.app; "
         "frame-ancestors 'none';"
     )
     return response
 
-# CORS configuration with explicit origins (No wildcard '*' with credentials)
+# CORS configuration with explicit origins + Vercel preview domain regex
 app.add_middleware(
     CORSMiddleware,
     allow_origins=ALLOWED_ORIGINS,
+    allow_origin_regex=r"https://.*\.vercel\.app",
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    allow_headers=["Authorization", "Content-Type", "X-Gemini-Key", "X-Requested-With", "Accept"],
+    allow_headers=["*"],
 )
 
 # Mount all intelligence routers
@@ -87,7 +89,11 @@ app.include_router(entity_resolution_router.router)
 app.include_router(incidents_router.router)
 
 @app.get("/")
-def root():
+@app.get("/health")
+@app.get("/api/health")
+@app.get("/system/connectivity")
+@app.get("/api/system/connectivity")
+def root_and_health():
     return probe_system_health()
 
 if __name__ == "__main__":
