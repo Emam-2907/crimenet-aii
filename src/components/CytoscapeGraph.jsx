@@ -5,12 +5,13 @@ import { useCIRA } from '../context/CIRAContext.jsx';
 import { api } from '../services/api.js';
 import { soundFx } from '../utils/audio.js';
 import EvidenceDetailModal from './EvidenceDetailModal.jsx';
+import WorldIntelligenceMap from './WorldIntelligenceMap.jsx';
 import {
   Share2, ZoomIn, ZoomOut, Maximize2, Minimize2, RefreshCw, Route,
   Filter, Shield, AlertTriangle, Eye, Layers, UserCheck, Search,
   Database, ArrowRight, ExternalLink, MessageSquare, Plus, Info,
   CheckCircle, FileText, ChevronRight, X, Phone, Car, CreditCard,
-  MapPin, Building, User, Hash, Clock
+  MapPin, Building, User, Hash, Clock, Globe, Columns
 } from 'lucide-react';
 
 try {
@@ -144,6 +145,9 @@ export default function CytoscapeGraph() {
   const [selectedEdge, setSelectedEdge] = useState(null);
   const [inspectingEvidence, setInspectingEvidence] = useState(null);
 
+  // Primary View Mode: 'GRAPH' (Network Diagram) | 'WORLD_MAP' (Global Tactical Map) | 'SPLIT' (Side-by-Side)
+  const [viewMode, setViewMode] = useState('GRAPH');
+
   // Tooling State (Default to Concentric Target Radial for command center clarity)
   const [layoutName, setLayoutName] = useState('concentric');
   const [threatFilter, setThreatFilter] = useState('ALL');
@@ -162,6 +166,19 @@ export default function CytoscapeGraph() {
   // Analytics State
   const [analyticsData, setAnalyticsData] = useState(null);
   const [expandingNodeId, setExpandingNodeId] = useState(null);
+
+  // Responsive Cytoscape Canvas Resizing on View Mode Transition
+  useEffect(() => {
+    if (cyRef.current) {
+      const timer = setTimeout(() => {
+        cyRef.current?.resize();
+        if (viewMode === 'GRAPH') {
+          cyRef.current?.fit(undefined, 35);
+        }
+      }, 150);
+      return () => clearTimeout(timer);
+    }
+  }, [viewMode]);
 
   // 1. Check Neo4j Connectivity Status
   const checkStatus = useCallback(async () => {
@@ -692,23 +709,103 @@ export default function CytoscapeGraph() {
           </span>
         </div>
 
-        {/* Right: Layout Switcher & Canvas Actions */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <select
-            value={layoutName}
-            onChange={(e) => setLayoutName(e.target.value)}
-            style={{
-              background: 'var(--ink-2)', border: '1px solid var(--b-soft)',
-              color: 'var(--t-muted)', fontSize: '0.72rem', padding: '5px 10px',
-              borderRadius: '6px', fontFamily: 'var(--f-mono)', cursor: 'pointer'
-            }}
-          >
-            <option value="concentric">Layout: Concentric Radial (Command Center)</option>
-            <option value="cose-bilkent">Layout: Force-Directed (Physics)</option>
-            <option value="breadthfirst">Layout: Operational Hierarchy</option>
-            <option value="circle">Layout: Perimeter Circle</option>
-            <option value="grid">Layout: Matrix Grid</option>
-          </select>
+        {/* Center/Right: Primary View Mode Switcher & Actions */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+          {/* View Switcher Segmented Control */}
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            background: 'var(--ink-2)',
+            border: '1px solid var(--b-soft)',
+            borderRadius: '7px',
+            padding: '2px',
+            boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.5)'
+          }}>
+            <button
+              onClick={() => setViewMode('GRAPH')}
+              style={{
+                padding: '5px 11px',
+                background: viewMode === 'GRAPH' ? 'var(--blue)' : 'transparent',
+                border: 'none',
+                borderRadius: '5px',
+                color: viewMode === 'GRAPH' ? '#fff' : 'var(--t-muted)',
+                fontSize: '0.72rem',
+                fontWeight: viewMode === 'GRAPH' ? 700 : 500,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '5px',
+                transition: 'all 0.15s ease'
+              }}
+              title="Inspect relational node-and-edge network diagram"
+            >
+              <Share2 size={13} />
+              <span>Network Graph</span>
+            </button>
+
+            <button
+              onClick={() => setViewMode('WORLD_MAP')}
+              style={{
+                padding: '5px 11px',
+                background: viewMode === 'WORLD_MAP' ? 'var(--blue)' : 'transparent',
+                border: 'none',
+                borderRadius: '5px',
+                color: viewMode === 'WORLD_MAP' ? '#fff' : 'var(--t-muted)',
+                fontSize: '0.72rem',
+                fontWeight: viewMode === 'WORLD_MAP' ? 700 : 500,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '5px',
+                transition: 'all 0.15s ease'
+              }}
+              title="Inspect global syndicate locations, corridors & Interpol notices on authentic world map"
+            >
+              <Globe size={13} />
+              <span>Original World Map 🌍</span>
+            </button>
+
+            <button
+              onClick={() => setViewMode('SPLIT')}
+              style={{
+                padding: '5px 11px',
+                background: viewMode === 'SPLIT' ? 'var(--blue)' : 'transparent',
+                border: 'none',
+                borderRadius: '5px',
+                color: viewMode === 'SPLIT' ? '#fff' : 'var(--t-muted)',
+                fontSize: '0.72rem',
+                fontWeight: viewMode === 'SPLIT' ? 700 : 500,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '5px',
+                transition: 'all 0.15s ease'
+              }}
+              title="Side-by-side synchronized view of relational graph and world map"
+            >
+              <Columns size={13} />
+              <span>Split Screen</span>
+            </button>
+          </div>
+
+          {/* Cytoscape Layout Switcher (Visible in Graph & Split modes) */}
+          {viewMode !== 'WORLD_MAP' && (
+            <select
+              value={layoutName}
+              onChange={(e) => setLayoutName(e.target.value)}
+              style={{
+                background: 'var(--ink-2)', border: '1px solid var(--b-soft)',
+                color: 'var(--t-muted)', fontSize: '0.72rem', padding: '5px 10px',
+                borderRadius: '6px', fontFamily: 'var(--f-mono)', cursor: 'pointer'
+              }}
+            >
+              <option value="concentric">Layout: Concentric Radial (Command Center)</option>
+              <option value="cose-bilkent">Layout: Force-Directed (Physics)</option>
+              <option value="breadthfirst">Layout: Operational Hierarchy</option>
+              <option value="circle">Layout: Perimeter Circle</option>
+              <option value="grid">Layout: Matrix Grid</option>
+            </select>
+          )}
 
           <button
             onClick={() => cyRef.current?.zoom(cyRef.current.zoom() * 1.25)}
@@ -941,17 +1038,26 @@ export default function CytoscapeGraph() {
         </div>
       </div>
 
-      {/* ── MAIN WORKSPACE: GRAPH CANVAS + SIDE DRAWERS ───────────────────── */}
+      {/* ── MAIN WORKSPACE: GRAPH CANVAS / WORLD MAP + SIDE DRAWERS ───────────────────── */}
       <div style={{ flex: 1, display: 'flex', position: 'relative', overflow: 'hidden' }}>
 
-        {/* CYTOSCAPE CANVAS */}
-        <div className="graph-viewport-container graph-container" style={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
+        {/* VIEW 1: CYTOSCAPE CANVAS (Visible in 'GRAPH' and 'SPLIT') */}
+        <div
+          className="graph-viewport-container graph-container"
+          style={{
+            flex: viewMode === 'WORLD_MAP' ? 'none' : 1,
+            display: viewMode === 'WORLD_MAP' ? 'none' : 'block',
+            width: viewMode === 'SPLIT' ? '50%' : '100%',
+            position: 'relative',
+            overflow: 'hidden',
+            borderRight: viewMode === 'SPLIT' ? '1px solid var(--b-soft)' : 'none'
+          }}
+        >
           {/* Glowing HUD Reticle Corners */}
           <div className="hud-corner hud-tl" />
           <div className="hud-corner hud-tr" />
           <div className="hud-corner hud-bl" />
           <div className="hud-corner hud-br" />
-
 
           {/* Tactical Matrix Docket Badge */}
           <div style={{
@@ -970,7 +1076,7 @@ export default function CytoscapeGraph() {
               fontFamily: 'var(--font-mono)', fontSize: '0.68rem', fontWeight: 600,
               color: 'var(--text-high)', letterSpacing: '0.04em', textTransform: 'uppercase'
             }}>
-              RELATIONAL KNOWLEDGE GRAPH · {currentCaseId}
+              RELATIONAL NETWORK GRAPH · {currentCaseId}
             </span>
           </div>
 
@@ -1022,6 +1128,47 @@ export default function CytoscapeGraph() {
           {/* Cytoscape Container Element */}
           <div ref={containerRef} style={{ width: '100%', height: '100%' }} />
         </div>
+
+        {/* VIEW 2: ORIGINAL WORLD MAP (Visible in 'WORLD_MAP' and 'SPLIT') */}
+        {(viewMode === 'WORLD_MAP' || viewMode === 'SPLIT') && (
+          <div style={{
+            flex: 1,
+            width: viewMode === 'SPLIT' ? '50%' : '100%',
+            height: '100%',
+            position: 'relative',
+            overflow: 'hidden'
+          }}>
+            <WorldIntelligenceMap
+              externalNodes={graphData.nodes}
+              selectedEntity={selectedNode}
+              onSelectEntity={(node) => {
+                setSelectedNode(node);
+                if (cyRef.current) {
+                  const ele = cyRef.current.getElementById(node.id);
+                  if (ele.length > 0) {
+                    cyRef.current.elements().removeClass('highlighted dimmed');
+                    ele.addClass('highlighted');
+                    ele.neighborhood().addClass('highlighted');
+                    cyRef.current.elements().not(ele).not(ele.neighborhood()).addClass('dimmed');
+                  }
+                }
+              }}
+              onInspectInGraph={(node) => {
+                setViewMode('GRAPH');
+                setTimeout(() => {
+                  if (cyRef.current) {
+                    const ele = cyRef.current.getElementById(node.id);
+                    if (ele.length > 0) {
+                      cyRef.current.animate({ center: { eles: ele }, zoom: 1.6, duration: 400 });
+                    }
+                  }
+                }, 150);
+              }}
+              onAskCira={handleAskCira}
+              height="100%"
+            />
+          </div>
+        )}
 
         {/* ── RIGHT SLIDE-OUT PANEL ────────────────────────────────────────── */}
         <div style={{
@@ -1211,6 +1358,19 @@ export default function CytoscapeGraph() {
                     >
                       <Plus size={14} />
                       <span>{expandingNodeId === selectedNode.id ? 'Expanding...' : 'Expand 1-Hop Discovery'}</span>
+                    </button>
+
+                    <button
+                      onClick={() => setViewMode('WORLD_MAP')}
+                      style={{
+                        padding: '9px 14px', background: 'rgba(63, 95, 120, 0.25)', border: '1px solid var(--accent)',
+                        borderRadius: '6px', color: 'var(--accent-hover)', fontSize: '0.76rem', fontWeight: 600,
+                        cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px'
+                      }}
+                      title="Inspect this entity on the global transnational intelligence world map"
+                    >
+                      <Globe size={14} />
+                      <span>View on Original World Map 🌍 →</span>
                     </button>
 
                     <button
