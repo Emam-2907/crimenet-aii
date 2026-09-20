@@ -2,7 +2,7 @@ import React from 'react';
 import { useCIRA } from '../context/CIRAContext.jsx';
 
 export default function EvidenceDetailModal({ evidence, onClose }) {
-  const { navigate, updateSubject, setSelectedEvidence } = useCIRA();
+  const { navigate, updateSubject, setSelectedEvidence, duplicateEvidence } = useCIRA();
 
   if (!evidence) return null;
 
@@ -255,12 +255,27 @@ export default function EvidenceDetailModal({ evidence, onClose }) {
 
           <div style={{ display: 'flex', gap: '10px' }}>
             <button
+              onClick={async () => {
+                const dup = await duplicateEvidence(evidence);
+                if (dup) setSelectedEvidence(dup);
+              }}
+              style={{
+                display: 'flex', alignItems: 'center', gap: '6px',
+                padding: '7px 14px', background: 'var(--bg-elevated)',
+                border: '1px solid var(--accent-border)', borderRadius: '6px',
+                color: 'var(--accent-hover)', fontSize: '0.78rem', fontWeight: 600, cursor: 'pointer'
+              }}
+              title="Duplicate this evidence item into a forensic working copy under FRE 1001(e)"
+            >
+              📋 Duplicate (Rule 1003 Copy)
+            </button>
+            <button
               onClick={handleAskCira}
               style={{
                 display: 'flex', alignItems: 'center', gap: '6px',
-                padding: '7px 14px', background: 'var(--green-dim)',
-                border: '1px solid var(--green-border)', borderRadius: '6px',
-                color: 'var(--green-light)', fontSize: '0.78rem', fontWeight: 600, cursor: 'pointer'
+                padding: '7px 14px', background: 'var(--accent-dim)',
+                border: '1px solid var(--accent-border)', borderRadius: '6px',
+                color: 'var(--accent-hover)', fontSize: '0.78rem', fontWeight: 600, cursor: 'pointer'
               }}
             >
               Ask CIRA
@@ -269,9 +284,9 @@ export default function EvidenceDetailModal({ evidence, onClose }) {
               onClick={handleOpenGraph}
               style={{
                 display: 'flex', alignItems: 'center', gap: '6px',
-                padding: '7px 16px', background: 'var(--green)',
+                padding: '7px 16px', background: 'var(--accent)',
                 border: 'none', borderRadius: '6px',
-                color: '#06090e', fontSize: '0.78rem', fontWeight: 700, cursor: 'pointer'
+                color: '#ffffff', fontSize: '0.78rem', fontWeight: 700, cursor: 'pointer'
               }}
             >
               Open in Graph →

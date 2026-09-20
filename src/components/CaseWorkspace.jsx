@@ -26,7 +26,8 @@ export default function CaseWorkspace() {
     navigate,
     updateSubject,
     selectedEvidence,
-    setSelectedEvidence
+    setSelectedEvidence,
+    duplicateCase
   } = useCIRA();
 
   const [caseDetail, setCaseDetail] = useState(null);
@@ -218,6 +219,15 @@ export default function CaseWorkspace() {
             style={{ fontSize: '0.78rem', padding: '7px 14px' }}
           >
             🗺️ CCTV Surveillance Map
+          </button>
+
+          <button
+            onClick={() => duplicateCase(current.id)}
+            className="btn-secondary"
+            style={{ fontSize: '0.78rem', padding: '7px 14px', borderColor: 'var(--accent)', color: 'var(--accent-hover)' }}
+            title="Create an authentic forensic working duplicate of this case docket"
+          >
+            📋 Duplicate Case Docket
           </button>
 
           <button
@@ -445,8 +455,78 @@ export default function CaseWorkspace() {
 
       {/* ── TAB: CCTV & MAP ─────────────────────────────────────────────────── */}
       {activeCaseTab === 'CCTV_MAP' && (
-        <div style={{ width: '100%', minHeight: '680px' }}>
-          <CR204InvestigationView />
+        <div style={{
+          background: 'var(--bg-surface)',
+          border: '1px solid var(--border-default)',
+          borderRadius: '8px',
+          padding: '24px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '20px'
+        }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px' }}>
+            <div style={{ maxWidth: '680px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+                <span className="dot dot-green" />
+                <span style={{ fontSize: '0.72rem', fontFamily: 'var(--font-mono)', color: 'var(--accent-hover)', fontWeight: 700 }}>
+                  PRIMARY CCTV SURVEILLANCE & GEOGRAPHIC TRACKING MATRIX
+                </span>
+                <span style={{
+                  fontSize: '0.62rem', fontFamily: 'var(--font-mono)', padding: '1px 6px',
+                  borderRadius: '3px', background: 'var(--critical-dim)', color: 'var(--critical)', border: '1px solid var(--critical-border)'
+                }}>
+                  SECTOR 4
+                </span>
+              </div>
+              <h3 style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>
+                CR-204 CCTV Surveillance Network & Sighting Telemetry
+              </h3>
+              <p style={{ fontSize: '0.84rem', color: 'var(--text-secondary)', marginTop: '8px', lineHeight: 1.5 }}>
+                12 active CCTV surveillance cameras monitored across South Pier Logistics Depot. Tracking Vehicle V-102 transit route, candidate match FM-042 (87% ArcFace similarity), and incident INC-204 alarm.
+              </p>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => navigate('cr204')}
+              className="btn-primary"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '12px 22px',
+                fontSize: '0.86rem',
+                fontWeight: 700,
+                cursor: 'pointer'
+              }}
+            >
+              <span>Launch Original Tactical Map →</span>
+            </button>
+          </div>
+
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+            gap: '12px',
+            paddingTop: '12px',
+            borderTop: '1px solid var(--border-subtle)'
+          }}>
+            <div style={{ padding: '12px 14px', background: 'var(--bg-elevated)', borderRadius: '6px', border: '1px solid var(--border-default)' }}>
+              <div style={{ fontSize: '0.66rem', fontFamily: 'var(--font-mono)', color: 'var(--text-secondary)' }}>MONITORED CAMERAS</div>
+              <div style={{ fontSize: '1.2rem', fontWeight: 700, color: 'var(--success)', marginTop: '4px' }}>12 Active Units</div>
+              <div style={{ fontSize: '0.70rem', color: 'var(--text-muted)', marginTop: '2px' }}>CCTV-01 to CCTV-12</div>
+            </div>
+            <div style={{ padding: '12px 14px', background: 'var(--bg-elevated)', borderRadius: '6px', border: '1px solid var(--border-default)' }}>
+              <div style={{ fontSize: '0.66rem', fontFamily: 'var(--font-mono)', color: 'var(--text-secondary)' }}>PRIMARY SIGHTING</div>
+              <div style={{ fontSize: '1.2rem', fontWeight: 700, color: 'var(--accent-hover)', marginTop: '4px' }}>Gate 4 Turnstile</div>
+              <div style={{ fontSize: '0.70rem', color: 'var(--text-muted)', marginTop: '2px' }}>FM-042 (87% Biometric Match)</div>
+            </div>
+            <div style={{ padding: '12px 14px', background: 'var(--bg-elevated)', borderRadius: '6px', border: '1px solid var(--border-default)' }}>
+              <div style={{ fontSize: '0.66rem', fontFamily: 'var(--font-mono)', color: 'var(--text-secondary)' }}>TRANSIT CORRIDOR</div>
+              <div style={{ fontSize: '1.2rem', fontWeight: 700, color: 'var(--warning)', marginTop: '4px' }}>Vehicle V-102</div>
+              <div style={{ fontSize: '0.70rem', color: 'var(--text-muted)', marginTop: '2px' }}>Inferred Pier East Route</div>
+            </div>
+          </div>
         </div>
       )}
 

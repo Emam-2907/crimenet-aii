@@ -36,9 +36,6 @@ export default function CR204InvestigationView() {
   const [activeBottomTab, setActiveBottomTab] = useState('timeline');
   const [graphViewMode, setGraphViewMode] = useState('interactive'); // 'interactive' | 'accessible_tree'
 
-  // Workspace View Mode: 'standard' (Map + Camera Panel) | 'split' (Map + Graph side-by-side)
-  const [workspaceMode, setWorkspaceMode] = useState('standard');
-
   // Owner Footage Intake Modal State
   const [isFootageModalOpen, setIsFootageModalOpen] = useState(false);
   const [notificationBanner, setNotificationBanner] = useState(null);
@@ -205,17 +202,21 @@ Use the command bar below or type a query to command CIRA.`,
             <span>Request Owner Footage (Subpoena)</span>
           </button>
 
-          {/* Workspace Mode: Standard vs Split Map & Graph */}
+          {/* Fast Section Jump Shortcuts */}
           <div style={{
             display: 'flex',
             backgroundColor: 'var(--bg-elevated)',
             borderRadius: '6px',
             border: '1px solid var(--border-default)',
-            padding: '2px'
+            padding: '2px',
+            gap: '4px'
           }}>
             <button
               type="button"
-              onClick={() => setWorkspaceMode('standard')}
+              onClick={() => {
+                const el = document.getElementById('cr204-map-container');
+                el?.scrollIntoView({ behavior: 'smooth' });
+              }}
               style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -223,20 +224,24 @@ Use the command bar below or type a query to command CIRA.`,
                 padding: '4px 10px',
                 borderRadius: '4px',
                 border: 'none',
-                backgroundColor: workspaceMode === 'standard' ? 'var(--accent)' : 'transparent',
-                color: workspaceMode === 'standard' ? '#fff' : 'var(--text-secondary)',
+                backgroundColor: 'var(--accent)',
+                color: '#fff',
                 fontSize: '0.70rem',
                 fontWeight: 600,
                 cursor: 'pointer'
               }}
             >
               <Eye size={13} />
-              <span>Surveillance View</span>
+              <span>Tactical Map</span>
             </button>
 
             <button
               type="button"
-              onClick={() => setWorkspaceMode('split')}
+              onClick={() => {
+                setActiveBottomTab('graph');
+                const el = document.getElementById('cr204-bottom-tabs');
+                el?.scrollIntoView({ behavior: 'smooth' });
+              }}
               style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -244,16 +249,16 @@ Use the command bar below or type a query to command CIRA.`,
                 padding: '4px 10px',
                 borderRadius: '4px',
                 border: 'none',
-                backgroundColor: workspaceMode === 'split' ? 'var(--accent)' : 'transparent',
-                color: workspaceMode === 'split' ? '#fff' : 'var(--text-secondary)',
+                backgroundColor: activeBottomTab === 'graph' ? 'var(--accent-hover)' : 'transparent',
+                color: activeBottomTab === 'graph' ? '#fff' : 'var(--text-secondary)',
                 fontSize: '0.70rem',
                 fontWeight: 600,
                 cursor: 'pointer'
               }}
-              title="View Real Map and Relational Knowledge Graph side-by-side with live synchronization"
+              title="Jump to Synced Relational Knowledge Graph"
             >
-              <Split size={13} />
-              <span>Map & Graph Split View</span>
+              <GitFork size={13} />
+              <span>Knowledge Graph</span>
             </button>
           </div>
 
@@ -314,31 +319,11 @@ Use the command bar below or type a query to command CIRA.`,
         </div>
       )}
 
-      {/* ── Primary Investigation Workspace ─────────────────────────────── */}
-      {workspaceMode === 'split' ? (
-        /* Split View: Real Map (left) + Authentic Cytoscape Graph (right) */
-        <section aria-label="Synchronized Map and Knowledge Graph Split Matrix" style={{
-          display: 'grid',
-          gridTemplateColumns: 'minmax(0, 1.1fr) minmax(0, 0.9fr)',
-          gap: '16px',
-          height: '640px',
-          minHeight: '560px',
-          alignItems: 'stretch',
-          width: '100%'
-        }}>
-          {/* Dominant Real Geographic Map Container */}
-          <div style={{ height: '640px', minHeight: '560px', position: 'relative', borderRadius: '8px', overflow: 'hidden' }}>
-            <InvestigationMap />
-          </div>
-
-          {/* Synchronized Cytoscape Knowledge Graph */}
-          <div style={{ height: '640px', minHeight: '560px', position: 'relative', borderRadius: '8px', overflow: 'hidden' }}>
-            <CR204CytoscapeGraph height="100%" onFocusMap={(ent) => selectEntity(ent.id, ent.type)} />
-          </div>
-        </section>
-      ) : (
-        /* Standard View: Real Map (left) + Camera Dossier Panel (right) */
-        <section aria-label="Geographic CCTV Network and Camera Dossier" style={{
+      {/* ── Primary Real Geographic CCTV Surveillance Matrix ─────────────────── */}
+      <section
+        id="cr204-map-container"
+        aria-label="Geographic CCTV Network and Camera Dossier"
+        style={{
           display: 'grid',
           gridTemplateColumns: 'minmax(0, 1fr) 420px',
           gap: '16px',
@@ -346,21 +331,24 @@ Use the command bar below or type a query to command CIRA.`,
           minHeight: '560px',
           alignItems: 'stretch',
           width: '100%'
-        }}>
-          {/* Dominant Real Geographic Map Container */}
-          <div style={{ height: '620px', minHeight: '560px', position: 'relative', borderRadius: '8px', overflow: 'hidden' }}>
-            <InvestigationMap />
-          </div>
+        }}
+      >
+        {/* Dominant Real Geographic Map Container */}
+        <div style={{ height: '620px', minHeight: '560px', position: 'relative', borderRadius: '8px', overflow: 'hidden' }}>
+          <InvestigationMap />
+        </div>
 
-          {/* Dynamic Camera Details Panel */}
-          <div style={{ height: '620px', minHeight: '560px', position: 'relative' }}>
-            <CameraDetailsPanel />
-          </div>
-        </section>
-      )}
+        {/* Dynamic Camera Details Panel */}
+        <div style={{ height: '620px', minHeight: '560px', position: 'relative' }}>
+          <CameraDetailsPanel />
+        </div>
+      </section>
 
       {/* ── Secondary Synchronized Section: Timeline, Graph, CIRA ─────── */}
-      <section aria-label="Synchronized Investigation Telemetry and Relational Modules" style={{
+      <section
+        id="cr204-bottom-tabs"
+        aria-label="Synchronized Investigation Telemetry and Relational Modules"
+        style={{
         backgroundColor: 'var(--bg-surface)',
         border: '1px solid var(--border-default)',
         borderRadius: '8px',

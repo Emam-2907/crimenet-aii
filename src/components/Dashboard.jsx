@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useCIRA } from '../context/CIRAContext.jsx';
 import { api } from '../services/api.js';
+import EvidenceDetailModal from './EvidenceDetailModal.jsx';
 
 // ── Stat card ──────────────────────────────────────────────────────────────
 function StatCard({ label, value, sub, color, badge }) {
@@ -46,7 +47,15 @@ const STATUS_COLORS = {
 };
 
 export default function Dashboard({ currentUser, onSwitchPersona }) {
-  const { cases, openCaseWorkspace, setIsCreateCaseOpen, setSelectedEvidence, navigate } = useCIRA();
+  const {
+    cases,
+    openCaseWorkspace,
+    setIsCreateCaseOpen,
+    selectedEvidence,
+    setSelectedEvidence,
+    navigate,
+    duplicateCase
+  } = useCIRA();
 
   const [recentEvidence, setRecentEvidence] = useState([]);
   const [now, setNow] = useState(new Date());
@@ -337,6 +346,18 @@ export default function Dashboard({ currentUser, onSwitchPersona }) {
                           </button>
                         )}
                         <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            duplicateCase(c.id);
+                          }}
+                          className="btn-secondary"
+                          style={{ padding: '3px 8px', fontSize: '0.68rem', borderColor: 'var(--border-default)' }}
+                          title="Duplicate Case Docket (Rule 1003 Working Copy)"
+                        >
+                          📋 Duplicate
+                        </button>
+                        <button
                           onClick={(e) => {
                             e.stopPropagation();
                             openCaseWorkspace(c);
@@ -518,6 +539,14 @@ export default function Dashboard({ currentUser, onSwitchPersona }) {
         </div>
 
       </div>
+
+      {/* Selected Evidence Detail Modal */}
+      {selectedEvidence && (
+        <EvidenceDetailModal
+          evidence={selectedEvidence}
+          onClose={() => setSelectedEvidence(null)}
+        />
+      )}
 
     </div>
   );

@@ -23,7 +23,7 @@ const TYPE_COLORS = {
 };
 
 export default function EvidenceLibrary() {
-  const { cases, activeCase, openCaseWorkspace, selectedEvidence, setSelectedEvidence } = useCIRA();
+  const { cases, activeCase, openCaseWorkspace, selectedEvidence, setSelectedEvidence, duplicateEvidence } = useCIRA();
 
   const [evidenceList, setEvidenceList] = useState([]);
   const [selectedCaseId, setSelectedCaseId] = useState(activeCase?.id || 'CR-204');
@@ -302,19 +302,36 @@ export default function EvidenceLibrary() {
 
                     {/* Action */}
                     <td style={{ padding: '12px 16px' }}>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setSelectedEvidence(ev);
-                        }}
-                        style={{
-                          padding: '4px 10px', background: 'rgba(255,255,255,0.06)',
-                          border: '1px solid var(--b-soft)', borderRadius: '4px',
-                          color: '#fff', fontSize: '0.72rem', cursor: 'pointer'
-                        }}
-                      >
-                        Inspect →
-                      </button>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <button
+                          onClick={async (e) => {
+                            e.stopPropagation();
+                            await duplicateEvidence(ev);
+                            loadEvidence();
+                          }}
+                          style={{
+                            padding: '4px 10px', background: 'var(--bg-elevated)',
+                            border: '1px solid var(--border-default)', borderRadius: '4px',
+                            color: 'var(--accent-hover)', fontSize: '0.72rem', cursor: 'pointer'
+                          }}
+                          title="Create an authentic forensic duplicate under FRE 1001(e) / Rule 1003"
+                        >
+                          📋 Duplicate
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedEvidence(ev);
+                          }}
+                          style={{
+                            padding: '4px 10px', background: 'rgba(255,255,255,0.06)',
+                            border: '1px solid var(--b-soft)', borderRadius: '4px',
+                            color: '#fff', fontSize: '0.72rem', cursor: 'pointer'
+                          }}
+                        >
+                          Inspect →
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 );

@@ -16,7 +16,7 @@ const PRIORITY_CONFIG = {
 };
 
 export default function CasesList() {
-  const { cases, openCaseWorkspace, setIsCreateCaseOpen, navigate } = useCIRA();
+  const { cases, openCaseWorkspace, setIsCreateCaseOpen, navigate, duplicateCase } = useCIRA();
 
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL');
@@ -401,6 +401,18 @@ export default function CasesList() {
                           </button>
                         )}
                         <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            duplicateCase(c.id);
+                          }}
+                          className="btn-secondary"
+                          style={{ padding: '3px 8px', fontSize: '0.68rem', borderColor: 'var(--border-default)' }}
+                          title="Duplicate Case Docket (Rule 1003 Working Copy)"
+                        >
+                          📋 Duplicate
+                        </button>
+                        <button
                           onClick={(e) => {
                             e.stopPropagation();
                             openCaseWorkspace(c);
@@ -538,8 +550,23 @@ export default function CasesList() {
                         🗺️ CCTV Map
                       </button>
                     )}
-                    <span style={{ color: 'var(--green-light)', fontWeight: 600, fontSize: '0.72rem' }}>
-                      Open Workspace →
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        duplicateCase(c.id);
+                      }}
+                      style={{
+                        padding: '2px 8px', borderRadius: '4px', background: 'var(--bg-elevated)',
+                        color: 'var(--text-secondary)', border: '1px solid var(--border-default)', fontSize: '0.68rem',
+                        cursor: 'pointer'
+                      }}
+                      title="Duplicate Case Docket"
+                    >
+                      📋 Duplicate
+                    </button>
+                    <span style={{ color: 'var(--accent-hover)', fontWeight: 600, fontSize: '0.72rem' }}>
+                      Workspace →
                     </span>
                   </div>
                 </div>
