@@ -3,9 +3,20 @@
  * Connects to the FastAPI backend at http://localhost:8000 with seamless offline/standalone fallback.
  */
 
-const BASE_URL = (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_API_URL)
-  ? `${import.meta.env.VITE_API_URL.replace(/\/$/, '')}/api`
-  : 'http://localhost:8000/api';
+const getBaseUrl = () => {
+  if (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_API_URL) {
+    return `${import.meta.env.VITE_API_URL.replace(/\/$/, '')}/api`;
+  }
+  if (typeof window !== 'undefined') {
+    // If running in browser and not localhost, connect to the deployed origin's /api
+    if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+      return `${window.location.origin}/api`;
+    }
+  }
+  return 'http://localhost:8000/api';
+};
+
+const BASE_URL = getBaseUrl();
 
 let authToken = (typeof localStorage !== 'undefined' ? localStorage.getItem('crimenet_token') : null) || null;
 
