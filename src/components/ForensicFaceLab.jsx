@@ -337,9 +337,9 @@ export default function ForensicFaceLab({ caseId: propCaseId }) {
           display: 'flex',
           alignItems: 'center',
           gap: '8px',
-          background: feedback.type === 'success' ? 'rgba(34, 197, 94, 0.1)' : feedback.type === 'error' ? 'rgba(239, 68, 68, 0.1)' : 'rgba(56, 189, 248, 0.1)',
-          border: `1px solid ${feedback.type === 'success' ? 'rgba(34, 197, 94, 0.3)' : feedback.type === 'error' ? 'rgba(239, 68, 68, 0.3)' : 'rgba(56, 189, 248, 0.3)'}`,
-          color: feedback.type === 'success' ? '#4ade80' : feedback.type === 'error' ? '#f87171' : '#38bdf8'
+          background: feedback.type === 'success' ? 'rgba(79, 122, 103, 0.18)' : feedback.type === 'error' ? 'rgba(192, 74, 82, 0.18)' : 'rgba(91, 124, 153, 0.18)',
+          border: `1px solid ${feedback.type === 'success' ? 'rgba(79, 122, 103, 0.4)' : feedback.type === 'error' ? 'rgba(192, 74, 82, 0.4)' : 'rgba(91, 124, 153, 0.4)'}`,
+          color: feedback.type === 'success' ? '#4F7A67' : feedback.type === 'error' ? '#C04A52' : '#5B7C99'
         }}>
           {feedback.type === 'success' ? <CheckCircle size={16} /> : <AlertTriangle size={16} />}
           <span>{feedback.message}</span>
@@ -583,9 +583,9 @@ export default function ForensicFaceLab({ caseId: propCaseId }) {
                       fontWeight: 700,
                       padding: '2px 6px',
                       borderRadius: '3px',
-                      background: candidateMatch.threat_level === 'CRITICAL' ? 'rgba(239, 68, 68, 0.15)' : 'rgba(245, 158, 11, 0.15)',
-                      color: candidateMatch.threat_level === 'CRITICAL' ? '#f87171' : '#fbbf24',
-                      border: `1px solid ${candidateMatch.threat_level === 'CRITICAL' ? 'rgba(239, 68, 68, 0.3)' : 'rgba(245, 158, 11, 0.3)'}`
+                      background: candidateMatch.threat_level === 'CRITICAL' ? 'rgba(192, 74, 82, 0.18)' : 'rgba(181, 138, 69, 0.18)',
+                      color: candidateMatch.threat_level === 'CRITICAL' ? '#C04A52' : '#B58A45',
+                      border: `1px solid ${candidateMatch.threat_level === 'CRITICAL' ? 'rgba(192, 74, 82, 0.4)' : 'rgba(181, 138, 69, 0.4)'}`
                     }}>
                       {candidateMatch.threat_level || 'HIGH'} THREAT
                     </span>
@@ -620,14 +620,14 @@ export default function ForensicFaceLab({ caseId: propCaseId }) {
                   {isVerified ? (
                     <div style={{
                       padding: '12px',
-                      background: 'rgba(34, 197, 94, 0.08)',
-                      border: '1px solid rgba(34, 197, 94, 0.25)',
+                      background: 'rgba(79, 122, 103, 0.15)',
+                      border: '1px solid rgba(79, 122, 103, 0.35)',
                       borderRadius: '6px',
                       display: 'flex',
                       flexDirection: 'column',
                       gap: '8px'
                     }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#4ade80', fontSize: '0.82rem', fontWeight: 600 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#4F7A67', fontSize: '0.82rem', fontWeight: 600 }}>
                         <CheckCircle size={16} />
                         Verified by {currentVerification?.verified_by || candidateMatch.verified_by || verifierName}
                       </div>

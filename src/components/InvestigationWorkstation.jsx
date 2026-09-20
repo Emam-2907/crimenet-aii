@@ -331,12 +331,12 @@ export default function InvestigationWorkstation({ currentUser, onLogout }) {
                     marginLeft: 'auto',
                     fontSize: '0.58rem',
                     fontFamily: 'var(--font-mono)',
-                    fontWeight: 800,
+                    fontWeight: 700,
                     padding: '1px 6px',
                     borderRadius: '4px',
-                    backgroundColor: 'rgba(56, 189, 248, 0.2)',
-                    color: '#38bdf8',
-                    border: '1px solid rgba(56, 189, 248, 0.4)',
+                    backgroundColor: 'var(--accent-dim)',
+                    color: 'var(--accent-hover)',
+                    border: '1px solid var(--accent-border)',
                     letterSpacing: '0.04em'
                   }}>
                     {item.badge}
@@ -609,17 +609,17 @@ export default function InvestigationWorkstation({ currentUser, onLogout }) {
             }}>
               <div style={{
                 width: '26px', height: '26px', borderRadius: '50%',
-                background: 'linear-gradient(135deg, var(--green) 0%, var(--blue) 100%)',
-                color: '#06090e', fontWeight: 800, fontSize: '0.72rem',
+                background: 'var(--accent)',
+                color: '#ffffff', fontWeight: 700, fontSize: '0.72rem',
                 display: 'flex', alignItems: 'center', justifyContent: 'center'
               }}>
                 {currentUser?.full_name ? currentUser.full_name.split(' ').map(n => n[0]).join('').slice(0, 2) : 'MV'}
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.15 }}>
-                <span style={{ fontSize: '0.76rem', fontWeight: 700, color: '#fff' }}>
+                <span style={{ fontSize: '0.76rem', fontWeight: 700, color: 'var(--text-primary)' }}>
                   {currentUser?.full_name || 'Special Agent Marcus Vance'}
                 </span>
-                <span style={{ fontSize: '0.6rem', fontFamily: 'var(--f-mono)', color: 'var(--green-light)' }}>
+                <span style={{ fontSize: '0.6rem', fontFamily: 'var(--f-mono)', color: 'var(--success)' }}>
                   {currentUser?.clearance || 'TS//SCI-ORCON'} · {currentUser?.station || 'Station 04'}
                 </span>
               </div>
@@ -630,9 +630,9 @@ export default function InvestigationWorkstation({ currentUser, onLogout }) {
                   marginLeft: '4px',
                   padding: '3px 9px',
                   borderRadius: '12px',
-                  background: 'rgba(255, 255, 255, 0.05)',
-                  border: '1px solid var(--b-soft)',
-                  color: 'var(--blue-light)',
+                  background: 'var(--bg-surface)',
+                  border: '1px solid var(--border-default)',
+                  color: 'var(--accent-hover)',
                   fontSize: '0.64rem',
                   fontFamily: 'var(--f-mono)',
                   fontWeight: 600,
@@ -641,13 +641,13 @@ export default function InvestigationWorkstation({ currentUser, onLogout }) {
                 }}
                 onMouseEnter={e => {
                   e.currentTarget.style.color = '#fff';
-                  e.currentTarget.style.borderColor = 'var(--blue-light)';
-                  e.currentTarget.style.background = 'rgba(2, 132, 199, 0.2)';
+                  e.currentTarget.style.borderColor = 'var(--accent-hover)';
+                  e.currentTarget.style.background = 'var(--accent-dim)';
                 }}
                 onMouseLeave={e => {
-                  e.currentTarget.style.color = 'var(--blue-light)';
-                  e.currentTarget.style.borderColor = 'var(--b-soft)';
-                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
+                  e.currentTarget.style.color = 'var(--accent-hover)';
+                  e.currentTarget.style.borderColor = 'var(--border-default)';
+                  e.currentTarget.style.background = 'var(--bg-surface)';
                 }}
               >
                 Switch Persona ↩

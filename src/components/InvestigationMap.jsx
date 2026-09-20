@@ -164,16 +164,16 @@ export default function InvestigationMap() {
         data: inferredRoutesGeoJSON
       });
 
-      // Outer glow for inferred route
+      // Subtle underlay for inferred route
       map.addLayer({
         id: 'inferred-routes-glow',
         type: 'line',
         source: 'inferred-routes',
         paint: {
-          'line-color': '#0284c7',
-          'line-width': 6,
-          'line-opacity': 0.3,
-          'line-blur': 3
+          'line-color': '#3F5F78',
+          'line-width': 5,
+          'line-opacity': 0.35,
+          'line-blur': 2
         }
       });
 
@@ -183,10 +183,10 @@ export default function InvestigationMap() {
         type: 'line',
         source: 'inferred-routes',
         paint: {
-          'line-color': '#38bdf8',
-          'line-width': 2.5,
+          'line-color': '#5B7C99',
+          'line-width': 2,
           'line-dasharray': [3, 2],
-          'line-opacity': 0.85
+          'line-opacity': 0.9
         }
       });
 
@@ -201,8 +201,8 @@ export default function InvestigationMap() {
         type: 'fill',
         source: 'camera-coverage',
         paint: {
-          'fill-color': '#38bdf8',
-          'fill-opacity': 0.12
+          'fill-color': '#3F5F78',
+          'fill-opacity': 0.14
         }
       });
 
@@ -211,10 +211,10 @@ export default function InvestigationMap() {
         type: 'line',
         source: 'camera-coverage',
         paint: {
-          'line-color': '#38bdf8',
+          'line-color': '#5B7C99',
           'line-width': 1.5,
           'line-dasharray': [2, 2],
-          'line-opacity': 0.6
+          'line-opacity': 0.65
         }
       });
     });
@@ -311,10 +311,10 @@ export default function InvestigationMap() {
       filteredCameras.forEach(cam => {
         const isSelected = selectedEntityId === cam.id;
         const statusColors = {
-          ONLINE: { bg: '#22c55e', border: '#15803d', text: '#22c55e', badge: 'rgba(34,197,94,0.15)' },
-          WARNING: { bg: '#f59e0b', border: '#b45309', text: '#f59e0b', badge: 'rgba(245,158,11,0.15)' },
-          MAINTENANCE: { bg: '#eab308', border: '#ca8a04', text: '#eab308', badge: 'rgba(234,179,8,0.15)' },
-          OFFLINE: { bg: '#94a3b8', border: '#64748b', text: '#94a3b8', badge: 'rgba(148,163,184,0.15)' }
+          ONLINE: { bg: '#4F7A67', border: '#335043', text: '#649780', badge: 'rgba(79, 122, 103, 0.18)' },
+          WARNING: { bg: '#B58A45', border: '#7A5B28', text: '#D1A256', badge: 'rgba(181, 138, 69, 0.18)' },
+          MAINTENANCE: { bg: '#B58A45', border: '#7A5B28', text: '#D1A256', badge: 'rgba(181, 138, 69, 0.18)' },
+          OFFLINE: { bg: '#8D98A5', border: '#2A333D', text: '#8D98A5', badge: 'rgba(141, 152, 165, 0.15)' }
         };
         const sc = statusColors[cam.status] || statusColors.ONLINE;
 
@@ -328,12 +328,12 @@ export default function InvestigationMap() {
 
         el.innerHTML = `
           <div style="
-            width: ${isSelected ? '44px' : '36px'};
-            height: ${isSelected ? '44px' : '36px'};
+            width: ${isSelected ? '42px' : '34px'};
+            height: ${isSelected ? '42px' : '34px'};
             border-radius: 8px;
-            background: ${isSelected ? '#0284c7' : 'rgba(15, 23, 42, 0.92)'};
-            border: 2px solid ${isSelected ? '#38bdf8' : sc.border};
-            box-shadow: ${isSelected ? '0 0 16px rgba(56, 189, 248, 0.7), 0 0 30px rgba(56, 189, 248, 0.4)' : '0 4px 12px rgba(0,0,0,0.5)'};
+            background: ${isSelected ? '#3F5F78' : '#171D24'};
+            border: 2px solid ${isSelected ? '#5B7C99' : sc.border};
+            box-shadow: ${isSelected ? '0 0 14px rgba(91, 124, 153, 0.45)' : '0 4px 12px rgba(0,0,0,0.5)'};
             display: flex;
             align-items: center;
             justify-content: center;
@@ -341,7 +341,7 @@ export default function InvestigationMap() {
             position: relative;
           ">
             <!-- CCTV Icon SVG -->
-            <svg width="${isSelected ? '22' : '18'}" height="${isSelected ? '22' : '18'}" viewBox="0 0 24 24" fill="none" stroke="${isSelected ? '#ffffff' : sc.text}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg width="${isSelected ? '20' : '17'}" height="${isSelected ? '20' : '17'}" viewBox="0 0 24 24" fill="none" stroke="${isSelected ? '#E6E9ED' : sc.text}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/>
               <circle cx="12" cy="13" r="3"/>
             </svg>
@@ -351,12 +351,12 @@ export default function InvestigationMap() {
               position: absolute;
               top: -3px;
               right: -3px;
-              width: 9px;
-              height: 9px;
+              width: 8px;
+              height: 8px;
               border-radius: 50%;
               background: ${sc.bg};
-              border: 1.5px solid #0f172a;
-              ${cam.status === 'ONLINE' ? 'box-shadow: 0 0 6px #22c55e;' : ''}
+              border: 1.5px solid #101419;
+              ${cam.status === 'ONLINE' ? 'box-shadow: 0 0 4px #4F7A67;' : ''}
             "></span>
           </div>
 
@@ -367,9 +367,9 @@ export default function InvestigationMap() {
             left: 50%;
             transform: translateX(-50%);
             margin-top: 4px;
-            background: rgba(15, 23, 42, 0.95);
-            border: 1px solid ${isSelected ? '#38bdf8' : 'rgba(56, 189, 248, 0.25)'};
-            color: ${isSelected ? '#ffffff' : '#94a3b8'};
+            background: #101419;
+            border: 1px solid ${isSelected ? '#5B7C99' : '#2A333D'};
+            color: ${isSelected ? '#E6E9ED' : '#8D98A5'};
             font-family: var(--font-mono, monospace);
             font-size: 0.65rem;
             font-weight: 700;
@@ -377,7 +377,7 @@ export default function InvestigationMap() {
             border-radius: 4px;
             white-space: nowrap;
             pointer-events: none;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.5);
           ">
             ${cam.cameraId}
           </div>
@@ -391,18 +391,18 @@ export default function InvestigationMap() {
           className: 'tactical-map-popup'
         }).setHTML(`
           <div style="
-            background: #0f172a;
-            border: 1px solid #38bdf8;
+            background: #171D24;
+            border: 1px solid #2A333D;
             border-radius: 6px;
             padding: 10px 12px;
-            color: #f8fafc;
+            color: #E6E9ED;
             font-family: var(--font-body, sans-serif);
             font-size: 0.75rem;
             min-width: 190px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.65);
           ">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-              <strong style="color: #38bdf8; font-family: var(--font-mono, monospace);">${cam.cameraId}</strong>
+              <strong style="color: #5B7C99; font-family: var(--font-mono, monospace);">${cam.cameraId}</strong>
               <span style="
                 font-size: 0.60rem;
                 font-family: var(--font-mono, monospace);
@@ -413,12 +413,12 @@ export default function InvestigationMap() {
                 border: 1px solid ${sc.border};
               ">${cam.status}</span>
             </div>
-            <div style="font-size: 0.72rem; font-weight: 600; color: #fff; margin-bottom: 4px;">${cam.name}</div>
-            <div style="font-size: 0.68rem; color: #94a3b8; margin-bottom: 6px;">Location: ${cam.location_name || cam.locationId}</div>
-            <div style="font-size: 0.65rem; color: #fbbf24; font-family: var(--font-mono, monospace);">
+            <div style="font-size: 0.72rem; font-weight: 600; color: #E6E9ED; margin-bottom: 4px;">${cam.name}</div>
+            <div style="font-size: 0.68rem; color: #8D98A5; margin-bottom: 6px;">Location: ${cam.location_name || cam.locationId}</div>
+            <div style="font-size: 0.65rem; color: #B58A45; font-family: var(--font-mono, monospace);">
               Last Event: ${cam.events?.[cam.events.length - 1]?.time || '14:09'} UTC
             </div>
-            <div style="margin-top: 6px; font-size: 0.62rem; color: #38bdf8; font-style: italic;">
+            <div style="margin-top: 6px; font-size: 0.62rem; color: #5B7C99; font-style: italic;">
               Click to inspect camera & coverage
             </div>
           </div>
@@ -429,8 +429,14 @@ export default function InvestigationMap() {
 
         el.addEventListener('click', (e) => {
           e.stopPropagation();
-          popup.remove();
           selectCamera(cam.id);
+        });
+
+        el.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            selectCamera(cam.id);
+          }
         });
 
         addMarker(el, cam.lng || cam.longitude, cam.lat || cam.latitude);
@@ -456,15 +462,15 @@ export default function InvestigationMap() {
             width: ${isSelected ? '32px' : '26px'};
             height: ${isSelected ? '32px' : '26px'};
             border-radius: 50%;
-            background: ${isSelected ? '#a855f7' : 'rgba(15, 23, 42, 0.9)'};
-            border: 2px solid ${isSelected ? '#c084fc' : '#a855f7'};
+            background: ${isSelected ? '#3F5F78' : '#171D24'};
+            border: 2px solid ${isSelected ? '#5B7C99' : '#2A333D'};
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 0 10px rgba(168, 85, 247, 0.5);
+            box-shadow: ${isSelected ? '0 0 10px rgba(91, 124, 153, 0.45)' : '0 2px 6px rgba(0,0,0,0.5)'};
             transition: all 0.2s ease;
           ">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#E6E9ED" stroke-width="2">
               <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
               <circle cx="12" cy="10" r="3"/>
             </svg>
@@ -498,15 +504,15 @@ export default function InvestigationMap() {
             width: ${isSelected ? '36px' : '30px'};
             height: ${isSelected ? '36px' : '30px'};
             border-radius: 6px;
-            background: #ef4444;
-            border: 2px solid #fca5a5;
+            background: ${isSelected ? '#C04A52' : '#9B3D45'};
+            border: 2px solid ${isSelected ? '#C04A52' : '#2A333D'};
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 0 14px rgba(239, 68, 68, 0.8);
+            box-shadow: 0 0 12px rgba(192, 74, 82, 0.55);
             animation: pulse-danger 2s infinite;
           ">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#E6E9ED" stroke-width="2.2">
               <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
               <line x1="12" y1="9" x2="12" y2="13"/>
               <line x1="12" y1="17" x2="12.01" y2="17"/>
@@ -532,8 +538,8 @@ export default function InvestigationMap() {
 
         el.innerHTML = `
           <div style="
-            background: rgba(15, 23, 42, 0.95);
-            border: 1.5px solid #fbbf24;
+            background: #101419;
+            border: 1px solid #B58A45;
             border-radius: 4px;
             padding: 2px 6px;
             display: flex;
@@ -542,13 +548,13 @@ export default function InvestigationMap() {
             box-shadow: 0 2px 8px rgba(0,0,0,0.5);
             font-family: var(--font-mono, monospace);
             font-size: 0.62rem;
-            color: #fbbf24;
+            color: #B58A45;
             transform: translate(-50%, -130%);
             pointer-events: none;
           ">
-            <span style="width: 6px; height: 6px; border-radius: 50%; background: #fbbf24; display: inline-block;"></span>
+            <span style="width: 6px; height: 6px; border-radius: 50%; background: #B58A45; display: inline-block;"></span>
             <span>V-102 ${wp.time} UTC</span>
-            <span style="color: #22c55e; font-size: 0.58rem;">[RECORDED]</span>
+            <span style="color: #4F7A67; font-size: 0.58rem;">[RECORDED]</span>
           </div>
         `;
 
@@ -635,7 +641,7 @@ export default function InvestigationMap() {
           <div style={{
             display: 'flex',
             alignItems: 'center',
-            backgroundColor: 'rgba(15, 23, 42, 0.92)',
+            backgroundColor: '#101419',
             border: '1px solid var(--border-default)',
             borderRadius: '6px',
             padding: '5px 10px',
@@ -680,7 +686,7 @@ export default function InvestigationMap() {
               left: 0,
               right: 0,
               marginTop: '4px',
-              backgroundColor: 'rgba(15, 23, 42, 0.98)',
+              backgroundColor: '#101419',
               border: '1px solid var(--border-default)',
               borderRadius: '6px',
               maxHeight: '220px',
@@ -730,7 +736,7 @@ export default function InvestigationMap() {
           type="button"
           onClick={handleResetView}
           style={{
-            backgroundColor: 'rgba(15, 23, 42, 0.92)',
+            backgroundColor: '#101419',
             border: '1px solid var(--border-default)',
             borderRadius: '6px',
             padding: '6px 10px',
@@ -754,7 +760,7 @@ export default function InvestigationMap() {
           type="button"
           onClick={() => setShowCoverage(!showCoverage)}
           style={{
-            backgroundColor: showCoverage ? 'var(--accent-dim)' : 'rgba(15, 23, 42, 0.92)',
+            backgroundColor: showCoverage ? 'var(--accent-dim)' : '#101419',
             border: showCoverage ? '1px solid var(--accent)' : '1px solid var(--border-default)',
             borderRadius: '6px',
             padding: '6px 10px',
@@ -786,7 +792,7 @@ export default function InvestigationMap() {
         gap: '6px',
         overflowX: 'auto',
         padding: '6px 10px',
-        backgroundColor: 'rgba(15, 23, 42, 0.94)',
+        backgroundColor: '#101419',
         border: '1px solid var(--border-default)',
         borderRadius: '6px',
         backdropFilter: 'blur(8px)',
@@ -805,9 +811,9 @@ export default function InvestigationMap() {
           const hasVehicle = cam.relatedVehicles?.length > 0;
           const hasIncident = cam.relatedIncidents?.length > 0;
 
-          const dotColor = cam.status === 'ONLINE' ? '#22c55e' :
-                           cam.status === 'WARNING' ? '#f59e0b' :
-                           cam.status === 'MAINTENANCE' ? '#eab308' : '#94a3b8';
+          const dotColor = cam.status === 'ONLINE' ? '#4F7A67' :
+                           cam.status === 'WARNING' ? '#B58A45' :
+                           cam.status === 'MAINTENANCE' ? '#B58A45' : '#8D98A5';
 
           return (
             <button
@@ -832,30 +838,30 @@ export default function InvestigationMap() {
                 fontSize: '0.68rem',
                 fontFamily: 'var(--font-mono)',
                 fontWeight: isSelected ? 700 : 500,
-                border: isSelected ? '1.5px solid #38bdf8' : '1px solid var(--border-subtle)',
-                backgroundColor: isSelected ? 'rgba(2, 132, 199, 0.35)' : 'rgba(30, 41, 59, 0.65)',
-                color: isSelected ? '#ffffff' : 'var(--text-secondary)',
+                border: isSelected ? '1.5px solid #5B7C99' : '1px solid var(--border-subtle)',
+                backgroundColor: isSelected ? 'rgba(63, 95, 120, 0.4)' : '#171D24',
+                color: isSelected ? '#E6E9ED' : 'var(--text-secondary)',
                 cursor: 'pointer',
                 whiteSpace: 'nowrap',
                 transition: 'all 0.15s ease',
-                boxShadow: isSelected ? '0 0 10px rgba(56, 189, 248, 0.6)' : 'none'
+                boxShadow: isSelected ? '0 0 8px rgba(91, 124, 153, 0.4)' : 'none'
               }}
               title={`Inspect ${cam.name} (${cam.status})`}
             >
               <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: dotColor }} />
               <span>{cam.cameraId || cam.id}</span>
               {hasFaceMatch && (
-                <span style={{ fontSize: '0.58rem', padding: '1px 3px', borderRadius: '2px', backgroundColor: 'rgba(56, 189, 248, 0.25)', color: '#38bdf8', fontWeight: 700 }}>
+                <span style={{ fontSize: '0.58rem', padding: '1px 4px', borderRadius: '2px', backgroundColor: 'rgba(91, 124, 153, 0.25)', color: '#5B7C99', fontWeight: 700 }}>
                   87% FACE
                 </span>
               )}
               {hasVehicle && !hasFaceMatch && (
-                <span style={{ fontSize: '0.58rem', padding: '1px 3px', borderRadius: '2px', backgroundColor: 'rgba(251, 191, 36, 0.25)', color: '#fbbf24', fontWeight: 700 }}>
+                <span style={{ fontSize: '0.58rem', padding: '1px 4px', borderRadius: '2px', backgroundColor: 'rgba(181, 138, 69, 0.25)', color: '#B58A45', fontWeight: 700 }}>
                   VEHICLE
                 </span>
               )}
               {hasIncident && (
-                <span style={{ fontSize: '0.58rem', padding: '1px 3px', borderRadius: '2px', backgroundColor: 'rgba(239, 68, 68, 0.25)', color: '#f87171', fontWeight: 700 }}>
+                <span style={{ fontSize: '0.58rem', padding: '1px 4px', borderRadius: '2px', backgroundColor: 'rgba(192, 74, 82, 0.25)', color: '#C04A52', fontWeight: 700 }}>
                   ALARM
                 </span>
               )}
@@ -876,7 +882,7 @@ export default function InvestigationMap() {
         gap: '6px',
         overflowX: 'auto',
         padding: '6px 8px',
-        backgroundColor: 'rgba(15, 23, 42, 0.92)',
+        backgroundColor: '#101419',
         border: '1px solid var(--border-default)',
         borderRadius: '6px',
         backdropFilter: 'blur(6px)'
@@ -924,12 +930,12 @@ export default function InvestigationMap() {
         {/* Legend Notice for Inferred Route */}
         <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '10px', flexShrink: 0, fontSize: '0.64rem', color: 'var(--text-muted)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-            <span style={{ width: '12px', height: '2px', borderTop: '2px solid #fbbf24', display: 'inline-block' }} />
+            <span style={{ width: '12px', height: '2px', borderTop: '2px solid #B58A45', display: 'inline-block' }} />
             <span>Recorded Sighting</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-            <span style={{ width: '14px', height: '2px', borderTop: '2px dashed #38bdf8', display: 'inline-block' }} />
-            <span style={{ color: '#38bdf8' }}>Inferred Route</span>
+            <span style={{ width: '14px', height: '2px', borderTop: '2px dashed #5B7C99', display: 'inline-block' }} />
+            <span style={{ color: '#5B7C99' }}>Inferred Route</span>
           </div>
         </div>
       </div>

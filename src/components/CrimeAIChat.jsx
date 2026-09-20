@@ -666,6 +666,8 @@ export default function CrimeAIChat() {
 
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '8px' }}>
                   {[
+                    { label: '🦇 Bat Bot: Request Owner Footage & Biometric Scan', prompt: 'CIRA Bat Bot: Identify camera blindspots along the transit corridor, dispatch an evidentiary request to property owners for missing exterior footage, and run automated ArcFace biometric facial recognition.' },
+                    { label: '🗺️ Tactical Map: Cross-Reference Coordinates with Graph', prompt: 'Cross-reference all suspect sighting GPS coordinates from the tactical map with the relational knowledge graph.' },
                     { label: 'Executive Case Briefing & Top Leads', prompt: 'Provide an executive case briefing detailing primary targets, corroborated evidence items, and open leads.' },
                     { label: 'Key Syndicate Brokers & Centrality', prompt: 'Analyze entity network centrality to identify key syndicate brokers and logistics coordinators.' },
                     { label: 'Audit Escrow & Shell Accounts', prompt: 'Detail all financial accounts, crypto escrow nodes, and illicit transaction trails tied to this case.' },
@@ -913,11 +915,54 @@ export default function CrimeAIChat() {
             <div ref={chatBottomRef} />
           </div>
 
+          {/* 🦇 Bat Bot Tactical Command Shortcuts Bar */}
+          <div style={{
+            padding: '6px 22px',
+            backgroundColor: 'var(--bg-surface)',
+            borderTop: '1px solid var(--border-default)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            flexWrap: 'wrap'
+          }}>
+            <span style={{ fontSize: '0.66rem', fontFamily: 'var(--font-mono)', color: 'var(--accent-hover)', fontWeight: 700 }}>
+              🦇 BAT BOT COMMANDS:
+            </span>
+            {[
+              { label: '⚡ /request-footage', cmd: 'CIRA Bat Bot: Identify corridor blindspots and dispatch automated evidentiary request to property owner for exterior footage.' },
+              { label: '🎯 /face-recon', cmd: 'Run ArcFace-ResNet50 biometric facial recognition across all ingested surveillance frames for primary targets.' },
+              { label: '🕸️ /graph-trace', cmd: 'Trace the direct chain of associations and intercepted communications linking Viktor Voronin to Terminal C Harbor Depot.' },
+              { label: '🗺️ /map-sync', cmd: 'Cross-reference all suspect sighting GPS coordinates from the tactical map with the relational knowledge graph.' },
+              { label: '🛡️ /cordon-plan', cmd: 'Calculate tactical containment cordon and escape vector probabilities for Incident INC-204.' }
+            ].map((btn, idx) => (
+              <button
+                key={idx}
+                type="button"
+                onClick={() => handleSend(btn.cmd)}
+                style={{
+                  padding: '3px 8px',
+                  backgroundColor: 'var(--bg-elevated)',
+                  border: '1px solid var(--border-default)',
+                  borderRadius: '4px',
+                  color: 'var(--text-secondary)',
+                  fontFamily: 'var(--font-mono)',
+                  fontSize: '0.66rem',
+                  cursor: 'pointer',
+                  transition: 'all 0.15s ease'
+                }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--accent)'; e.currentTarget.style.color = '#fff'; }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border-default)'; e.currentTarget.style.color = 'var(--text-secondary)'; }}
+              >
+                {btn.label}
+              </button>
+            ))}
+          </div>
+
           {/* Bottom Command Input Bar */}
           <div style={{
-            padding: '12px 22px',
+            padding: '10px 22px 14px',
             background: 'var(--bg-surface)',
-            borderTop: '1px solid var(--border-default)',
+            borderTop: '1px solid var(--border-subtle)',
             display: 'flex',
             gap: '10px',
             alignItems: 'center'

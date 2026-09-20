@@ -141,7 +141,7 @@ export default function CaseWorkspace() {
             </span>
             <span style={{
               fontSize: '0.74rem', fontFamily: 'var(--font-mono)',
-              color: current.priority === 'Critical' ? '#F87171' : '#FBBF24',
+              color: current.priority === 'Critical' ? '#C04A52' : '#B58A45',
               fontWeight: 600
             }}>
               ● {current.priority} Priority
@@ -171,11 +171,11 @@ export default function CaseWorkspace() {
           {current.primary_suspect && (
             <div style={{
               display: 'inline-flex', alignItems: 'center', gap: '8px',
-              padding: '4px 12px', background: 'rgba(248, 113, 113, 0.12)',
-              border: '1px solid rgba(248, 113, 113, 0.3)', borderRadius: '6px',
+              padding: '4px 12px', background: 'rgba(155, 61, 69, 0.15)',
+              border: '1px solid rgba(155, 61, 69, 0.35)', borderRadius: '6px',
               marginBottom: '8px'
             }}>
-              <span style={{ fontSize: '0.70rem', fontFamily: 'var(--font-mono)', color: '#f87171', fontWeight: 700 }}>
+              <span style={{ fontSize: '0.70rem', fontFamily: 'var(--font-mono)', color: '#9B3D45', fontWeight: 700 }}>
                 🎯 PRIMARY CRIMINAL TARGET:
               </span>
               <strong style={{ fontSize: '0.84rem', color: '#fff', letterSpacing: '0.02em' }}>
@@ -215,7 +215,7 @@ export default function CaseWorkspace() {
           <button
             onClick={() => setActiveCaseTab('CCTV_MAP')}
             className="btn-primary"
-            style={{ fontSize: '0.78rem', padding: '7px 14px', backgroundColor: '#0284c7', borderColor: '#38bdf8' }}
+            style={{ fontSize: '0.78rem', padding: '7px 14px' }}
           >
             🗺️ CCTV Surveillance Map
           </button>

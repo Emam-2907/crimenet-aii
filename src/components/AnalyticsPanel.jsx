@@ -176,13 +176,13 @@ export default function AnalyticsPanel() {
             <div style={{ height: '200px', width: '100%' }}>
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={SYNDICATE_THREAT_DATA} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                  <XAxis dataKey="syndicate" stroke="#64748b" fontSize={11} tickLine={false} />
-                  <YAxis stroke="#64748b" fontSize={11} tickLine={false} domain={[0, 100]} />
+                  <XAxis dataKey="syndicate" stroke="#8D98A5" fontSize={11} tickLine={false} />
+                  <YAxis stroke="#8D98A5" fontSize={11} tickLine={false} domain={[0, 100]} />
                   <Tooltip
                     contentStyle={{ background: 'var(--bg-elevated)', border: '1px solid var(--border-default)', borderRadius: '6px', fontSize: '0.78rem' }}
                     labelStyle={{ color: 'var(--text-primary)', fontWeight: 'bold' }}
                   />
-                  <Bar dataKey="threatScore" fill="#3B82F6" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="threatScore" fill="#3F5F78" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -203,9 +203,9 @@ export default function AnalyticsPanel() {
               <ResponsiveContainer width="100%" height="100%">
                 <RadarChart data={NETWORK_RADAR_DATA}>
                   <PolarGrid stroke="rgba(255,255,255,0.06)" />
-                  <PolarAngleAxis dataKey="subject" stroke="#94a3b8" fontSize={10} />
-                  <PolarRadiusAxis stroke="#64748b" fontSize={9} />
-                  <Radar name="Network" dataKey="A" stroke="#3B82F6" fill="#3B82F6" fillOpacity={0.25} />
+                  <PolarAngleAxis dataKey="subject" stroke="#8D98A5" fontSize={10} />
+                  <PolarRadiusAxis stroke="#2A333D" fontSize={9} />
+                  <Radar name="Network" dataKey="A" stroke="#5B7C99" fill="#3F5F78" fillOpacity={0.25} />
                 </RadarChart>
               </ResponsiveContainer>
             </div>

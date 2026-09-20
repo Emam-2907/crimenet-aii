@@ -220,7 +220,7 @@ export const SECTORS = [
     activeCameras: 842,
     patrolUnits: 14,
     aiHealth: "99.8%",
-    color: "#00f0ff",
+    color: "#5B7C99",
     x: "24%",
     y: "32%",
     description: "High density of administrative and municipal headquarters. Continuous biometric surveillance active."
@@ -234,7 +234,7 @@ export const SECTORS = [
     activeCameras: 1250,
     patrolUnits: 22,
     aiHealth: "98.9%",
-    color: "#ff2a5f",
+    color: "#C04A52",
     x: "62%",
     y: "28%",
     description: "Critical financial infrastructure. Experiencing coordinated distributed cyber ingress and fraud attempts."
@@ -248,7 +248,7 @@ export const SECTORS = [
     activeCameras: 610,
     patrolUnits: 9,
     aiHealth: "99.4%",
-    color: "#f59e0b",
+    color: "#B58A45",
     x: "45%",
     y: "55%",
     description: "High pedestrian throughput. Neural crowd anomaly detection and automated weapon detection active."
@@ -262,7 +262,7 @@ export const SECTORS = [
     activeCameras: 430,
     patrolUnits: 11,
     aiHealth: "99.1%",
-    color: "#ff2a5f",
+    color: "#9B3D45",
     x: "78%",
     y: "74%",
     description: "Maritime shipping container yard. Thermal night perimeter alarms and automated license plate recognition active."
@@ -276,7 +276,7 @@ export const SECTORS = [
     activeCameras: 920,
     patrolUnits: 18,
     aiHealth: "100%",
-    color: "#00ff9d",
+    color: "#4F7A67",
     x: "18%",
     y: "78%",
     description: "Aviation perimeter. RF drone sensors and multi-spectral border biometric gate integrations nominal."

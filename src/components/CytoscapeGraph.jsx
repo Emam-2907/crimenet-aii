@@ -21,32 +21,32 @@ try {
 
 // 7 Standard Geometric Entity Visuals (Sleek Intelligence Standard)
 const ENTITY_CONFIG = {
-  Person: { shape: 'ellipse', color: '#EF4444', label: 'Person', icon: User, code: 'P' },
-  Phone: { shape: 'round-rectangle', color: '#38BDF8', label: 'Phone / Comm', icon: Phone, code: 'TEL' },
-  Vehicle: { shape: 'round-rectangle', color: '#FBBF24', label: 'Vehicle', icon: Car, code: 'VEH' },
-  'Financial Account': { shape: 'round-rectangle', color: '#10B981', label: 'Financial / Escrow', icon: CreditCard, code: 'ESC' },
-  FinancialAccount: { shape: 'round-rectangle', color: '#10B981', label: 'Financial / Escrow', icon: CreditCard, code: 'ESC' },
-  financial: { shape: 'round-rectangle', color: '#10B981', label: 'Financial / Escrow', icon: CreditCard, code: 'ESC' },
-  Location: { shape: 'ellipse', color: '#A855F7', label: 'Location', icon: MapPin, code: 'LOC' },
-  Organization: { shape: 'round-rectangle', color: '#F472B6', label: 'Organization', icon: Building, code: 'ORG' },
-  Evidence: { shape: 'round-rectangle', color: '#60A5FA', label: 'Evidence Asset', icon: FileText, code: 'EV' },
-  Camera: { shape: 'round-rectangle', color: '#34D399', label: 'CCTV Camera', icon: Eye, code: 'CAM' },
-  'Face Match': { shape: 'diamond', color: '#F472B6', label: 'Biometric Candidate (87%)', icon: UserCheck, code: 'FM' },
-  Biometric: { shape: 'diamond', color: '#F472B6', label: 'Biometric Candidate (87%)', icon: UserCheck, code: 'FM' },
-  Incident: { shape: 'octagon', color: '#EF4444', label: 'Incident Breach', icon: AlertTriangle, code: 'INC' },
-  Case: { shape: 'diamond', color: '#38BDF8', label: 'Case Docket', icon: Shield, code: 'CASE' }
+  Person: { shape: 'ellipse', color: '#9B3D45', label: 'Person', icon: User, code: 'P' },
+  Phone: { shape: 'round-rectangle', color: '#5B7C99', label: 'Phone / Comm', icon: Phone, code: 'TEL' },
+  Vehicle: { shape: 'round-rectangle', color: '#B58A45', label: 'Vehicle', icon: Car, code: 'VEH' },
+  'Financial Account': { shape: 'round-rectangle', color: '#4F7A67', label: 'Financial / Escrow', icon: CreditCard, code: 'ESC' },
+  FinancialAccount: { shape: 'round-rectangle', color: '#4F7A67', label: 'Financial / Escrow', icon: CreditCard, code: 'ESC' },
+  financial: { shape: 'round-rectangle', color: '#4F7A67', label: 'Financial / Escrow', icon: CreditCard, code: 'ESC' },
+  Location: { shape: 'ellipse', color: '#3F5F78', label: 'Location', icon: MapPin, code: 'LOC' },
+  Organization: { shape: 'round-rectangle', color: '#8D98A5', label: 'Organization', icon: Building, code: 'ORG' },
+  Evidence: { shape: 'round-rectangle', color: '#5B7C99', label: 'Evidence Asset', icon: FileText, code: 'EV' },
+  Camera: { shape: 'round-rectangle', color: '#4F7A67', label: 'CCTV Camera', icon: Eye, code: 'CAM' },
+  'Face Match': { shape: 'diamond', color: '#9B3D45', label: 'Biometric Candidate (87%)', icon: UserCheck, code: 'FM' },
+  Biometric: { shape: 'diamond', color: '#9B3D45', label: 'Biometric Candidate (87%)', icon: UserCheck, code: 'FM' },
+  Incident: { shape: 'octagon', color: '#C04A52', label: 'Incident Breach', icon: AlertTriangle, code: 'INC' },
+  Case: { shape: 'diamond', color: '#3F5F78', label: 'Case Docket', icon: Shield, code: 'CASE' }
 };
 
 // Distinguishable Relationship Styles (Clean Link Analysis)
 const RELATION_CONFIG = {
-  calls: { style: 'dashed', color: '#38BDF8', label: 'Communication / Calls' },
-  financial: { style: 'solid', color: '#10B981', label: 'Financial / Escrow', width: 2.5 },
-  ownership: { style: 'solid', color: '#FBBF24', label: 'Ownership / Vehicle' },
-  vehicle: { style: 'solid', color: '#FBBF24', label: 'Ownership / Vehicle' },
-  location: { style: 'dashed', color: '#A855F7', label: 'Geographic / Location' },
-  evidence_backed: { style: 'solid', color: '#60A5FA', label: 'Evidence-Backed' },
-  organization: { style: 'solid', color: '#F472B6', label: 'Syndicate / Org' },
-  association: { style: 'solid', color: '#94A3B8', label: 'Association / Other' }
+  calls: { style: 'dashed', color: '#5B7C99', label: 'Communication / Calls' },
+  financial: { style: 'solid', color: '#4F7A67', label: 'Financial / Escrow', width: 2 },
+  ownership: { style: 'solid', color: '#B58A45', label: 'Ownership / Vehicle' },
+  vehicle: { style: 'solid', color: '#B58A45', label: 'Ownership / Vehicle' },
+  location: { style: 'dashed', color: '#3F5F78', label: 'Geographic / Location' },
+  evidence_backed: { style: 'solid', color: '#5B7C99', label: 'Evidence-Backed' },
+  organization: { style: 'solid', color: '#8D98A5', label: 'Syndicate / Org' },
+  association: { style: 'solid', color: '#5B7C99', label: 'Association / Other' }
 };
 
 // Tuned Human-Engineered Layout Configurations
@@ -259,20 +259,20 @@ export default function CytoscapeGraph() {
           {
             selector: 'node',
             style: {
-              'background-color': '#0F1523',
+              'background-color': '#171D24',
               'label': 'data(label)',
-              'color': '#F1F5F9',
+              'color': '#E6E9ED',
               'font-family': 'Inter, system-ui, sans-serif',
               'font-size': '11px',
               'font-weight': 600,
               'text-valign': 'bottom',
               'text-margin-y': 7,
-              'text-background-opacity': 0.88,
-              'text-background-color': '#080C14',
+              'text-background-opacity': 0.92,
+              'text-background-color': '#101419',
               'text-background-padding': '3px 6px',
               'text-background-shape': 'roundrectangle',
               'text-border-width': 1,
-              'text-border-color': 'rgba(255, 255, 255, 0.12)',
+              'text-border-color': '#2A333D',
               'text-border-opacity': 0.8,
               'width': (ele) => {
                 const s = ele.data('size');
@@ -291,7 +291,7 @@ export default function CytoscapeGraph() {
               'border-width': 2,
               'border-color': (ele) => {
                 const t = ele.data('type') || '';
-                return ele.data('color') || ENTITY_CONFIG[t]?.color || '#38BDF8';
+                return ele.data('color') || ENTITY_CONFIG[t]?.color || '#5B7C99';
               },
               'border-opacity': 1.0,
               'shape': (ele) => {
@@ -310,48 +310,48 @@ export default function CytoscapeGraph() {
           {
             selector: 'node[threat = "CRITICAL"]',
             style: {
-              'background-color': '#1E1218',
-              'border-color': '#EF4444',
+              'background-color': '#201517',
+              'border-color': '#C04A52',
               'border-width': 3,
               'width': 56,
               'height': 56,
-              'shadow-blur': 14,
-              'shadow-color': 'rgba(239, 68, 68, 0.35)',
-              'shadow-opacity': 0.9
+              'shadow-blur': 12,
+              'shadow-color': 'rgba(192, 74, 82, 0.35)',
+              'shadow-opacity': 0.8
             }
           },
           // High Threat Nodes - Amber Accents
           {
             selector: 'node[threat = "HIGH"]',
             style: {
-              'background-color': '#1C1612',
-              'border-color': '#F59E0B',
+              'background-color': '#1F1A14',
+              'border-color': '#B58A45',
               'border-width': 2.5,
               'width': 50,
               'height': 50
             }
           },
-          // Node Selection - Crisp Cyan Focus Ring
+          // Node Selection - Crisp Steel Blue Focus Ring
           {
             selector: 'node:selected',
             style: {
-              'border-width': 3.5,
-              'border-color': '#38BDF8',
-              'background-color': '#112233',
-              'shadow-blur': 16,
-              'shadow-color': 'rgba(56, 189, 248, 0.45)',
+              'border-width': 3,
+              'border-color': '#5B7C99',
+              'background-color': '#17222B',
+              'shadow-blur': 14,
+              'shadow-color': 'rgba(91, 124, 153, 0.45)',
               'shadow-opacity': 1.0
             }
           },
-          // Node Search / Path Highlight - Crisp Gold Focus Ring
+          // Node Search / Path Highlight - Tactical Amber Focus Ring
           {
             selector: 'node.highlighted',
             style: {
-              'border-width': 3.5,
-              'border-color': '#FBBF24',
+              'border-width': 3,
+              'border-color': '#B58A45',
               'background-color': '#221E14',
-              'shadow-blur': 16,
-              'shadow-color': 'rgba(251, 191, 36, 0.45)',
+              'shadow-blur': 14,
+              'shadow-color': 'rgba(181, 138, 69, 0.35)',
               'shadow-opacity': 1.0,
               'opacity': 1.0
             }
@@ -370,11 +370,11 @@ export default function CytoscapeGraph() {
             style: {
               'width': (ele) => {
                 const rt = ele.data('relation_type') || 'association';
-                return rt === 'financial' ? 2.5 : 2;
+                return rt === 'financial' ? 2 : 1.5;
               },
               'line-color': (ele) => {
                 const rt = ele.data('relation_type') || 'association';
-                return RELATION_CONFIG[rt]?.color || 'rgba(148, 163, 184, 0.65)';
+                return RELATION_CONFIG[rt]?.color || 'rgba(141, 152, 165, 0.65)';
               },
               'line-style': (ele) => {
                 const rt = ele.data('relation_type') || 'association';
@@ -382,7 +382,7 @@ export default function CytoscapeGraph() {
               },
               'target-arrow-color': (ele) => {
                 const rt = ele.data('relation_type') || 'association';
-                return RELATION_CONFIG[rt]?.color || 'rgba(148, 163, 184, 0.85)';
+                return RELATION_CONFIG[rt]?.color || 'rgba(141, 152, 165, 0.85)';
               },
               'target-arrow-shape': 'triangle',
               'arrow-scale': 1.05,
@@ -391,10 +391,10 @@ export default function CytoscapeGraph() {
               'font-size': '9px',
               'font-family': 'JetBrains Mono, monospace',
               'font-weight': 500,
-              'color': '#94A3B8',
+              'color': '#8D98A5',
               'text-rotation': 'autorotate',
               'text-background-opacity': 0.85,
-              'text-background-color': '#080C14',
+              'text-background-color': '#101419',
               'text-background-padding': '2px 4px',
               'text-background-shape': 'roundrectangle',
               'text-border-width': 0,
@@ -407,9 +407,9 @@ export default function CytoscapeGraph() {
           {
             selector: 'edge:selected',
             style: {
-              'width': 3.5,
-              'line-color': '#38BDF8',
-              'target-arrow-color': '#38BDF8',
+              'width': 3,
+              'line-color': '#5B7C99',
+              'target-arrow-color': '#5B7C99',
               'opacity': 1.0
             }
           },
@@ -417,9 +417,9 @@ export default function CytoscapeGraph() {
           {
             selector: 'edge.highlighted',
             style: {
-              'width': 3.5,
-              'line-color': '#FBBF24',
-              'target-arrow-color': '#FBBF24',
+              'width': 3,
+              'line-color': '#B58A45',
+              'target-arrow-color': '#B58A45',
               'opacity': 1.0
             }
           },
@@ -1211,6 +1211,19 @@ export default function CytoscapeGraph() {
                     >
                       <Plus size={14} />
                       <span>{expandingNodeId === selectedNode.id ? 'Expanding...' : 'Expand 1-Hop Discovery'}</span>
+                    </button>
+
+                    <button
+                      onClick={() => navigate('cr204')}
+                      style={{
+                        padding: '9px 14px', background: 'var(--bg-surface)', border: '1px solid var(--accent)',
+                        borderRadius: '6px', color: 'var(--accent-hover)', fontSize: '0.76rem', fontWeight: 600,
+                        cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px'
+                      }}
+                      title="Inspect this entity on the real geographic CCTV surveillance map"
+                    >
+                      <MapPin size={14} />
+                      <span>Inspect on CCTV Tactical Map →</span>
                     </button>
                   </div>
                 </div>

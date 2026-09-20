@@ -45,10 +45,10 @@ export default function CameraDetailsPanel() {
   }
 
   const statusStyles = {
-    ONLINE: { bg: 'rgba(34, 197, 94, 0.15)', text: 'var(--success)', border: 'rgba(34, 197, 94, 0.4)' },
-    WARNING: { bg: 'rgba(245, 158, 11, 0.15)', text: '#F59E0B', border: 'rgba(245, 158, 11, 0.4)' },
-    MAINTENANCE: { bg: 'rgba(234, 179, 8, 0.15)', text: '#EAB308', border: 'rgba(234, 179, 8, 0.4)' },
-    OFFLINE: { bg: 'rgba(148, 163, 184, 0.15)', text: '#94A3B8', border: 'rgba(148, 163, 184, 0.4)' }
+    ONLINE: { bg: 'var(--success-dim)', text: 'var(--success)', border: 'var(--success-border)' },
+    WARNING: { bg: 'var(--warning-dim)', text: 'var(--warning)', border: 'var(--warning-border)' },
+    MAINTENANCE: { bg: 'var(--warning-dim)', text: 'var(--warning)', border: 'var(--warning-border)' },
+    OFFLINE: { bg: 'var(--bg-elevated)', text: 'var(--text-secondary)', border: 'var(--border-default)' }
   };
   const sc = statusStyles[selectedCamera.status] || statusStyles.ONLINE;
 
@@ -79,12 +79,12 @@ export default function CameraDetailsPanel() {
       <div style={{ borderBottom: '1px solid var(--border-default)', paddingBottom: '12px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Camera size={18} color="var(--accent)" />
+            <Camera size={18} color="var(--accent-hover)" />
             <span style={{
               fontFamily: 'var(--font-mono)',
               fontSize: '0.90rem',
               fontWeight: 800,
-              color: 'var(--accent)'
+              color: 'var(--accent-hover)'
             }}>
               {selectedCamera.cameraId || selectedCamera.id}
             </span>
@@ -117,7 +117,7 @@ export default function CameraDetailsPanel() {
           <span>·</span>
           <span>{selectedCamera.resolution || '1080p Optical'}</span>
           <span>·</span>
-          <span style={{ color: 'var(--accent)' }}>~{selectedCamera.coverageRadius || 85}m Coverage</span>
+          <span style={{ color: 'var(--accent-hover)' }}>~{selectedCamera.coverageRadius || 85}m Coverage</span>
         </div>
 
         {/* Action Buttons */}
@@ -130,7 +130,7 @@ export default function CameraDetailsPanel() {
               backgroundColor: 'var(--accent-dim)',
               border: '1px solid var(--accent-border)',
               borderRadius: '4px',
-              color: 'var(--accent)',
+              color: 'var(--accent-hover)',
               fontSize: '0.66rem',
               fontWeight: 600,
               cursor: 'pointer'
@@ -147,7 +147,7 @@ export default function CameraDetailsPanel() {
                 backgroundColor: 'var(--bg-elevated)',
                 border: '1px solid var(--border-default)',
                 borderRadius: '4px',
-                color: '#fff',
+                color: 'var(--text-primary)',
                 fontSize: '0.66rem',
                 cursor: 'pointer'
               }}
@@ -162,10 +162,10 @@ export default function CameraDetailsPanel() {
                 onClick={() => navigate('graph')}
                 style={{
                   padding: '3px 8px',
-                  backgroundColor: 'rgba(96, 165, 250, 0.15)',
-                  border: '1px solid rgba(96, 165, 250, 0.3)',
+                  backgroundColor: 'var(--bg-elevated)',
+                  border: '1px solid var(--border-default)',
                   borderRadius: '4px',
-                  color: '#60a5fa',
+                  color: 'var(--accent-hover)',
                   fontSize: '0.66rem',
                   fontWeight: 600,
                   cursor: 'pointer'
@@ -179,10 +179,10 @@ export default function CameraDetailsPanel() {
                 onClick={() => navigate('evidence')}
                 style={{
                   padding: '3px 8px',
-                  backgroundColor: 'rgba(52, 211, 153, 0.15)',
-                  border: '1px solid rgba(52, 211, 153, 0.3)',
+                  backgroundColor: 'var(--bg-elevated)',
+                  border: '1px solid var(--border-default)',
                   borderRadius: '4px',
-                  color: '#34d399',
+                  color: 'var(--success)',
                   fontSize: '0.66rem',
                   fontWeight: 600,
                   cursor: 'pointer'
@@ -196,10 +196,10 @@ export default function CameraDetailsPanel() {
                 onClick={() => navigate('chat')}
                 style={{
                   padding: '3px 8px',
-                  backgroundColor: 'rgba(244, 114, 182, 0.15)',
-                  border: '1px solid rgba(244, 114, 182, 0.3)',
+                  backgroundColor: 'var(--bg-elevated)',
+                  border: '1px solid var(--border-default)',
                   borderRadius: '4px',
-                  color: '#f472b6',
+                  color: 'var(--text-secondary)',
                   fontSize: '0.66rem',
                   fontWeight: 600,
                   cursor: 'pointer'
@@ -219,7 +219,7 @@ export default function CameraDetailsPanel() {
           <span style={{ fontSize: '0.72rem', fontWeight: 600, color: 'var(--text-muted)' }}>
             SURVEILLANCE FEED PREVIEW
           </span>
-          <span style={{ fontSize: '0.68rem', color: '#FBBF24', fontFamily: 'var(--font-mono)' }}>
+          <span style={{ fontSize: '0.68rem', color: 'var(--warning)', fontFamily: 'var(--font-mono)' }}>
             {activeTimestamp} UTC
           </span>
         </div>
@@ -243,9 +243,9 @@ export default function CameraDetailsPanel() {
             position: 'absolute',
             top: '8px',
             left: '8px',
-            backgroundColor: 'rgba(0, 0, 0, 0.85)',
-            border: '1px solid #F87171',
-            color: '#F87171',
+            backgroundColor: 'rgba(8, 10, 13, 0.92)',
+            border: '1px solid var(--danger-border)',
+            color: 'var(--danger)',
             fontSize: '0.62rem',
             fontFamily: 'var(--font-mono)',
             fontWeight: 700,
@@ -264,16 +264,16 @@ export default function CameraDetailsPanel() {
               left: '42%',
               width: '24%',
               height: '32%',
-              border: '2px solid #38bdf8',
-              boxShadow: '0 0 8px rgba(56, 189, 248, 0.7)',
+              border: '1.5px solid var(--accent-hover)',
               pointerEvents: 'none'
             }}>
               <span style={{
                 position: 'absolute',
                 top: '-18px',
                 left: '0',
-                backgroundColor: 'rgba(15, 23, 42, 0.95)',
-                color: '#38bdf8',
+                backgroundColor: 'var(--bg-elevated)',
+                border: '1px solid var(--border-default)',
+                color: 'var(--accent-hover)',
                 fontSize: '0.58rem',
                 fontFamily: 'var(--font-mono)',
                 fontWeight: 700,
@@ -290,12 +290,12 @@ export default function CameraDetailsPanel() {
 
       {/* Simulated Camera Coverage Notice */}
       <div style={{
-        backgroundColor: 'rgba(56, 189, 248, 0.08)',
-        border: '1px solid rgba(56, 189, 248, 0.25)',
+        backgroundColor: 'var(--accent-dim)',
+        border: '1px solid var(--accent-border)',
         borderRadius: '6px',
         padding: '8px 12px',
         fontSize: '0.70rem',
-        color: '#38bdf8',
+        color: 'var(--accent-hover)',
         display: 'flex',
         flexDirection: 'column',
         gap: '2px'
@@ -312,7 +312,7 @@ export default function CameraDetailsPanel() {
       {/* Recent Events List */}
       <div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px' }}>
-          <Clock size={14} color="#FBBF24" />
+          <Clock size={14} color="var(--warning)" />
           <span style={{ fontSize: '0.74rem', fontWeight: 700, color: 'var(--text-primary)' }}>
             RECENT CAMERA EVENTS
           </span>
@@ -336,7 +336,7 @@ export default function CameraDetailsPanel() {
               >
                 <span style={{
                   fontFamily: 'var(--font-mono)',
-                  color: '#FBBF24',
+                  color: 'var(--warning)',
                   fontWeight: 700,
                   fontSize: '0.68rem',
                   flexShrink: 0
@@ -353,7 +353,7 @@ export default function CameraDetailsPanel() {
                     style={{
                       background: 'var(--accent-dim)',
                       border: '1px solid var(--accent-border)',
-                      color: 'var(--accent)',
+                      color: 'var(--accent-hover)',
                       borderRadius: '3px',
                       padding: '1px 5px',
                       fontSize: '0.62rem',
@@ -392,7 +392,7 @@ export default function CameraDetailsPanel() {
                   backgroundColor: 'var(--bg-elevated)',
                   border: '1px solid var(--border-default)',
                   borderRadius: '4px',
-                  color: 'var(--accent)',
+                  color: 'var(--accent-hover)',
                   fontFamily: 'var(--font-mono)',
                   fontSize: '0.72rem',
                   fontWeight: 600,
@@ -419,7 +419,7 @@ export default function CameraDetailsPanel() {
                   backgroundColor: 'var(--bg-elevated)',
                   border: '1px solid var(--border-default)',
                   borderRadius: '4px',
-                  color: 'var(--accent)',
+                  color: 'var(--accent-hover)',
                   fontFamily: 'var(--font-mono)',
                   fontSize: '0.72rem',
                   fontWeight: 600,
@@ -441,12 +441,12 @@ export default function CameraDetailsPanel() {
         borderRadius: '6px'
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
-          <FileText size={14} color="var(--accent)" />
+          <FileText size={14} color="var(--accent-hover)" />
           <span style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--text-primary)' }}>
             ASSOCIATED EVIDENCE
           </span>
         </div>
-        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.74rem', color: 'var(--accent)' }}>
+        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.74rem', color: 'var(--accent-hover)' }}>
           {selectedCamera.evidence_id || 'EVID-CCTV-04'}
         </div>
         <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', marginTop: '2px' }}>
@@ -458,15 +458,15 @@ export default function CameraDetailsPanel() {
       {(selectedCamera.id === 'CCTV-04' || selectedCamera.relatedFaceMatches?.includes('FM-042')) && (
         <div style={{
           padding: '12px',
-          backgroundColor: 'rgba(251, 191, 36, 0.08)',
-          border: '1px solid rgba(251, 191, 36, 0.3)',
+          backgroundColor: 'var(--warning-dim)',
+          border: '1px solid var(--warning-border)',
           borderRadius: '6px',
           display: 'flex',
           flexDirection: 'column',
           gap: '8px'
         }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: '0.74rem', fontWeight: 700, color: '#FBBF24' }}>
+            <span style={{ fontSize: '0.74rem', fontWeight: 700, color: 'var(--warning)' }}>
               BIOMETRIC CANDIDATE: FM-042
             </span>
             <span style={{
@@ -474,8 +474,9 @@ export default function CameraDetailsPanel() {
               fontFamily: 'var(--font-mono)',
               padding: '1px 6px',
               borderRadius: '3px',
-              backgroundColor: 'rgba(251, 191, 36, 0.2)',
-              color: '#FBBF24'
+              backgroundColor: 'var(--bg-elevated)',
+              color: 'var(--warning)',
+              border: '1px solid var(--warning-border)'
             }}>
               87% MODEL SIMILARITY
             </span>
@@ -494,11 +495,11 @@ export default function CameraDetailsPanel() {
                 flex: 1,
                 padding: '6px',
                 backgroundColor: 'var(--success)',
-                color: '#000',
+                color: '#ffffff',
                 border: 'none',
                 borderRadius: '4px',
                 fontSize: '0.70rem',
-                fontWeight: 700,
+                fontWeight: 600,
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
@@ -516,9 +517,9 @@ export default function CameraDetailsPanel() {
               style={{
                 flex: 1,
                 padding: '6px',
-                backgroundColor: 'rgba(239, 68, 68, 0.2)',
-                color: '#F87171',
-                border: '1px solid rgba(239, 68, 68, 0.4)',
+                backgroundColor: 'var(--critical-dim)',
+                color: 'var(--critical)',
+                border: '1px solid var(--critical-border)',
                 borderRadius: '4px',
                 fontSize: '0.70rem',
                 fontWeight: 600,

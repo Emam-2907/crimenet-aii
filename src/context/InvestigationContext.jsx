@@ -160,6 +160,55 @@ export function InvestigationProvider({ children }) {
     }
   }, [investigationData]);
 
+  // Inject newly ingested evidence (e.g. from Owner Footage Intake or CIRA)
+  const injectIngestedEvidence = useCallback(({ camera, faceMatch, timelineEvent }) => {
+    setInvestigationData(prev => {
+      const newEntities = { ...prev.entities };
+      const newRelations = [...(prev.relations || [])];
+      const newTimeline = [...(prev.timeline || [])];
+
+      if (camera && camera.id) {
+        newEntities[camera.id] = camera;
+      }
+      if (faceMatch && faceMatch.id) {
+        newEntities[faceMatch.id] = faceMatch;
+      }
+      if (timelineEvent && timelineEvent.id) {
+        newTimeline.push(timelineEvent);
+      }
+
+      // Add relational links
+      if (camera && faceMatch) {
+        newRelations.push({
+          id: `REL-${camera.id}-${faceMatch.id}`,
+          type: 'CAPTURED_BY',
+          source: faceMatch.id,
+          target: camera.id,
+          label: 'Captured Frame 14:12',
+          certainty: 'OBSERVATION'
+        });
+      }
+
+      return {
+        ...prev,
+        entities: newEntities,
+        relations: newRelations,
+        timeline: newTimeline
+      };
+    });
+
+    if (camera) {
+      setSelectedEntityId(camera.id);
+      setSelectedEntityType('camera');
+      setMapFlyToTarget({
+        lng: camera.lng,
+        lat: camera.lat,
+        zoom: 16.5,
+        entityId: camera.id
+      });
+    }
+  }, []);
+
   const resetSelection = useCallback(() => {
     setSelectedEntityId("CCTV-04");
     setSelectedEntityType("camera");
@@ -173,6 +222,8 @@ export function InvestigationProvider({ children }) {
     <InvestigationContext.Provider value={{
       activeCase,
       investigationData,
+      setInvestigationData,
+      injectIngestedEvidence,
       allCameras,
       selectedEntity,
       selectedEntityId,

@@ -2,15 +2,15 @@ import React, { useState, useMemo } from 'react';
 import { useCIRA } from '../context/CIRAContext.jsx';
 
 const STATUS_CONFIG = {
-  Active:         { bg: 'var(--success-dim)', color: '#4ADE80', border: 'var(--success-border)' },
-  Critical:       { bg: 'var(--danger-dim)',  color: '#F87171', border: 'var(--danger-border)' },
-  'Under Review': { bg: 'var(--warning-dim)', color: '#FBBF24', border: 'var(--warning-border)' },
+  Active:         { bg: 'rgba(79, 122, 103, 0.18)', color: '#4F7A67', border: 'rgba(79, 122, 103, 0.4)' },
+  Critical:       { bg: 'rgba(192, 74, 82, 0.18)',  color: '#C04A52', border: 'rgba(192, 74, 82, 0.4)' },
+  'Under Review': { bg: 'rgba(181, 138, 69, 0.18)', color: '#B58A45', border: 'rgba(181, 138, 69, 0.4)' },
   Closed:         { bg: 'var(--bg-elevated)', color: 'var(--text-secondary)', border: 'var(--border-default)' }
 };
 
 const PRIORITY_CONFIG = {
-  Critical: { color: '#F87171', border: 'var(--danger-border)' },
-  High:     { color: '#FBBF24', border: 'var(--warning-border)' },
+  Critical: { color: '#C04A52', border: 'rgba(192, 74, 82, 0.4)' },
+  High:     { color: '#B58A45', border: 'rgba(181, 138, 69, 0.4)' },
   Medium:   { color: 'var(--accent-hover)', border: 'var(--accent-border)' },
   Low:      { color: 'var(--text-muted)', border: 'var(--border-default)' }
 };
@@ -377,7 +377,7 @@ export default function CasesList() {
                     <td style={{ textAlign: 'center' }}>
                       <span style={{
                         fontFamily: 'var(--font-mono)', fontSize: '0.80rem',
-                        fontWeight: 600, color: '#A855F7'
+                        fontWeight: 600, color: 'var(--accent-hover)'
                       }}>
                         {c.entity_count || 0}
                       </span>
@@ -394,7 +394,7 @@ export default function CasesList() {
                               navigate('cr204');
                             }}
                             className="btn-primary"
-                            style={{ padding: '3px 8px', fontSize: '0.68rem', backgroundColor: '#0284c7', borderColor: '#38bdf8' }}
+                            style={{ padding: '3px 8px', fontSize: '0.68rem' }}
                             title="Open CR-204 CCTV Surveillance Map"
                           >
                             🗺️ CCTV Map
@@ -474,9 +474,9 @@ export default function CasesList() {
                     {c.title}
                   </h4>
                   {c.primary_suspect && (
-                    <div style={{ fontSize: '0.72rem', color: '#F87171', fontFamily: 'var(--font-mono)', marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                      <span style={{ color: '#F87171', fontWeight: 700 }}>🎯 TARGET:</span>
-                      <span style={{ color: '#fca5a5', fontWeight: 600 }}>{c.primary_suspect}</span>
+                    <div style={{ fontSize: '0.72rem', color: '#9B3D45', fontFamily: 'var(--font-mono)', marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <span style={{ color: '#9B3D45', fontWeight: 700 }}>🎯 TARGET:</span>
+                      <span style={{ color: '#C04A52', fontWeight: 600 }}>{c.primary_suspect}</span>
                     </div>
                   )}
                   <p style={{
@@ -495,14 +495,14 @@ export default function CasesList() {
                 }}>
                   <div>
                     <div style={{ fontSize: '0.64rem', fontFamily: 'var(--f-mono)', color: 'var(--t-dim)' }}>EVIDENCE</div>
-                    <div style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--blue-light)', fontFamily: 'var(--f-mono)' }}>
+                    <div style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--accent)', fontFamily: 'var(--f-mono)' }}>
                       {c.evidence_count || 0}
                     </div>
                   </div>
                   <div style={{ width: '1px', background: 'var(--b-faint)' }} />
                   <div>
                     <div style={{ fontSize: '0.64rem', fontFamily: 'var(--f-mono)', color: 'var(--t-dim)' }}>ENTITIES</div>
-                    <div style={{ fontSize: '1rem', fontWeight: 800, color: '#a78bfa', fontFamily: 'var(--f-mono)' }}>
+                    <div style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--accent-hover)', fontFamily: 'var(--f-mono)' }}>
                       {c.entity_count || 0}
                     </div>
                   </div>
@@ -530,8 +530,8 @@ export default function CasesList() {
                           navigate('cr204');
                         }}
                         style={{
-                          padding: '2px 8px', borderRadius: '4px', background: 'rgba(56, 189, 248, 0.2)',
-                          color: '#38bdf8', border: '1px solid rgba(56, 189, 248, 0.4)', fontSize: '0.68rem',
+                          padding: '2px 8px', borderRadius: '4px', background: 'var(--accent-dim)',
+                          color: 'var(--accent-hover)', border: '1px solid var(--accent-border)', fontSize: '0.68rem',
                           fontFamily: 'var(--font-mono)', fontWeight: 700, cursor: 'pointer'
                         }}
                       >

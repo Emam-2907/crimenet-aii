@@ -22,6 +22,61 @@ const BASE_URL = getBaseUrl();
 
 let authToken = (typeof localStorage !== 'undefined' ? localStorage.getItem('crimenet_token') : null) || null;
 
+const DEMO_USERS = {
+  'analyst.vance@crimenet.demo': {
+    id: 'analyst.vance@crimenet.demo',
+    email: 'analyst.vance@crimenet.demo',
+    name: 'Special Agent Marcus Vance',
+    full_name: 'Special Agent Marcus Vance',
+    role: 'ANALYST',
+    clearance: 'TS/SCI-ORCON',
+    badge: 'CN-ALPHA-0941',
+    badge_id: 'CN-ALPHA-0941',
+    station: 'Metro Tactical Counter-Syndicate Command',
+    unit: 'Counter-Syndicate Taskforce Unit 09',
+    allowed_cases: ['CR-204', 'CASE-2026-OP-SOVEREIGN', 'CASE-2026-CR-8821']
+  },
+  'investigator.chen@crimenet.demo': {
+    id: 'investigator.chen@crimenet.demo',
+    email: 'investigator.chen@crimenet.demo',
+    name: 'Detective Sarah Chen',
+    full_name: 'Detective Sarah Chen',
+    role: 'INVESTIGATOR',
+    clearance: 'SECRET',
+    badge: 'CN-INV-5512',
+    badge_id: 'CN-INV-5512',
+    station: 'Major Case Investigation Unit',
+    unit: 'Major Case Bureau',
+    allowed_cases: ['CR-204', 'CASE-2026-CR-8821']
+  },
+  'supervisor.wright@crimenet.demo': {
+    id: 'supervisor.wright@crimenet.demo',
+    email: 'supervisor.wright@crimenet.demo',
+    name: 'Inspector Thomas Wright',
+    full_name: 'Inspector Thomas Wright',
+    role: 'SUPERVISOR',
+    clearance: 'TS//SCI',
+    badge: 'CN-SUP-7719',
+    badge_id: 'CN-SUP-7719',
+    station: 'Regional Fusion Command',
+    unit: 'Command Directorate',
+    allowed_cases: ['*']
+  },
+  'admin@crimenet.demo': {
+    id: 'admin@crimenet.demo',
+    email: 'admin@crimenet.demo',
+    name: 'Command Administrator',
+    full_name: 'Command Administrator',
+    role: 'ADMIN',
+    clearance: 'TS//SCI-ORCON',
+    badge: 'CN-HQ-0001',
+    badge_id: 'CN-HQ-0001',
+    station: 'Joint Intelligence Headquarters',
+    unit: 'HQ Command',
+    allowed_cases: ['*']
+  }
+};
+
 export const api = {
   setToken: (token) => {
     authToken = token;
@@ -44,19 +99,63 @@ export const api = {
 
   // Auth endpoints
   login: async (userIdOrEmail, password) => {
-    const res = await fetch(`${BASE_URL}/auth/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
-      body: JSON.stringify({ user_id: userIdOrEmail, email: userIdOrEmail, password })
-    });
-    if (!res.ok) {
-      const errorData = await res.json().catch(() => ({}));
-      throw new Error(errorData.detail || 'Authentication failed. Please verify credentials.');
+    try {
+      const res = await fetch(`${BASE_URL}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ user_id: userIdOrEmail, email: userIdOrEmail, password })
+      });
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        if (res.status === 401 || res.status === 403) {
+          throw new Error(errorData.detail || 'Authentication failed. Please verify credentials.');
+        }
+        throw new Error(errorData.detail || `Server error (${res.status})`);
+      }
+      const data = await res.json();
+      api.setToken(data.access_token);
+      return data;
+    } catch (err) {
+      console.warn('[API] Server login unavailable or network error, activating demo auth fallback:', err);
+      // If server explicitly returned 401 password mismatch, rethrow
+      if (err.message && !err.message.includes('Failed to fetch') && !err.message.includes('NetworkError') && !err.message.includes('Load failed')) {
+        throw err;
+      }
+
+      // Offline / Standalone Demo Fallback
+      const normalized = (userIdOrEmail || '').toLowerCase().trim();
+      let matchedKey = Object.keys(DEMO_USERS).find(k => k.toLowerCase() === normalized);
+      
+      if (!matchedKey) {
+        if (normalized.includes('vance')) matchedKey = 'analyst.vance@crimenet.demo';
+        else if (normalized.includes('chen')) matchedKey = 'investigator.chen@crimenet.demo';
+        else if (normalized.includes('wright')) matchedKey = 'supervisor.wright@crimenet.demo';
+        else if (normalized.includes('admin')) matchedKey = 'admin@crimenet.demo';
+      }
+
+      const user = DEMO_USERS[matchedKey] || {
+        id: normalized || 'analyst.vance@crimenet.demo',
+        email: normalized.includes('@') ? normalized : `${normalized || 'agent'}@crimenet.demo`,
+        name: normalized ? (normalized.split('@')[0].replace(/[._]/g, ' ').toUpperCase()) : 'Special Agent Marcus Vance',
+        full_name: 'Special Agent Marcus Vance',
+        role: 'ANALYST',
+        clearance: 'TS/SCI-ORCON',
+        badge: 'CN-ALPHA-0941',
+        badge_id: 'CN-ALPHA-0941',
+        station: 'Metro Tactical Counter-Syndicate Command',
+        unit: 'Counter-Syndicate Taskforce Unit 09'
+      };
+
+      const fallbackData = {
+        access_token: `demo-token-${Date.now()}`,
+        token_type: 'bearer',
+        user
+      };
+
+      api.setToken(fallbackData.access_token);
+      return fallbackData;
     }
-    const data = await res.json();
-    api.setToken(data.access_token);
-    return data;
   },
 
   logout: async () => {
@@ -1341,49 +1440,49 @@ export const api = {
       // Fallback data with full syndicate suspect network
       const allFallbackNodes = [
         // 1. PERSONS (Suspects)
-        { data: { id: 'PERSON-001', label: 'Viktor Voronin', type: 'Person', shape: 'ellipse', color: '#f87171', threat: 'CRITICAL', size: 52, details: 'Kingpin orchestrating ransomware networks, avionics smuggling, and offshore escrow laundering. Aliases: The Architect, Cypher-9.', case_id: caseId } },
-        { data: { id: 'PERSON-002', label: 'Elena Rostov', type: 'Person', shape: 'ellipse', color: '#f87171', threat: 'HIGH', size: 48, details: 'Financial broker and darknet escrow operator facilitating port access and encrypted communications. Aliases: Valkyrie, CipherQueen.', case_id: caseId } },
-        { data: { id: 'PERSON-003', label: 'Darius Vance', type: 'Person', shape: 'ellipse', color: '#f87171', threat: 'HIGH', size: 46, details: 'Armed logistics enforcer supervising warehouse arms distribution and decoy armored transports. Aliases: Ironclad, Heavy-D.', case_id: caseId } },
-        { data: { id: 'PERSON-004', label: 'Marcus Kane', type: 'Person', shape: 'ellipse', color: '#f87171', threat: 'MEDIUM', size: 42, details: 'Signal interception and hardware tap specialist suspected of tampering with port CCTV relays. Aliases: Specter, Wiretapper.', case_id: caseId } },
-        { data: { id: 'PERSON-005', label: 'Viktor Chen (Cipher_Ghost)', type: 'Person', shape: 'ellipse', color: '#f87171', threat: 'CRITICAL', size: 50, details: 'Autonomous ransomware developer and zero-day broker linked to municipal utility breaches.', case_id: caseId } },
-        { data: { id: 'PERSON-006', label: 'Marek Rostov', type: 'Person', shape: 'ellipse', color: '#f87171', threat: 'HIGH', size: 46, details: 'Tactical logistics chief managing high-speed armored transit convoys across harbor perimeter.', case_id: caseId } },
-        { data: { id: 'PERSON-007', label: 'Elena Thorne (Chameleon-9)', type: 'Person', shape: 'ellipse', color: '#f87171', threat: 'HIGH', size: 44, details: 'Synthetic media creator and 3D biometric credential counterfeiter for cross-border transit.', case_id: caseId } },
-        { data: { id: 'PERSON-008', label: 'Tariq Al-Mansoor', type: 'Person', shape: 'ellipse', color: '#f87171', threat: 'CRITICAL', size: 48, details: 'Cryptocurrency wash ring operator managing cross-chain flash-loan liquidity pools.', case_id: caseId } },
-        { data: { id: 'PERSON-009', label: 'Katya Orlova (Red Phantom)', type: 'Person', shape: 'ellipse', color: '#f87171', threat: 'HIGH', size: 44, details: 'SCADA telemetry manipulator and railway routing saboteur.', case_id: caseId } },
-        { data: { id: 'PERSON-010', label: 'Arturo Ruiz (El Silencio)', type: 'Person', shape: 'ellipse', color: '#f87171', threat: 'HIGH', size: 44, details: 'Maritime container smuggling dispatcher operating through Terminal C berths.', case_id: caseId } },
-        { data: { id: 'PERSON-011', label: 'Jin Park (ZeroTrace)', type: 'Person', shape: 'ellipse', color: '#f87171', threat: 'MEDIUM', size: 42, details: 'Tor gateway node administrator and encrypted relay provider for Apex Cell.', case_id: caseId } },
-        { data: { id: 'PERSON-012', label: 'Isabella Cruz (Nemesis)', type: 'Person', shape: 'ellipse', color: '#f87171', threat: 'HIGH', size: 44, details: 'Electronic counter-surveillance officer responsible for RF jamming operations.', case_id: caseId } },
+        { data: { id: 'PERSON-001', label: 'Viktor Voronin', type: 'Person', shape: 'ellipse', color: '#9B3D45', threat: 'CRITICAL', size: 52, details: 'Kingpin orchestrating ransomware networks, avionics smuggling, and offshore escrow laundering. Aliases: The Architect, Cypher-9.', case_id: caseId } },
+        { data: { id: 'PERSON-002', label: 'Elena Rostov', type: 'Person', shape: 'ellipse', color: '#9B3D45', threat: 'HIGH', size: 48, details: 'Financial broker and darknet escrow operator facilitating port access and encrypted communications. Aliases: Valkyrie, CipherQueen.', case_id: caseId } },
+        { data: { id: 'PERSON-003', label: 'Darius Vance', type: 'Person', shape: 'ellipse', color: '#9B3D45', threat: 'HIGH', size: 46, details: 'Armed logistics enforcer supervising warehouse arms distribution and decoy armored transports. Aliases: Ironclad, Heavy-D.', case_id: caseId } },
+        { data: { id: 'PERSON-004', label: 'Marcus Kane', type: 'Person', shape: 'ellipse', color: '#9B3D45', threat: 'MEDIUM', size: 42, details: 'Signal interception and hardware tap specialist suspected of tampering with port CCTV relays. Aliases: Specter, Wiretapper.', case_id: caseId } },
+        { data: { id: 'PERSON-005', label: 'Viktor Chen (Cipher_Ghost)', type: 'Person', shape: 'ellipse', color: '#9B3D45', threat: 'CRITICAL', size: 50, details: 'Autonomous ransomware developer and zero-day broker linked to municipal utility breaches.', case_id: caseId } },
+        { data: { id: 'PERSON-006', label: 'Marek Rostov', type: 'Person', shape: 'ellipse', color: '#9B3D45', threat: 'HIGH', size: 46, details: 'Tactical logistics chief managing high-speed armored transit convoys across harbor perimeter.', case_id: caseId } },
+        { data: { id: 'PERSON-007', label: 'Elena Thorne (Chameleon-9)', type: 'Person', shape: 'ellipse', color: '#9B3D45', threat: 'HIGH', size: 44, details: 'Synthetic media creator and 3D biometric credential counterfeiter for cross-border transit.', case_id: caseId } },
+        { data: { id: 'PERSON-008', label: 'Tariq Al-Mansoor', type: 'Person', shape: 'ellipse', color: '#9B3D45', threat: 'CRITICAL', size: 48, details: 'Cryptocurrency wash ring operator managing cross-chain flash-loan liquidity pools.', case_id: caseId } },
+        { data: { id: 'PERSON-009', label: 'Katya Orlova (Red Phantom)', type: 'Person', shape: 'ellipse', color: '#9B3D45', threat: 'HIGH', size: 44, details: 'SCADA telemetry manipulator and railway routing saboteur.', case_id: caseId } },
+        { data: { id: 'PERSON-010', label: 'Arturo Ruiz (El Silencio)', type: 'Person', shape: 'ellipse', color: '#9B3D45', threat: 'HIGH', size: 44, details: 'Maritime container smuggling dispatcher operating through Terminal C berths.', case_id: caseId } },
+        { data: { id: 'PERSON-011', label: 'Jin Park (ZeroTrace)', type: 'Person', shape: 'ellipse', color: '#9B3D45', threat: 'MEDIUM', size: 42, details: 'Tor gateway node administrator and encrypted relay provider for Apex Cell.', case_id: caseId } },
+        { data: { id: 'PERSON-012', label: 'Isabella Cruz (Nemesis)', type: 'Person', shape: 'ellipse', color: '#9B3D45', threat: 'HIGH', size: 44, details: 'Electronic counter-surveillance officer responsible for RF jamming operations.', case_id: caseId } },
 
         // 2. PHONES & COMMS
-        { data: { id: 'PHONE-001', label: 'RF 868MHz Jammer / Tap', type: 'Phone', shape: 'round-rectangle', color: '#38bdf8', threat: 'HIGH', size: 40, details: 'Encrypted frequency pulse beacon triangulated near Terminal C checkpoint.', case_id: caseId } },
-        { data: { id: 'PHONE-002', label: 'SatPhone +882-16-992', type: 'Phone', shape: 'round-rectangle', color: '#38bdf8', threat: 'HIGH', size: 40, details: 'Encrypted burner satellite link routed through Pier 4 repeater.', case_id: caseId } },
-        { data: { id: 'PHONE-003', label: 'Tor Gateway Node 185.220', type: 'Phone', shape: 'round-rectangle', color: '#38bdf8', threat: 'CRITICAL', size: 40, details: 'Primary ingress IP used to dispatch ransomware payloads.', case_id: caseId } },
+        { data: { id: 'PHONE-001', label: 'RF 868MHz Jammer / Tap', type: 'Phone', shape: 'round-rectangle', color: '#5B7C99', threat: 'HIGH', size: 40, details: 'Encrypted frequency pulse beacon triangulated near Terminal C checkpoint.', case_id: caseId } },
+        { data: { id: 'PHONE-002', label: 'SatPhone +882-16-992', type: 'Phone', shape: 'round-rectangle', color: '#5B7C99', threat: 'HIGH', size: 40, details: 'Encrypted burner satellite link routed through Pier 4 repeater.', case_id: caseId } },
+        { data: { id: 'PHONE-003', label: 'Tor Gateway Node 185.220', type: 'Phone', shape: 'round-rectangle', color: '#5B7C99', threat: 'CRITICAL', size: 40, details: 'Primary ingress IP used to dispatch ransomware payloads.', case_id: caseId } },
 
         // 3. VEHICLES
-        { data: { id: 'VEHICLE-001', label: 'Black Escalade (8B9-CYP)', type: 'Vehicle', shape: 'diamond', color: '#fbbf24', threat: 'HIGH', size: 46, details: 'Observed departing Terminal C; registered to shell logistics entity.', case_id: caseId } },
-        { data: { id: 'VEHICLE-002', label: 'Armored Yukon (NY-889XQ)', type: 'Vehicle', shape: 'diamond', color: '#fbbf24', threat: 'HIGH', size: 44, details: 'Reinforced SUV with covert radio installation and tinted thermal glass.', case_id: caseId } },
-        { data: { id: 'VEHICLE-003', label: 'Freight Switcher Unit 14-B', type: 'Vehicle', shape: 'diamond', color: '#fbbf24', threat: 'CRITICAL', size: 44, details: 'Remotely diverted locomotive used to mask rail contraband transit.', case_id: caseId } },
+        { data: { id: 'VEHICLE-001', label: 'Black Escalade (8B9-CYP)', type: 'Vehicle', shape: 'diamond', color: '#B58A45', threat: 'HIGH', size: 46, details: 'Observed departing Terminal C; registered to shell logistics entity.', case_id: caseId } },
+        { data: { id: 'VEHICLE-002', label: 'Armored Yukon (NY-889XQ)', type: 'Vehicle', shape: 'diamond', color: '#B58A45', threat: 'HIGH', size: 44, details: 'Reinforced SUV with covert radio installation and tinted thermal glass.', case_id: caseId } },
+        { data: { id: 'VEHICLE-003', label: 'Freight Switcher Unit 14-B', type: 'Vehicle', shape: 'diamond', color: '#B58A45', threat: 'CRITICAL', size: 44, details: 'Remotely diverted locomotive used to mask rail contraband transit.', case_id: caseId } },
 
         // 4. FINANCIAL ACCOUNTS
-        { data: { id: 'FIN-001', label: 'Tether Wallet 0x889...F1C', type: 'Financial Account', shape: 'hexagon', color: '#34d399', threat: 'CRITICAL', size: 46, details: 'Cryptocurrency escrow address with 140K USDT transaction volume.', case_id: caseId } },
-        { data: { id: 'FIN-002', label: 'Darknet Mixer Node 36', type: 'Financial Account', shape: 'hexagon', color: '#34d399', threat: 'CRITICAL', size: 44, details: 'Decentralized liquidity tumbler splitting funds across micro-wallets.', case_id: caseId } },
-        { data: { id: 'FIN-003', label: 'Crypto Wallet 0x8F9...41D', type: 'Financial Account', shape: 'hexagon', color: '#34d399', threat: 'HIGH', size: 44, details: 'Mixer deposit address with $4.2M monitored inflow.', case_id: caseId } },
+        { data: { id: 'FIN-001', label: 'Tether Wallet 0x889...F1C', type: 'Financial Account', shape: 'hexagon', color: '#4F7A67', threat: 'CRITICAL', size: 46, details: 'Cryptocurrency escrow address with 140K USDT transaction volume.', case_id: caseId } },
+        { data: { id: 'FIN-002', label: 'Darknet Mixer Node 36', type: 'Financial Account', shape: 'hexagon', color: '#4F7A67', threat: 'CRITICAL', size: 44, details: 'Decentralized liquidity tumbler splitting funds across micro-wallets.', case_id: caseId } },
+        { data: { id: 'FIN-003', label: 'Crypto Wallet 0x8F9...41D', type: 'Financial Account', shape: 'hexagon', color: '#4F7A67', threat: 'HIGH', size: 44, details: 'Mixer deposit address with $4.2M monitored inflow.', case_id: caseId } },
 
         // 5. LOCATIONS
-        { data: { id: 'LOC-001', label: 'Terminal C Harbor Depot', type: 'Location', shape: 'octagon', color: '#c084fc', threat: 'HIGH', size: 48, details: 'Sector 4 customs warehouse and avionics container staging site.', case_id: caseId } },
-        { data: { id: 'LOC-002', label: 'Warehouse 14B Safehouse', type: 'Location', shape: 'octagon', color: '#c084fc', threat: 'HIGH', size: 46, details: 'Tactical command center containing servers, repeaters, and forged passports.', case_id: caseId } },
-        { data: { id: 'LOC-003', label: 'Sector 2 Freight Exchange', type: 'Location', shape: 'octagon', color: '#c084fc', threat: 'MEDIUM', size: 44, details: 'Industrial rail junction subject to SCADA telemetry spoofing.', case_id: caseId } },
+        { data: { id: 'LOC-001', label: 'Terminal C Harbor Depot', type: 'Location', shape: 'octagon', color: '#3F5F78', threat: 'HIGH', size: 48, details: 'Sector 4 customs warehouse and avionics container staging site.', case_id: caseId } },
+        { data: { id: 'LOC-002', label: 'Warehouse 14B Safehouse', type: 'Location', shape: 'octagon', color: '#3F5F78', threat: 'HIGH', size: 46, details: 'Tactical command center containing servers, repeaters, and forged passports.', case_id: caseId } },
+        { data: { id: 'LOC-003', label: 'Sector 2 Freight Exchange', type: 'Location', shape: 'octagon', color: '#3F5F78', threat: 'MEDIUM', size: 44, details: 'Industrial rail junction subject to SCADA telemetry spoofing.', case_id: caseId } },
 
         // 6. ORGANIZATIONS
-        { data: { id: 'ORG-001', label: 'Apex Cyber Syndicate', type: 'Organization', shape: 'rectangle', color: '#f472b6', threat: 'CRITICAL', size: 50, details: 'Transnational cybercrime network targeting municipal utility systems and defense logistics.', case_id: caseId } },
-        { data: { id: 'ORG-002', label: 'Kowloon Port Cartel', type: 'Organization', shape: 'rectangle', color: '#f472b6', threat: 'HIGH', size: 46, details: 'Maritime container logistics and armed contraband escort cartel.', case_id: caseId } },
-        { data: { id: 'ORG-003', label: 'GhostNet Logistics', type: 'Organization', shape: 'rectangle', color: '#f472b6', threat: 'HIGH', size: 46, details: 'Shell forwarding firm providing fictitious bills of lading and escrow facilities.', case_id: caseId } },
+        { data: { id: 'ORG-001', label: 'Apex Cyber Syndicate', type: 'Organization', shape: 'rectangle', color: '#8D98A5', threat: 'CRITICAL', size: 50, details: 'Transnational cybercrime network targeting municipal utility systems and defense logistics.', case_id: caseId } },
+        { data: { id: 'ORG-002', label: 'Kowloon Port Cartel', type: 'Organization', shape: 'rectangle', color: '#8D98A5', threat: 'HIGH', size: 46, details: 'Maritime container logistics and armed contraband escort cartel.', case_id: caseId } },
+        { data: { id: 'ORG-003', label: 'GhostNet Logistics', type: 'Organization', shape: 'rectangle', color: '#8D98A5', threat: 'HIGH', size: 46, details: 'Shell forwarding firm providing fictitious bills of lading and escrow facilities.', case_id: caseId } },
 
         // 7. EVIDENCE
-        { data: { id: 'EV-0182', label: 'Call_Record_Microwave_Tap.csv', type: 'Evidence', shape: 'tag', color: '#60a5fa', threat: 'EVIDENCE', size: 42, details: 'Decrypted intercept wiretap log corroborating suspect communications.', case_id: caseId } },
-        { data: { id: 'EV-0184', label: 'CCTV_Terminal_C_Frame_0418.jpg', type: 'Evidence', shape: 'tag', color: '#60a5fa', threat: 'EVIDENCE', size: 42, details: 'ArcFace biometric match frame from Gate 4 security camera.', case_id: caseId } },
-        { data: { id: 'EV-0185', label: 'Escrow_Wallet_Ledger_Dump.json', type: 'Evidence', shape: 'tag', color: '#60a5fa', threat: 'EVIDENCE', size: 42, details: 'On-chain transaction signatures linking suspects to illicit wash accounts.', case_id: caseId } },
-        { data: { id: 'EV-0189', label: 'ALPR_Toll_Exit14_Capture.png', type: 'Evidence', shape: 'tag', color: '#60a5fa', threat: 'EVIDENCE', size: 42, details: 'License plate optical recognition hit on northbound getaway convoy.', case_id: caseId } }
+        { data: { id: 'EV-0182', label: 'Call_Record_Microwave_Tap.csv', type: 'Evidence', shape: 'tag', color: '#5B7C99', threat: 'EVIDENCE', size: 42, details: 'Decrypted intercept wiretap log corroborating suspect communications.', case_id: caseId } },
+        { data: { id: 'EV-0184', label: 'CCTV_Terminal_C_Frame_0418.jpg', type: 'Evidence', shape: 'tag', color: '#5B7C99', threat: 'EVIDENCE', size: 42, details: 'ArcFace biometric match frame from Gate 4 security camera.', case_id: caseId } },
+        { data: { id: 'EV-0185', label: 'Escrow_Wallet_Ledger_Dump.json', type: 'Evidence', shape: 'tag', color: '#5B7C99', threat: 'EVIDENCE', size: 42, details: 'On-chain transaction signatures linking suspects to illicit wash accounts.', case_id: caseId } },
+        { data: { id: 'EV-0189', label: 'ALPR_Toll_Exit14_Capture.png', type: 'Evidence', shape: 'tag', color: '#5B7C99', threat: 'EVIDENCE', size: 42, details: 'License plate optical recognition hit on northbound getaway convoy.', case_id: caseId } }
       ];
 
       const allFallbackEdges = [

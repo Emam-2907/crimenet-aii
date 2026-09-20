@@ -25,7 +25,9 @@ export function ciraService(investigationData, investigationContext, userQuestio
     unknown: [],
     conflicts: [],
     next_review: [],
-    linked_entity_ids: []
+    tactical_intel: [],
+    linked_entity_ids: [],
+    action: null
   };
 
   // Helper to link entity
@@ -34,6 +36,118 @@ export function ciraService(investigationData, investigationContext, userQuestio
       bundle.linked_entity_ids.push(id);
     }
   };
+
+  // 0. OWNER FOOTAGE REQUEST & SUBPOENA (Requested by User / Gap detected)
+  if (
+    q.includes("owner") ||
+    q.includes("foodage") || // handle user spelling
+    q.includes("footage") ||
+    q.includes("subpoena") ||
+    q.includes("ask the owner") ||
+    q.includes("request footage") ||
+    q.includes("/request-footage")
+  ) {
+    linkEntity("CCTV-04");
+    linkEntity("CCTV-07");
+    linkEntity("V-102");
+    bundle.action = 'OPEN_OWNER_FOOTAGE_INTAKE';
+
+    bundle.observed.push(
+      "Surveillance gap verified between CCTV-04 (14:11 UTC departure) and CCTV-07 (14:15 UTC arrival). Vehicle V-102 was unmonitored for 3 minutes along South Arterial Way.",
+      "Identified private surveillance asset: Mikhail Petrov (Apex Logistics & Cold Storage Facility, Gate 2) maintains an exterior 4K optical camera covering the exact corridor at 40.7138° N, -74.0048° W."
+    );
+
+    bundle.inferred.push(
+      "Vehicle V-102 traveled past the Apex Logistics facility at approximately 14:12:30 UTC based on calculated transit velocity (34 km/h).",
+      "Corridor analysis indicates an escort vehicle or pedestrian exchange occurred during this unobserved window."
+    );
+
+    bundle.evidence.push(
+      "Warrant / Subpoena Template: 18 U.S.C. § 2703 (Expedited Preservation & Electronic Surveillance Intake).",
+      "Target Feed ID: CAM-PVT-0412_1412UTC_SURVEILLANCE.mp4."
+    );
+
+    bundle.next_review.push(
+      "TACTICAL BAT BOT ACTION: Dispatch automated digital subpoena to Mikhail Petrov, ingest the high-speed feed, and trigger ArcFace biometric facial recognition to identify vehicle occupants."
+    );
+
+    bundle.tactical_intel.push(
+      "ACTION READY: Opening CIRA Secure Evidence Intake Terminal. Ingest stream and execute facial recognition."
+    );
+  }
+
+  // 0.1 FACE RECOGNITION & BIOMETRIC DETECTION QUERIES
+  else if (
+    q.includes("face recognition") ||
+    q.includes("detect by face") ||
+    q.includes("detect bt face") ||
+    q.includes("biometric scan") ||
+    q.includes("arcface") ||
+    q.includes("voronin") ||
+    q.includes("/face-recon") ||
+    q.includes("/biometric-scan")
+  ) {
+    linkEntity("FM-042");
+    linkEntity("P-017");
+    linkEntity("PERSON-001");
+    linkEntity("CCTV-04");
+    bundle.action = 'OPEN_OWNER_FOOTAGE_INTAKE';
+
+    bundle.potential_match.push(
+      "PRIMARY CANDIDATE: Viktor Voronin (PERSON-001 / 'The Architect'). Known syndicate kingpin linked to avionics theft and ransomware extortion.",
+      "SECONDARY CANDIDATE: Elena Rostov (P-017 / 'Valkyrie'). 87% cosine similarity on CCTV-04 turnstile capture.",
+      "NEURAL VISION PIPELINE: ArcFace-ResNet50 v2.4 (512-dimensional embedding metric, alignment via 68 facial landmarks, threshold > 0.60)."
+    );
+
+    bundle.observed.push(
+      "CCTV-04 captured partial facial contours at 14:09:12 UTC. IR lighting variance: 14.2%.",
+      "Incoming private warehouse footage (CCTV-PVT-01) provides an unobstructed 1080p facial frame at 14:12 UTC."
+    );
+
+    bundle.tactical_intel.push(
+      "BAT BOT ASSESSMENT: High probability (>95%) that Viktor Voronin was aboard V-102 during the South Arterial transit. Ingesting owner footage will confirm biometric identity."
+    );
+
+    bundle.next_review.push(
+      "High-priority review recommended: Complete biometric landmark alignment in Forensic Face Lab and bind verified match to Case Docket CR-204."
+    );
+  }
+
+  // 0.2 BAT BOT TACTICAL INTELLIGENCE & CORDON / ESCAPE VECTORS
+  else if (
+    q.includes("bat bot") ||
+    q.includes("tactical") ||
+    q.includes("cordon") ||
+    q.includes("escape") ||
+    q.includes("vector") ||
+    q.includes("/cordon-plan") ||
+    q.includes("/tactical-cordon")
+  ) {
+    linkEntity("INC-204");
+    linkEntity("L-12");
+    linkEntity("V-102");
+    linkEntity("CCTV-11");
+    bundle.action = 'FOCUS_GRAPH';
+
+    bundle.tactical_intel.push(
+      "BAT BOT SITUATIONAL EVALUATION: Threat Level 4 - Critical Syndicate Breach.",
+      "ESCAPE VECTOR 1 (68% Probability): Northbound industrial rail corridor via Freight Switcher Unit 14-B passing SCADA junction Sector 2.",
+      "ESCAPE VECTOR 2 (32% Probability): Maritime extraction via Pier 4 berth container loader (tied to Kowloon Port Cartel).",
+      "RECOMMENDED CORDON: Establish tactical intercept perimeter at Checkpoint Alpha (Route 9 Bridge) and Checkpoint Bravo (Pier 4 Rail Gantry). Cordon radius: 1,400 meters."
+    );
+
+    bundle.observed.push(
+      "At 14:18 UTC, intrusion sensor INC-204 triggered at Warehouse 14B Door 3. Manifest M-902 listed this site as dormant."
+    );
+
+    bundle.inferred.push(
+      "Syndicate operatives Marcus Kane and Darius Vance neutralized optical CCTV relays prior to breachers entering the cargo bay."
+    );
+
+    bundle.next_review.push(
+      "IMMEDIATE TACTICAL DIRECTIVE: Freeze all outbound railway switches in Sector 4 and dispatch emergency response unit to Warehouse 14B North Cargo Bay."
+    );
+  }
 
   // 1. CCTV-04 Queries ("What happened around CCTV-04?")
   if (q.includes("cctv-04") || q.includes("gate 4") || (activeEntity?.id === "CCTV-04" && q.includes("happen"))) {
@@ -319,6 +433,14 @@ export function ciraService(investigationData, investigationContext, userQuestio
   // Render structured Markdown response
   let md = "";
 
+  if (bundle.tactical_intel.length > 0) {
+    md += `### 🦇 CIRA TACTICAL BAT BOT INTELLIGENCE\n`;
+    bundle.tactical_intel.forEach(item => {
+      md += `- **TACTICAL INTEL**: ${item}\n`;
+    });
+    md += `\n`;
+  }
+
   if (bundle.observed.length > 0) {
     md += `### 1. OBSERVATIONS [DIRECT TELEMETRY]\n`;
     bundle.observed.forEach(item => {
@@ -377,6 +499,7 @@ export function ciraService(investigationData, investigationContext, userQuestio
   return {
     answer_markdown: md.trim(),
     linked_entities: bundle.linked_entity_ids,
+    action: bundle.action,
     bundle
   };
 }

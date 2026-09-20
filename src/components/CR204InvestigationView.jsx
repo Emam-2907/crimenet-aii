@@ -3,10 +3,13 @@ import { useInvestigation } from '../context/InvestigationContext.jsx';
 import { ciraService } from '../services/ciraService.js';
 import InvestigationMap from './InvestigationMap.jsx';
 import CameraDetailsPanel from './CameraDetailsPanel.jsx';
+import CR204CytoscapeGraph from './CR204CytoscapeGraph.jsx';
+import OwnerFootageIntakeModal from './OwnerFootageIntakeModal.jsx';
 import {
   Shield, Camera, User, Truck, MapPin, AlertTriangle, CheckCircle,
   Clock, FileText, Send, HelpCircle, Eye, EyeOff, Check, X,
-  Layers, ChevronRight, Activity, ArrowRight, Table, GitFork, MessageSquare
+  Layers, ChevronRight, Activity, ArrowRight, Table, GitFork, MessageSquare,
+  Sparkles, Cpu, Zap, Radio, Maximize2, Split
 } from 'lucide-react';
 
 export default function CR204InvestigationView() {
@@ -25,24 +28,33 @@ export default function CR204InvestigationView() {
     selectedTimelineEventId,
     activeTimestamp,
     selectEntity,
-    selectTimelineEvent
+    selectTimelineEvent,
+    injectIngestedEvidence
   } = useInvestigation();
 
   // Bottom Workspace Tab: 'timeline' | 'graph' | 'cira'
   const [activeBottomTab, setActiveBottomTab] = useState('timeline');
   const [graphViewMode, setGraphViewMode] = useState('interactive'); // 'interactive' | 'accessible_tree'
 
+  // Workspace View Mode: 'standard' (Map + Camera Panel) | 'split' (Map + Graph side-by-side)
+  const [workspaceMode, setWorkspaceMode] = useState('standard');
+
+  // Owner Footage Intake Modal State
+  const [isFootageModalOpen, setIsFootageModalOpen] = useState(false);
+  const [notificationBanner, setNotificationBanner] = useState(null);
+
   // CIRA Chat State
   const [ciraQuery, setCiraQuery] = useState('');
   const [chatMessages, setChatMessages] = useState([
     {
       role: 'assistant',
-      text: `### CR-204 GEOGRAPHIC CAMERA NETWORK BRIEFING
+      text: `### 🦇 CR-204 CIRA TACTICAL INTELLIGENCE CORE
 **Active Case**: ${activeCase.title}
 **Status**: ${activeCase.status} · Synthetic Prototype Data Only.
-The map represents the primary CCTV workspace for Sector 4 South Pier. Selecting any camera (CCTV-01 to CCTV-12) displays its coverage, recent detections, and related entities across Graph, Timeline, and CIRA.
+**Bat Bot Telemetry**: Active surveillance grid mapped across Sector 4 South Pier.
 
-Ask a question or select a prompt below to investigate.`,
+Tactical gap identified: 3-minute unobserved corridor between CCTV-04 (14:11) and CCTV-07 (14:15) along South Arterial Way.
+Use the command bar below or type a query to command CIRA.`,
       timestamp: '14:09 UTC'
     }
   ]);
@@ -64,6 +76,13 @@ Ask a question or select a prompt below to investigate.`,
         text
       );
 
+      // Trigger interactive modals or graph focus if prompted
+      if (response.action === 'OPEN_OWNER_FOOTAGE_INTAKE') {
+        setIsFootageModalOpen(true);
+      } else if (response.action === 'FOCUS_GRAPH') {
+        setActiveBottomTab('graph');
+      }
+
       // Auto-select linked entities in context to synchronize other views
       if (response.linked_entities && response.linked_entities.length > 0) {
         selectEntity(response.linked_entities[0]);
@@ -78,6 +97,15 @@ Ask a question or select a prompt below to investigate.`,
       setChatMessages(prev => [...prev, aiMsg]);
       setIsThinking(false);
     }, 300);
+  };
+
+  const handleInjectFromOwner = (data) => {
+    if (injectIngestedEvidence) {
+      injectIngestedEvidence(data);
+      setNotificationBanner('✓ Evidence & Camera CCTV-PVT-01 successfully injected into Tactical Map, Relational Graph, and Timeline!');
+      setTimeout(() => setNotificationBanner(null), 6000);
+      setActiveBottomTab('graph');
+    }
   };
 
   const samplePrompts = [
@@ -137,9 +165,9 @@ Ask a question or select a prompt below to investigate.`,
               fontWeight: 600,
               padding: '2px 8px',
               borderRadius: '4px',
-              backgroundColor: 'rgba(239, 68, 68, 0.15)',
-              color: '#F87171',
-              border: '1px solid rgba(239, 68, 68, 0.3)'
+              backgroundColor: 'var(--critical-dim)',
+              color: 'var(--critical)',
+              border: '1px solid var(--critical-border)'
             }}>
               SYNTHETIC DATA ONLY
             </span>
@@ -152,55 +180,184 @@ Ask a question or select a prompt below to investigate.`,
           </h2>
         </div>
 
-        {/* Global Synchronization Context Pill */}
-        <nav aria-label="Investigation Synchronization Status" style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '12px',
-          backgroundColor: 'var(--bg-elevated)',
-          padding: '6px 14px',
-          borderRadius: '6px',
-          border: '1px solid var(--border-default)',
-          fontFamily: 'var(--font-mono)',
-          fontSize: '0.74rem'
-        }}>
-          <div>
-            <span style={{ color: 'var(--text-muted)' }}>ACTIVE: </span>
-            <strong style={{ color: 'var(--accent)' }}>{selectedEntityId}</strong> ({selectedEntityType})
+        {/* Header Right Actions: Owner Footage Request & Workspace View Mode Toggle */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+          {/* Owner Footage Intake Button */}
+          <button
+            type="button"
+            onClick={() => setIsFootageModalOpen(true)}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '6px 14px',
+              backgroundColor: '#3F5F78',
+              border: '1px solid #5B7C99',
+              borderRadius: '6px',
+              color: '#E6E9ED',
+              fontSize: '0.74rem',
+              fontWeight: 700,
+              cursor: 'pointer',
+              boxShadow: '0 2px 8px rgba(63, 95, 120, 0.35)'
+            }}
+          >
+            <Zap size={14} style={{ color: '#E6E9ED' }} />
+            <span>Request Owner Footage (Subpoena)</span>
+          </button>
+
+          {/* Workspace Mode: Standard vs Split Map & Graph */}
+          <div style={{
+            display: 'flex',
+            backgroundColor: 'var(--bg-elevated)',
+            borderRadius: '6px',
+            border: '1px solid var(--border-default)',
+            padding: '2px'
+          }}>
+            <button
+              type="button"
+              onClick={() => setWorkspaceMode('standard')}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '5px',
+                padding: '4px 10px',
+                borderRadius: '4px',
+                border: 'none',
+                backgroundColor: workspaceMode === 'standard' ? 'var(--accent)' : 'transparent',
+                color: workspaceMode === 'standard' ? '#fff' : 'var(--text-secondary)',
+                fontSize: '0.70rem',
+                fontWeight: 600,
+                cursor: 'pointer'
+              }}
+            >
+              <Eye size={13} />
+              <span>Surveillance View</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setWorkspaceMode('split')}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '5px',
+                padding: '4px 10px',
+                borderRadius: '4px',
+                border: 'none',
+                backgroundColor: workspaceMode === 'split' ? 'var(--accent)' : 'transparent',
+                color: workspaceMode === 'split' ? '#fff' : 'var(--text-secondary)',
+                fontSize: '0.70rem',
+                fontWeight: 600,
+                cursor: 'pointer'
+              }}
+              title="View Real Map and Relational Knowledge Graph side-by-side with live synchronization"
+            >
+              <Split size={13} />
+              <span>Map & Graph Split View</span>
+            </button>
           </div>
-          <div style={{ height: '14px', width: '1px', backgroundColor: 'var(--border-default)' }} />
-          <div>
-            <span style={{ color: 'var(--text-muted)' }}>TIMELINE: </span>
-            <strong style={{ color: '#FBBF24' }}>{activeTimestamp} UTC</strong>
-          </div>
-          <div style={{ height: '14px', width: '1px', backgroundColor: 'var(--border-default)' }} />
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--success)' }}>
-            <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: 'var(--success)' }} />
-            <span>ALL MODULES SYNCED</span>
-          </div>
-        </nav>
+
+          {/* Global Synchronization Context Pill */}
+          <nav aria-label="Investigation Synchronization Status" style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            backgroundColor: 'var(--bg-elevated)',
+            padding: '5px 12px',
+            borderRadius: '6px',
+            border: '1px solid var(--border-default)',
+            fontFamily: 'var(--font-mono)',
+            fontSize: '0.70rem'
+          }}>
+            <div>
+              <span style={{ color: 'var(--text-muted)' }}>ACTIVE: </span>
+              <strong style={{ color: 'var(--accent-hover)' }}>{selectedEntityId}</strong> ({selectedEntityType})
+            </div>
+            <div style={{ height: '12px', width: '1px', backgroundColor: 'var(--border-default)' }} />
+            <div>
+              <span style={{ color: 'var(--text-muted)' }}>TIME: </span>
+              <strong style={{ color: 'var(--warning)' }}>{activeTimestamp} UTC</strong>
+            </div>
+            <div style={{ height: '12px', width: '1px', backgroundColor: 'var(--border-default)' }} />
+            <div style={{ display: 'flex', alignItems: 'center', gap: '5px', color: 'var(--success)' }}>
+              <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: 'var(--success)' }} />
+              <span>SYNCED</span>
+            </div>
+          </nav>
+        </div>
       </header>
 
-      {/* ── Primary Investigation Workspace: Map + Camera Details ──────── */}
-      <section aria-label="Geographic CCTV Network and Camera Dossier" style={{
-        display: 'grid',
-        gridTemplateColumns: 'minmax(0, 1fr) 420px',
-        gap: '16px',
-        height: '620px',
-        minHeight: '560px',
-        alignItems: 'stretch',
-        width: '100%'
-      }}>
-        {/* Dominant Real Geographic Map Container */}
-        <div style={{ height: '620px', minHeight: '560px', position: 'relative', borderRadius: '8px', overflow: 'hidden' }}>
-          <InvestigationMap />
+      {/* Optional Notification Banner */}
+      {notificationBanner && (
+        <div style={{
+          backgroundColor: 'rgba(79, 122, 103, 0.15)',
+          border: '1px solid var(--success)',
+          borderRadius: '6px',
+          padding: '10px 16px',
+          color: 'var(--success)',
+          fontSize: '0.78rem',
+          fontFamily: 'var(--font-mono)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <CheckCircle size={16} />
+            <span>{notificationBanner}</span>
+          </div>
+          <button
+            onClick={() => setNotificationBanner(null)}
+            style={{ background: 'none', border: 'none', color: 'var(--success)', cursor: 'pointer' }}
+          >
+            <X size={16} />
+          </button>
         </div>
+      )}
 
-        {/* Dynamic Camera Details Panel */}
-        <div style={{ height: '620px', minHeight: '560px', position: 'relative' }}>
-          <CameraDetailsPanel />
-        </div>
-      </section>
+      {/* ── Primary Investigation Workspace ─────────────────────────────── */}
+      {workspaceMode === 'split' ? (
+        /* Split View: Real Map (left) + Authentic Cytoscape Graph (right) */
+        <section aria-label="Synchronized Map and Knowledge Graph Split Matrix" style={{
+          display: 'grid',
+          gridTemplateColumns: 'minmax(0, 1.1fr) minmax(0, 0.9fr)',
+          gap: '16px',
+          height: '640px',
+          minHeight: '560px',
+          alignItems: 'stretch',
+          width: '100%'
+        }}>
+          {/* Dominant Real Geographic Map Container */}
+          <div style={{ height: '640px', minHeight: '560px', position: 'relative', borderRadius: '8px', overflow: 'hidden' }}>
+            <InvestigationMap />
+          </div>
+
+          {/* Synchronized Cytoscape Knowledge Graph */}
+          <div style={{ height: '640px', minHeight: '560px', position: 'relative', borderRadius: '8px', overflow: 'hidden' }}>
+            <CR204CytoscapeGraph height="100%" onFocusMap={(ent) => selectEntity(ent.id, ent.type)} />
+          </div>
+        </section>
+      ) : (
+        /* Standard View: Real Map (left) + Camera Dossier Panel (right) */
+        <section aria-label="Geographic CCTV Network and Camera Dossier" style={{
+          display: 'grid',
+          gridTemplateColumns: 'minmax(0, 1fr) 420px',
+          gap: '16px',
+          height: '620px',
+          minHeight: '560px',
+          alignItems: 'stretch',
+          width: '100%'
+        }}>
+          {/* Dominant Real Geographic Map Container */}
+          <div style={{ height: '620px', minHeight: '560px', position: 'relative', borderRadius: '8px', overflow: 'hidden' }}>
+            <InvestigationMap />
+          </div>
+
+          {/* Dynamic Camera Details Panel */}
+          <div style={{ height: '620px', minHeight: '560px', position: 'relative' }}>
+            <CameraDetailsPanel />
+          </div>
+        </section>
+      )}
 
       {/* ── Secondary Synchronized Section: Timeline, Graph, CIRA ─────── */}
       <section aria-label="Synchronized Investigation Telemetry and Relational Modules" style={{
@@ -306,12 +463,12 @@ Ask a question or select a prompt below to investigate.`,
                       gap: '6px',
                       padding: '12px 14px',
                       backgroundColor: isSelected ? 'var(--accent-dim)' : 'var(--bg-main)',
-                      border: isSelected ? '1.5px solid var(--accent)' : '1px solid var(--border-subtle)',
+                      border: isSelected ? '1.5px solid var(--accent-hover)' : '1px solid var(--border-subtle)',
                       borderRadius: '6px',
                       cursor: 'pointer',
                       textAlign: 'left',
                       transition: 'all 0.15s ease',
-                      boxShadow: isSelected ? '0 0 12px rgba(56, 189, 248, 0.25)' : 'none'
+                      boxShadow: isSelected ? 'var(--shadow-sm)' : 'none'
                     }}
                     aria-pressed={isSelected}
                   >
@@ -320,8 +477,8 @@ Ask a question or select a prompt below to investigate.`,
                         fontFamily: 'var(--font-mono)',
                         fontSize: '0.74rem',
                         fontWeight: 700,
-                        color: isSelected ? 'var(--accent)' : '#FBBF24',
-                        backgroundColor: 'rgba(0, 0, 0, 0.3)',
+                        color: isSelected ? 'var(--accent-hover)' : 'var(--warning)',
+                        backgroundColor: 'var(--bg-elevated)',
                         padding: '2px 6px',
                         borderRadius: '4px'
                       }}>
@@ -333,8 +490,8 @@ Ask a question or select a prompt below to investigate.`,
                         fontFamily: 'var(--font-mono)',
                         padding: '2px 6px',
                         borderRadius: '3px',
-                        backgroundColor: evt.claim_type === 'OBSERVATION' ? 'rgba(34, 197, 94, 0.15)' : 'rgba(56, 189, 248, 0.15)',
-                        color: evt.claim_type === 'OBSERVATION' ? 'var(--success)' : 'var(--accent)'
+                        backgroundColor: evt.claim_type === 'OBSERVATION' ? 'var(--success-dim)' : 'var(--accent-dim)',
+                        color: evt.claim_type === 'OBSERVATION' ? 'var(--success)' : 'var(--accent-hover)'
                       }}>
                         [{evt.claim_type}]
                       </span>
@@ -395,52 +552,10 @@ Ask a question or select a prompt below to investigate.`,
             </div>
 
             {graphViewMode === 'interactive' ? (
-              <div style={{
-                minHeight: '260px',
-                backgroundColor: 'var(--bg-main)',
-                border: '1px solid var(--border-subtle)',
-                borderRadius: '6px',
-                padding: '14px',
-                display: 'flex',
-                flexWrap: 'wrap',
-                gap: '10px',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}>
-                {Object.values(investigationData.entities).map(entity => {
-                  const isSelected = selectedEntityId === entity.id;
-                  return (
-                    <button
-                      key={entity.id}
-                      type="button"
-                      onClick={() => selectEntity(entity.id, entity.type)}
-                      style={{
-                        backgroundColor: isSelected ? 'var(--accent)' : 'var(--bg-surface)',
-                        color: isSelected ? '#fff' : 'var(--text-primary)',
-                        border: isSelected ? '2px solid var(--accent-hover)' : '1px solid var(--border-default)',
-                        borderRadius: '6px',
-                        padding: '8px 12px',
-                        cursor: 'pointer',
-                        textAlign: 'left',
-                        boxShadow: isSelected ? '0 0 10px rgba(56, 189, 248, 0.4)' : 'none',
-                        transition: 'all 0.15s ease',
-                        minWidth: '130px'
-                      }}
-                      aria-pressed={isSelected}
-                    >
-                      <div style={{ fontSize: '0.65rem', fontFamily: 'var(--font-mono)', opacity: 0.8 }}>
-                        {entity.type.toUpperCase()}
-                      </div>
-                      <div style={{ fontSize: '0.80rem', fontWeight: 600 }}>
-                        {entity.id}
-                      </div>
-                      <div style={{ fontSize: '0.70rem', opacity: 0.85, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '120px' }}>
-                        {entity.name}
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
+              <CR204CytoscapeGraph
+                height="460px"
+                onFocusMap={(ent) => selectEntity(ent.id, ent.type)}
+              />
             ) : (
               <div style={{ maxHeight: '240px', overflowY: 'auto' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.74rem' }}>
@@ -489,9 +604,141 @@ Ask a question or select a prompt below to investigate.`,
           </div>
         )}
 
-        {/* Tab 3: CIRA AI Copilot Reasoning */}
+        {/* Tab 3: CIRA AI Copilot Reasoning & Bat Bot Command Core */}
         {activeBottomTab === 'cira' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            {/* 🦇 BAT BOT TACTICAL COMMAND BAR */}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '8px 12px',
+              backgroundColor: '#101419',
+              borderRadius: '6px',
+              border: '1px solid #2A333D',
+              flexWrap: 'wrap'
+            }}>
+              <span style={{
+                fontSize: '0.66rem',
+                fontFamily: 'var(--font-mono)',
+                color: '#5B7C99',
+                fontWeight: 700,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px'
+              }}>
+                <Cpu size={12} />
+                <span>BAT BOT COMMANDS:</span>
+              </span>
+
+              <button
+                type="button"
+                onClick={() => setIsFootageModalOpen(true)}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  padding: '3px 8px',
+                  backgroundColor: '#3F5F78',
+                  border: '1px solid #5B7C99',
+                  borderRadius: '4px',
+                  color: '#E6E9ED',
+                  fontSize: '0.66rem',
+                  fontFamily: 'var(--font-mono)',
+                  fontWeight: 600,
+                  cursor: 'pointer'
+                }}
+              >
+                <Zap size={11} />
+                <span>/request-footage</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleAskCira("Detect suspects by face recognition using ArcFace")}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  padding: '3px 8px',
+                  backgroundColor: '#171D24',
+                  border: '1px solid #2A333D',
+                  borderRadius: '4px',
+                  color: '#C04A52',
+                  fontSize: '0.66rem',
+                  fontFamily: 'var(--font-mono)',
+                  cursor: 'pointer'
+                }}
+              >
+                <Eye size={11} />
+                <span>/face-recon</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => { setActiveBottomTab('graph'); handleAskCira("Explain this graph relationship"); }}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  padding: '3px 8px',
+                  backgroundColor: '#171D24',
+                  border: '1px solid #2A333D',
+                  borderRadius: '4px',
+                  color: '#5B7C99',
+                  fontSize: '0.66rem',
+                  fontFamily: 'var(--font-mono)',
+                  cursor: 'pointer'
+                }}
+              >
+                <GitFork size={11} />
+                <span>/graph-trace</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleAskCira("What information is missing along the corridor?")}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  padding: '3px 8px',
+                  backgroundColor: '#171D24',
+                  border: '1px solid #2A333D',
+                  borderRadius: '4px',
+                  color: '#B58A45',
+                  fontSize: '0.66rem',
+                  fontFamily: 'var(--font-mono)',
+                  cursor: 'pointer'
+                }}
+              >
+                <MapPin size={11} />
+                <span>/map-blindspots</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleAskCira("Calculate tactical cordon and escape vectors for Incident INC-204")}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  padding: '3px 8px',
+                  backgroundColor: '#171D24',
+                  border: '1px solid #2A333D',
+                  borderRadius: '4px',
+                  color: '#4F7A67',
+                  fontSize: '0.66rem',
+                  fontFamily: 'var(--font-mono)',
+                  cursor: 'pointer'
+                }}
+              >
+                <Shield size={11} />
+                <span>/cordon-plan</span>
+              </button>
+            </div>
+
+            {/* Prompt suggestions */}
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
               {samplePrompts.map((p, idx) => (
                 <button
@@ -514,8 +761,9 @@ Ask a question or select a prompt below to investigate.`,
               ))}
             </div>
 
+            {/* Chat Log Window */}
             <div style={{
-              maxHeight: '280px',
+              maxHeight: '320px',
               overflowY: 'auto',
               backgroundColor: 'var(--bg-main)',
               border: '1px solid var(--border-subtle)',
@@ -541,20 +789,47 @@ Ask a question or select a prompt below to investigate.`,
                   }}
                 >
                   <div style={{ fontSize: '0.62rem', opacity: 0.7, marginBottom: '4px', fontFamily: 'var(--font-mono)' }}>
-                    {msg.role === 'user' ? 'INVESTIGATOR' : 'CIRA INTEL CORE'} · {msg.timestamp}
+                    {msg.role === 'user' ? 'INVESTIGATOR' : '🦇 CIRA BAT BOT INTEL CORE'} · {msg.timestamp}
                   </div>
                   <div style={{ whiteSpace: 'pre-wrap' }}>
                     {msg.text}
                   </div>
+
+                  {/* If assistant recommended owner footage, provide quick trigger button */}
+                  {msg.role === 'assistant' && msg.text.includes('Mikhail Petrov') && (
+                    <div style={{ marginTop: '8px' }}>
+                      <button
+                        type="button"
+                        onClick={() => setIsFootageModalOpen(true)}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '6px',
+                          padding: '6px 12px',
+                          backgroundColor: '#3F5F78',
+                          border: '1px solid #5B7C99',
+                          borderRadius: '4px',
+                          color: '#E6E9ED',
+                          fontSize: '0.70rem',
+                          fontWeight: 700,
+                          cursor: 'pointer'
+                        }}
+                      >
+                        <Zap size={13} />
+                        <span>Open Owner Footage & Biometric Intake Terminal</span>
+                      </button>
+                    </div>
+                  )}
                 </div>
               ))}
               {isThinking && (
                 <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontStyle: 'italic' }}>
-                  CIRA is querying CR-204 telemetry and camera network...
+                  🦇 CIRA Bat Bot analyzing telemetry, biometric embeddings, and tactical corridors...
                 </div>
               )}
             </div>
 
+            {/* Input Form */}
             <form
               onSubmit={(e) => { e.preventDefault(); handleAskCira(); }}
               style={{ display: 'flex', gap: '8px' }}
@@ -563,7 +838,7 @@ Ask a question or select a prompt below to investigate.`,
                 type="text"
                 value={ciraQuery}
                 onChange={(e) => setCiraQuery(e.target.value)}
-                placeholder="Ask CIRA: 'Show me the cameras connected to this vehicle' or 'What happened around CCTV-04?'..."
+                placeholder="Command CIRA Bat Bot: 'Ask owner for footage', 'Detect by face recognition', 'Trace graph', or '/cordon-plan'..."
                 style={{
                   flex: 1,
                   padding: '9px 12px',
@@ -590,7 +865,7 @@ Ask a question or select a prompt below to investigate.`,
                   fontSize: '0.80rem'
                 }}
               >
-                <span>Ask</span>
+                <span>Command</span>
                 <Send size={14} />
               </button>
             </form>
@@ -598,6 +873,14 @@ Ask a question or select a prompt below to investigate.`,
         )}
 
       </section>
+
+      {/* ── Autonomous CIRA Owner Footage Intake & Biometric Scan Terminal Modal ── */}
+      <OwnerFootageIntakeModal
+        isOpen={isFootageModalOpen}
+        onClose={() => setIsFootageModalOpen(false)}
+        onInjectIntoCase={handleInjectFromOwner}
+        defaultTarget="Viktor Voronin"
+      />
     </div>
   );
 }

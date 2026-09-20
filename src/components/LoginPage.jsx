@@ -147,11 +147,11 @@ export default function LoginPage({ onLoginSuccess }) {
             width: '6px',
             height: '6px',
             borderRadius: '50%',
-            backgroundColor: connectivity.api_online ? 'var(--success)' : '#ef4444'
+            backgroundColor: connectivity.api_online ? 'var(--success)' : 'var(--critical)'
           }} />
           <span style={{ color: 'var(--text-secondary)' }}>SYSTEM STATUS:</span>
           <span style={{
-            color: connectivity.api_online ? 'var(--success)' : '#ef4444',
+            color: connectivity.api_online ? 'var(--success)' : 'var(--critical)',
             fontWeight: 600
           }}>
             {connectivity.api_online
@@ -235,9 +235,9 @@ export default function LoginPage({ onLoginSuccess }) {
               display: 'flex',
               alignItems: 'center',
               gap: '10px',
-              backgroundColor: 'rgba(239, 68, 68, 0.12)',
-              border: '1px solid rgba(239, 68, 68, 0.3)',
-              color: '#F87171',
+              backgroundColor: 'var(--critical-dim)',
+              border: '1px solid var(--critical-border)',
+              color: 'var(--critical)',
               padding: '10px 14px',
               borderRadius: '6px',
               fontSize: '0.80rem',
@@ -254,9 +254,9 @@ export default function LoginPage({ onLoginSuccess }) {
               display: 'flex',
               alignItems: 'center',
               gap: '10px',
-              backgroundColor: 'rgba(34, 197, 94, 0.12)',
-              border: '1px solid rgba(34, 197, 94, 0.3)',
-              color: '#4ADE80',
+              backgroundColor: 'var(--success-dim)',
+              border: '1px solid var(--success-border)',
+              color: 'var(--success)',
               padding: '10px 14px',
               borderRadius: '6px',
               fontSize: '0.80rem',
@@ -504,7 +504,7 @@ export default function LoginPage({ onLoginSuccess }) {
             fontWeight: 600
           }}>
             <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <Activity size={13} color="var(--blue-light, #38bdf8)" />
+              <Activity size={13} color="var(--accent-hover)" />
               SYSTEM TELEMETRY
             </span>
             <button
@@ -514,7 +514,7 @@ export default function LoginPage({ onLoginSuccess }) {
               style={{
                 background: 'none',
                 border: 'none',
-                color: 'var(--text-muted, #64748b)',
+                color: 'var(--text-muted)',
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
@@ -539,13 +539,13 @@ export default function LoginPage({ onLoginSuccess }) {
               borderRadius: '6px',
               border: '1px solid var(--border-default)'
             }}>
-              <Database size={14} color={connectivity.api_online ? 'var(--success)' : '#ef4444'} />
+              <Database size={14} color={connectivity.api_online ? 'var(--success)' : 'var(--critical)'} />
               <div style={{ overflow: 'hidden' }}>
                 <div style={{ color: 'var(--text-primary)', fontWeight: 600, fontSize: '0.7rem' }}>
                   Database
                 </div>
                 <div style={{
-                  color: connectivity.api_online ? 'var(--success)' : '#ef4444',
+                  color: connectivity.api_online ? 'var(--success)' : 'var(--critical)',
                   fontSize: '0.65rem'
                 }}>
                   {connectivity.api_online
@@ -565,13 +565,13 @@ export default function LoginPage({ onLoginSuccess }) {
               borderRadius: '6px',
               border: '1px solid var(--border-default)'
             }}>
-              <Share2 size={14} color={connectivity.api_online ? 'var(--success)' : '#ef4444'} />
+              <Share2 size={14} color={connectivity.api_online ? 'var(--success)' : 'var(--critical)'} />
               <div style={{ overflow: 'hidden' }}>
                 <div style={{ color: 'var(--text-primary)', fontWeight: 600, fontSize: '0.7rem' }}>
                   Graph Engine
                 </div>
                 <div style={{
-                  color: connectivity.api_online ? 'var(--success)' : '#ef4444',
+                  color: connectivity.api_online ? 'var(--success)' : 'var(--critical)',
                   fontSize: '0.65rem',
                   whiteSpace: 'nowrap',
                   textOverflow: 'ellipsis'
