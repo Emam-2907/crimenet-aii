@@ -86,11 +86,11 @@ export default function LoginPage({ onLoginSuccess }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!userId.trim()) {
-      setErrorMsg('Please select a demo persona or enter a Demo ID.');
+      setErrorMsg('Please enter your User ID or Agent ID.');
       return;
     }
     if (!password) {
-      setErrorMsg('Please enter the demo password (e.g. demo123).');
+      setErrorMsg('Please enter your security access password.');
       return;
     }
 
@@ -107,23 +107,17 @@ export default function LoginPage({ onLoginSuccess }) {
       }, 600);
     } catch (err) {
       console.error('Login error:', err);
-      setErrorMsg(err.message || 'Authentication failed. Use demo password: demo123');
+      setErrorMsg(err.message || 'Authentication failed. Please verify credentials.');
       setIsLoading(false);
     }
   };
 
-  const demoPersonas = [
-    { name: 'Analyst Vance', id: 'analyst.vance@crimenet.demo', role: 'ANALYST', desc: 'Case Analyst' },
-    { name: 'Det. Chen', id: 'investigator.chen@crimenet.demo', role: 'INVESTIGATOR', desc: 'Lead Detective' },
-    { name: 'Insp. Wright', id: 'supervisor.wright@crimenet.demo', role: 'SUPERVISOR', desc: 'Command Supervisor' },
-    { name: 'Command Admin', id: 'admin@crimenet.demo', role: 'ADMIN', desc: 'System Admin' }
+  const quickProfiles = [
+    { name: 'Special Agent Vance', id: 'analyst.vance@crimenet.demo', pass: 'Crimenet2026!' },
+    { name: 'Detective Chen', id: 'investigator.chen@crimenet.demo', pass: 'Investigator2026!' },
+    { name: 'Inspector Wright', id: 'supervisor.wright@crimenet.demo', pass: 'Supervisor2026!' },
+    { name: 'Command Admin', id: 'admin@crimenet.demo', pass: 'Admin2026!' }
   ];
-
-  const handleSelectDemoPersona = (personaId) => {
-    setUserId(personaId);
-    setPassword('demo123');
-    setErrorMsg('');
-  };
 
   return (
     <div style={{
@@ -161,34 +155,20 @@ export default function LoginPage({ onLoginSuccess }) {
             fontWeight: 600
           }}>
             {connectivity.api_online
-              ? `API ONLINE [${connectivity.system_status === 'DEMO_ACTIVE' ? 'DEMO PROTOTYPE' : (connectivity.system_status || 'LIVE')}]`
-              : 'BACKEND CONNECTING / OFFLINE'}
+              ? `API ONLINE [${connectivity.system_status || 'ACTIVE'}]`
+              : 'BACKEND OFFLINE (Unreachable)'}
           </span>
         </div>
 
         <div style={{
           color: 'var(--text-secondary)',
-          fontWeight: 600,
-          fontSize: '0.72rem',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '6px'
+          fontWeight: 600
         }}>
-          <span style={{
-            backgroundColor: 'rgba(59, 130, 246, 0.2)',
-            color: '#60a5fa',
-            padding: '2px 8px',
-            borderRadius: '4px',
-            fontSize: '0.65rem',
-            border: '1px solid rgba(59, 130, 246, 0.3)'
-          }}>
-            ACADEMIC PROTOTYPE
-          </span>
-          <span>SYNTHETIC DEMO DATA ONLY</span>
+          AUTHORIZED PERSONNEL ONLY
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '14px', color: 'var(--text-muted)' }}>
-          <span>NODE: DEMO-01</span>
+          <span>NODE: ALPHA-01</span>
           <span>{currentTimeUtc}</span>
         </div>
       </header>
@@ -196,9 +176,9 @@ export default function LoginPage({ onLoginSuccess }) {
       {/* Main Single Login Card Container */}
       <main style={{
         width: '100%',
-        maxWidth: '460px',
+        maxWidth: '440px',
         zIndex: 10,
-        marginTop: '24px'
+        marginTop: '20px'
       }}>
 
         {/* Card Body */}
@@ -206,13 +186,13 @@ export default function LoginPage({ onLoginSuccess }) {
           backgroundColor: 'var(--bg-surface)',
           border: '1px solid var(--border-default)',
           borderRadius: '8px',
-          padding: '28px 26px',
+          padding: '32px 28px',
           boxShadow: 'var(--shadow-md)',
           position: 'relative'
         }}>
 
           {/* Header Brand */}
-          <div style={{ textAlign: 'center', marginBottom: '18px' }}>
+          <div style={{ textAlign: 'center', marginBottom: '24px' }}>
             <div style={{
               display: 'inline-flex',
               alignItems: 'center',
@@ -222,7 +202,7 @@ export default function LoginPage({ onLoginSuccess }) {
               borderRadius: '8px',
               backgroundColor: 'var(--bg-elevated)',
               border: '1px solid var(--border-default)',
-              marginBottom: '10px',
+              marginBottom: '12px',
               color: 'var(--accent)'
             }}>
               <Shield size={24} strokeWidth={2.2} />
@@ -231,12 +211,12 @@ export default function LoginPage({ onLoginSuccess }) {
             <h1 style={{
               margin: '0 0 4px 0',
               fontFamily: 'var(--font-display)',
-              fontSize: '1.45rem',
+              fontSize: '1.5rem',
               fontWeight: 700,
               color: 'var(--text-primary)',
               letterSpacing: '-0.01em'
             }}>
-              CRIMENET AI
+              CRIMENET
             </h1>
 
             <p style={{
@@ -245,28 +225,8 @@ export default function LoginPage({ onLoginSuccess }) {
               color: 'var(--text-secondary)',
               fontWeight: 400
             }}>
-              Academic Graph Intelligence & Autonomous Investigation Prototype
+              Criminal Network Investigation & Intelligence Platform
             </p>
-          </div>
-
-          {/* Academic / Research Prototype Disclaimer Banner */}
-          <div style={{
-            backgroundColor: 'rgba(59, 130, 246, 0.08)',
-            border: '1px solid rgba(59, 130, 246, 0.25)',
-            borderRadius: '6px',
-            padding: '9px 12px',
-            marginBottom: '18px',
-            fontSize: '0.73rem',
-            color: '#93c5fd',
-            lineHeight: 1.45,
-            display: 'flex',
-            alignItems: 'flex-start',
-            gap: '8px'
-          }}>
-            <Shield size={15} style={{ flexShrink: 0, marginTop: '2px', color: '#60a5fa' }} />
-            <div>
-              <strong>Academic Research Prototype:</strong> This software uses 100% synthetic demonstration data for evaluation. Not affiliated with any real-world law enforcement or government entity.
-            </div>
           </div>
 
           {/* Feedback Error Banner */}
@@ -308,88 +268,11 @@ export default function LoginPage({ onLoginSuccess }) {
             </div>
           )}
 
-          {/* Demo Persona Quick-Selector (1-Click Launch) */}
-          <div style={{
-            marginBottom: '18px',
-            backgroundColor: 'var(--bg-elevated)',
-            border: '1px solid var(--border-default)',
-            borderRadius: '6px',
-            padding: '12px 14px'
-          }}>
-            <div style={{
-              fontSize: '0.68rem',
-              color: 'var(--text-muted)',
-              fontFamily: 'var(--font-mono)',
-              fontWeight: 600,
-              textTransform: 'uppercase',
-              letterSpacing: '0.05em',
-              marginBottom: '10px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between'
-            }}>
-              <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                <User size={12} color="var(--accent)" />
-                SELECT PERSONA TO LAUNCH (1-CLICK):
-              </span>
-              <span style={{ color: 'var(--success)', fontSize: '0.64rem' }}>
-                PASSWORDLESS
-              </span>
-            </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
-              {demoPersonas.map((p) => (
-                <button
-                  key={p.id}
-                  type="button"
-                  disabled={isLoading || authSuccess}
-                  onClick={async () => {
-                    setUserId(p.id);
-                    setErrorMsg('');
-                    setIsLoading(true);
-                    try {
-                      const data = await api.login(p.id, 'demo123');
-                      setAuthSuccess(true);
-                      setTimeout(() => {
-                        if (onLoginSuccess) {
-                          onLoginSuccess(data.user);
-                        }
-                      }, 500);
-                    } catch (err) {
-                      console.error('Launch error:', err);
-                      setErrorMsg(err.message || 'Authentication error.');
-                      setIsLoading(false);
-                    }
-                  }}
-                  style={{
-                    backgroundColor: userId === p.id ? 'rgba(59, 130, 246, 0.25)' : 'var(--bg-surface)',
-                    border: userId === p.id ? '1px solid var(--accent)' : '1px solid var(--border-default)',
-                    borderRadius: '6px',
-                    padding: '8px 10px',
-                    cursor: 'pointer',
-                    textAlign: 'left',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '2px',
-                    transition: 'all 0.15s ease'
-                  }}
-                >
-                  <span style={{ fontWeight: 600, fontSize: '0.74rem', color: userId === p.id ? '#93c5fd' : 'var(--text-primary)' }}>
-                    {p.name}
-                  </span>
-                  <span style={{ fontSize: '0.64rem', color: 'var(--text-muted)' }}>
-                    {p.role} · {p.desc}
-                  </span>
-                  <span style={{ fontSize: '0.62rem', color: 'var(--accent)', marginTop: '2px', fontWeight: 500 }}>
-                    Launch →
-                  </span>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Alternative: Enter Custom Persona ID (Passwordless) */}
+          {/* Login Form */}
           <form onSubmit={handleSubmit} onKeyDown={handleKeyDown}>
-            <div style={{ marginBottom: '14px' }}>
+
+            {/* Field 1: User ID */}
+            <div style={{ marginBottom: '16px' }}>
               <label htmlFor="login-user-id" style={{
                 display: 'block',
                 fontSize: '0.72rem',
@@ -399,7 +282,7 @@ export default function LoginPage({ onLoginSuccess }) {
                 color: 'var(--text-secondary)',
                 marginBottom: '6px'
               }}>
-                OR ENTER CUSTOM DEMO PERSONA ID
+                USER ID / AGENT ID
               </label>
 
               <div style={{ position: 'relative' }}>
@@ -419,7 +302,8 @@ export default function LoginPage({ onLoginSuccess }) {
                 <input
                   id="login-user-id"
                   type="text"
-                  autoComplete="off"
+                  autoFocus
+                  autoComplete="username"
                   value={userId}
                   onChange={(e) => setUserId(e.target.value)}
                   placeholder="e.g. analyst.vance@crimenet.demo"
@@ -432,7 +316,129 @@ export default function LoginPage({ onLoginSuccess }) {
               </div>
             </div>
 
-            {/* Launch Button */}
+            {/* Field 2: Password */}
+            <div style={{ marginBottom: '16px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                <label htmlFor="login-password" style={{
+                  fontSize: '0.72rem',
+                  fontFamily: 'var(--font-mono)',
+                  fontWeight: 600,
+                  letterSpacing: '0.04em',
+                  color: 'var(--text-secondary)'
+                }}>
+                  PASSWORD
+                </label>
+                {capsLockOn && (
+                  <span style={{ fontSize: '0.68rem', color: '#FBBF24', display: 'flex', alignItems: 'center', gap: '3px' }}>
+                    <Key size={12} /> CAPS LOCK ON
+                  </span>
+                )}
+              </div>
+
+              <div style={{ position: 'relative' }}>
+                <div style={{
+                  position: 'absolute',
+                  left: '12px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  color: 'var(--text-muted)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  pointerEvents: 'none'
+                }}>
+                  <Lock size={16} />
+                </div>
+
+                <input
+                  id="login-password"
+                  type={showPassword ? 'text' : 'password'}
+                  autoComplete="current-password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Enter security access password"
+                  disabled={isLoading || authSuccess}
+                  style={{
+                    width: '100%',
+                    padding: '10px 38px 10px 38px'
+                  }}
+                />
+
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  style={{
+                    position: 'absolute',
+                    right: '10px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'none',
+                    border: 'none',
+                    color: 'var(--text-muted)',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    padding: '4px'
+                  }}
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  title={showPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
+            </div>
+
+            {/* Quick Profile Autofill Helpers */}
+            <div style={{ marginBottom: '18px' }}>
+              <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)', marginBottom: '6px' }}>
+                QUICK SIGN-IN PROFILE:
+              </div>
+              <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                {quickProfiles.map(p => (
+                  <button
+                    key={p.id}
+                    type="button"
+                    onClick={() => {
+                      setUserId(p.id);
+                      setPassword(p.pass);
+                      setErrorMsg('');
+                    }}
+                    style={{
+                      background: userId === p.id ? 'var(--accent)' : 'var(--bg-elevated)',
+                      border: '1px solid var(--border-default)',
+                      borderRadius: '4px',
+                      padding: '4px 8px',
+                      color: userId === p.id ? '#fff' : 'var(--text-secondary)',
+                      fontSize: '0.70rem',
+                      cursor: 'pointer',
+                      transition: 'all 0.15s ease'
+                    }}
+                  >
+                    {p.name}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Remember Session */}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              marginBottom: '20px',
+              fontSize: '0.78rem'
+            }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', color: 'var(--text-secondary)' }}>
+                <input
+                  type="checkbox"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                  style={{ accentColor: 'var(--accent)', cursor: 'pointer' }}
+                />
+                <span>Remember session</span>
+              </label>
+            </div>
+
+            {/* Submit Button */}
             <button
               id="login-submit-btn"
               type="submit"
@@ -447,33 +453,32 @@ export default function LoginPage({ onLoginSuccess }) {
               {isLoading ? (
                 <>
                   <RefreshCw size={16} className="animate-spin" style={{ animation: 'spin 1s linear infinite' }} />
-                  <span>INITIALIZING WORKSTATION...</span>
+                  <span>AUTHENTICATING AGENT...</span>
                 </>
               ) : authSuccess ? (
                 <>
                   <CheckCircle2 size={16} />
-                  <span>ACCESS CONFIRMED</span>
+                  <span>ACCESS AUTHORIZED</span>
                 </>
               ) : (
                 <>
-                  <span>Launch Custom Persona</span>
+                  <span>Sign In to Workstation</span>
                   <ArrowRight size={16} />
                 </>
               )}
             </button>
           </form>
 
-          {/* Academic Prototype Notice */}
+          {/* Security Notice */}
           <div style={{
-            marginTop: '18px',
-            paddingTop: '12px',
+            marginTop: '20px',
+            paddingTop: '14px',
             borderTop: '1px solid var(--border-subtle)',
             textAlign: 'center',
-            fontSize: '0.68rem',
-            color: 'var(--text-muted)',
-            lineHeight: 1.4
+            fontSize: '0.70rem',
+            color: 'var(--text-muted)'
           }}>
-            100% synthetic demonstration data for academic and evaluation purposes only. No real-world credentials or personal data are collected.
+            Authorized personnel only. All activity is audited.
           </div>
         </div>
 
