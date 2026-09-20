@@ -9,26 +9,21 @@ export default function App() {
   const [stage, setStage] = useState(() => {
     if (typeof localStorage !== 'undefined') {
       const explicitLogout = localStorage.getItem('crimenet_explicit_logout');
-      if (explicitLogout === 'true') return 'login';
+      const savedUser = localStorage.getItem('crimenet_user');
+      if (savedUser && explicitLogout !== 'true') return 'workstation';
     }
-    return 'workstation'; // Default directly to active workstation
+    return 'login'; // Show Login Page by default
   });
 
   const [currentUser, setCurrentUser] = useState(() => {
     if (typeof localStorage !== 'undefined') {
       try {
         const saved = localStorage.getItem('crimenet_user');
-        if (saved) return JSON.parse(saved);
+        const explicitLogout = localStorage.getItem('crimenet_explicit_logout');
+        if (saved && explicitLogout !== 'true') return JSON.parse(saved);
       } catch (e) {}
     }
-    return {
-      user_id: 'analyst.vance@crimenet.demo',
-      full_name: 'Special Agent Marcus Vance',
-      role: 'ANALYST',
-      clearance: 'TS/SCI-ORCON',
-      station: 'Station 04 (South Pier Tactical)',
-      badge_id: 'CN-ALPHA-0941'
-    };
+    return null;
   });
 
   const handleLoginSuccess = (user) => {
@@ -50,7 +45,7 @@ export default function App() {
     setStage('login');
   };
 
-  if (stage === 'workstation') {
+  if (stage === 'workstation' && currentUser) {
     return (
       <InvestigationProvider>
         <CIRAProvider>
