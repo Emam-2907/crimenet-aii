@@ -126,7 +126,139 @@ VISUAL_EVIDENCE_CASES = [
 # Initial Cytoscape Knowledge Graph elements (Phase 3 Standardized 7 Entity Types)
 CYTOSCAPE_GRAPH_DATA = {
     "nodes": [
-        # 1. PERSON (shape: ellipse)
+        # CR-204 Synthetic Fixture Nodes
+        {
+            "data": {
+                "id": "CR-204",
+                "label": "Case CR-204: South Pier Cargo Theft",
+                "type": "Case",
+                "shape": "diamond",
+                "threat": "HIGH",
+                "color": "#38bdf8",
+                "size": 56,
+                "details": "Central investigation docket for South Pier Gate 4 container breach.",
+                "case_id": "CR-204"
+            }
+        },
+        {
+            "data": {
+                "id": "P-017",
+                "label": "Elena Rostov (P-017)",
+                "type": "Person",
+                "shape": "ellipse",
+                "threat": "HIGH",
+                "syndicate": "GhostNet Logistics",
+                "color": "#f87171",
+                "size": 48,
+                "details": "Person of Interest flagged as biometric candidate match FM-042.",
+                "aliases": ["Valkyrie", "CipherQueen"],
+                "case_id": "CR-204"
+            }
+        },
+        {
+            "data": {
+                "id": "FM-042",
+                "label": "Biometric Match FM-042 (87%)",
+                "type": "Biometric",
+                "shape": "round-rectangle",
+                "threat": "POTENTIAL_MATCH",
+                "color": "#fbbf24",
+                "size": 42,
+                "details": "Potential match identified. Model similarity: 87%; human verification required.",
+                "case_id": "CR-204"
+            }
+        },
+        {
+            "data": {
+                "id": "CCTV-04",
+                "label": "CCTV-04: Port Gate 4 Relay",
+                "type": "Camera",
+                "shape": "rectangle",
+                "threat": "OBSERVATION",
+                "color": "#34d399",
+                "size": 40,
+                "details": "DEMO FEED: Optical/IR camera at Gate 4 checkpoint. Recorded V-102 (14:02) and FM-042 (14:09).",
+                "case_id": "CR-204"
+            }
+        },
+        {
+            "data": {
+                "id": "L-08",
+                "label": "Location L-08: Gate 4 Depot",
+                "type": "Location",
+                "shape": "hexagon",
+                "threat": "CONFIRMED_FACT",
+                "color": "#a78bfa",
+                "size": 44,
+                "details": "South Pier Logistics Depot Gate 4 checkpoint.",
+                "case_id": "CR-204"
+            }
+        },
+        {
+            "data": {
+                "id": "V-102",
+                "label": "Vehicle V-102: Black SUV",
+                "type": "Vehicle",
+                "shape": "vee",
+                "threat": "HIGH",
+                "color": "#fb923c",
+                "size": 46,
+                "details": "Black SUV (plate NY-889XQ). Sighted at CCTV-04 (14:02) and CCTV-07 (14:15). Path is inferred.",
+                "case_id": "CR-204"
+            }
+        },
+        {
+            "data": {
+                "id": "CCTV-07",
+                "label": "CCTV-07: Corridor East Relay",
+                "type": "Camera",
+                "shape": "rectangle",
+                "threat": "OBSERVATION",
+                "color": "#34d399",
+                "size": 40,
+                "details": "DEMO FEED: Fixed relay recording V-102 eastbound at 14:15 UTC.",
+                "case_id": "CR-204"
+            }
+        },
+        {
+            "data": {
+                "id": "CCTV-11",
+                "label": "CCTV-11: Industrial Spur Relay",
+                "type": "Camera",
+                "shape": "rectangle",
+                "threat": "OBSERVATION",
+                "color": "#34d399",
+                "size": 40,
+                "details": "DEMO FEED: Perimeter camera monitoring Warehouse 14B.",
+                "case_id": "CR-204"
+            }
+        },
+        {
+            "data": {
+                "id": "INC-204",
+                "label": "Incident INC-204: Bay 3 Breach",
+                "type": "Incident",
+                "shape": "octagon",
+                "threat": "CRITICAL",
+                "color": "#ef4444",
+                "size": 50,
+                "details": "SCADA alarm triggered at Warehouse 14B at 14:18 UTC.",
+                "case_id": "CR-204"
+            }
+        },
+        {
+            "data": {
+                "id": "L-12",
+                "label": "Location L-12: Warehouse 14B",
+                "type": "Location",
+                "shape": "hexagon",
+                "threat": "CONFIRMED_FACT",
+                "color": "#a78bfa",
+                "size": 44,
+                "details": "Warehouse 14B North Cargo Bay facility.",
+                "case_id": "CR-204"
+            }
+        },
         {
             "data": {
                 "id": "ent-person-voronin",
@@ -597,6 +729,143 @@ CYTOSCAPE_GRAPH_DATA = {
             }
         },
 
+        # CR-204 Investigation Synthetic Edges
+        {
+            "data": {
+                "id": "rel-cr204-1",
+                "source": "CR-204",
+                "target": "P-017",
+                "relation": "PRIMARY_SUSPECT",
+                "relation_type": "association",
+                "confidence": 0.85,
+                "supporting_evidence_id": "EV-CR204-01",
+                "supporting_evidence_name": "Gate4_Breach_Incident_Report.pdf",
+                "evidence_source": "South Pier Security Desk",
+                "explainability": "Suspect in active investigation docket CR-204.",
+                "case_id": "CR-204"
+            }
+        },
+        {
+            "data": {
+                "id": "rel-cr204-2",
+                "source": "P-017",
+                "target": "FM-042",
+                "relation": "BIOMETRIC_CANDIDATE",
+                "relation_type": "biometric",
+                "confidence": 0.87,
+                "supporting_evidence_id": "EV-CR204-02",
+                "supporting_evidence_name": "CCTV-04_Frame_140922_Crop.png",
+                "evidence_source": "CCTV-04 Demofeed Face Detection Relay",
+                "explainability": "Potential match identified. Model similarity: 87%; human verification required.",
+                "case_id": "CR-204"
+            }
+        },
+        {
+            "data": {
+                "id": "rel-cr204-3",
+                "source": "FM-042",
+                "target": "CCTV-04",
+                "relation": "EXTRACTED_FROM",
+                "relation_type": "evidence",
+                "confidence": 0.95,
+                "supporting_evidence_id": "EV-CR204-02",
+                "supporting_evidence_name": "CCTV-04_Demofeed_Stream.mp4",
+                "evidence_source": "Port Gate 4 CCTV Relay (DEMO FEED)",
+                "explainability": "Biometric face frame extracted from CCTV-04 footage at 14:09 UTC.",
+                "case_id": "CR-204"
+            }
+        },
+        {
+            "data": {
+                "id": "rel-cr204-4",
+                "source": "CCTV-04",
+                "target": "L-08",
+                "relation": "LOCATED_AT",
+                "relation_type": "location",
+                "confidence": 1.0,
+                "supporting_evidence_id": "EV-CR204-03",
+                "supporting_evidence_name": "Camera_Asset_Registry.json",
+                "evidence_source": "Port Facility Infrastructure Map",
+                "explainability": "Physical camera asset mounted on Gate 4 gantry post.",
+                "case_id": "CR-204"
+            }
+        },
+        {
+            "data": {
+                "id": "rel-cr204-5",
+                "source": "V-102",
+                "target": "CCTV-04",
+                "relation": "RECORDED_BY",
+                "relation_type": "vehicle",
+                "confidence": 0.96,
+                "supporting_evidence_id": "EV-CR204-04",
+                "supporting_evidence_name": "Gate4_ANPR_Log_1402.txt",
+                "evidence_source": "CCTV-04 ANPR Optical Sensor",
+                "explainability": "Direct optical observation of V-102 entering Gate 4 depot at 14:02 UTC.",
+                "case_id": "CR-204"
+            }
+        },
+        {
+            "data": {
+                "id": "rel-cr204-6",
+                "source": "V-102",
+                "target": "CCTV-07",
+                "relation": "RECORDED_BY",
+                "relation_type": "vehicle",
+                "confidence": 0.94,
+                "supporting_evidence_id": "EV-CR204-05",
+                "supporting_evidence_name": "CorridorEast_Log_1415.txt",
+                "evidence_source": "CCTV-07 Sensor Relay",
+                "explainability": "Direct optical observation of V-102 travelling eastbound at 14:15 UTC.",
+                "case_id": "CR-204"
+            }
+        },
+        {
+            "data": {
+                "id": "rel-cr204-7",
+                "source": "V-102",
+                "target": "CCTV-11",
+                "relation": "INFERRED_TRAJECTORY",
+                "relation_type": "inferred",
+                "confidence": 0.68,
+                "supporting_evidence_id": "EV-CR204-06",
+                "supporting_evidence_name": "Corridor_Transit_Model.json",
+                "evidence_source": "Algorithmic Trajectory Inference",
+                "explainability": "V-102 was recorded at CCTV-04 and later at CCTV-07. The path between these detections is inferred from the available records; continuous movement was not directly observed.",
+                "case_id": "CR-204"
+            }
+        },
+        {
+            "data": {
+                "id": "rel-cr204-8",
+                "source": "INC-204",
+                "target": "L-12",
+                "relation": "OCCURRED_AT",
+                "relation_type": "location",
+                "confidence": 1.0,
+                "supporting_evidence_id": "EV-CR204-07",
+                "supporting_evidence_name": "Warehouse_SCADA_Alarm_1418.log",
+                "evidence_source": "Warehouse 14B Security Alarm Panel",
+                "explainability": "Perimeter breach alarm tripped at Warehouse 14B North Cargo Bay at 14:18 UTC.",
+                "case_id": "CR-204"
+            }
+        },
+        {
+            "data": {
+                "id": "rel-cr204-9",
+                "source": "V-102",
+                "target": "INC-204",
+                "relation": "TEMPORAL_PROXIMITY",
+                "relation_type": "association",
+                "confidence": 0.72,
+                "supporting_evidence_id": "EV-CR204-08",
+                "supporting_evidence_name": "Incident_Proximity_Analysis.pdf",
+                "evidence_source": "Investigative Analysis",
+                "explainability": "Vehicle V-102 transit window (14:02-14:15) precedes Warehouse 14B breach alarm (14:18) by 3 minutes.",
+                "case_id": "CR-204"
+            }
+        },
+
         # Vehicle Connection Links (amber solid)
         {
             "data": {
@@ -845,8 +1114,27 @@ INCIDENTS_STORE = [
     }
 ]
 
-# Pre-seeded Case Management Database (Phase 2)
+# Pre-seeded Case Management Database (Phase 2 & Phase 3)
 CASES_STORE = [
+    {
+        "id": "CR-204",
+        "title": "CR-204: South Pier High-Value Cargo Theft & Infiltration",
+        "primary_suspect": "Elena Rostov (P-017 / Valkyrie)",
+        "suspects": ["Elena Rostov (P-017)", "Viktor Voronin", "Darius Vance"],
+        "case_type": "Theft",
+        "status": "Active",
+        "priority": "High",
+        "created_date": "2026-09-18 13:45 UTC",
+        "last_updated": "2026-09-18 14:25 UTC",
+        "investigator": "Special Agent Marcus Vance",
+        "reference_no": "FED-TH-204-X",
+        "tags": ["Theft", "CCTV-04", "V-102", "FM-042", "Warehouse 14B"],
+        "description": "Investigation into unauthorized container breach and hardware extraction at South Pier Logistics Depot Gate 4. Involves vehicle V-102 and person of interest P-017.",
+        "evidence_count": 4,
+        "entity_count": 10,
+        "investigation_status": "Under Active Review / Biometric Match Corroboration Required",
+        "is_synthetic": True
+    },
     {
         "id": "CASE #CR-2026-0142",
         "title": "Organized Network Infiltration (Port Sovereign)",
@@ -1187,6 +1475,18 @@ CASE_TIMELINES = {
 class IntelligenceDB:
     def __init__(self):
         self.graph = copy.deepcopy(CYTOSCAPE_GRAPH_DATA)
+        # Ensure nodes and edges are partitioned cleanly
+        raw_nodes = self.graph.get("nodes", [])
+        actual_nodes = []
+        actual_edges = self.graph.get("edges", [])
+        for item in raw_nodes:
+            if "source" in item.get("data", {}) and "target" in item.get("data", {}):
+                actual_edges.append(item)
+            else:
+                actual_nodes.append(item)
+        self.graph["nodes"] = actual_nodes
+        self.graph["edges"] = actual_edges
+
         self.candidates = copy.deepcopy(CANDIDATE_GALLERY)
         self.evidence_cases = copy.deepcopy(VISUAL_EVIDENCE_CASES)
         self.resolution_cases = copy.deepcopy(ENTITY_RESOLUTION_CASES)

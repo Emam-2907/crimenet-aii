@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { CIRAProvider } from './context/CIRAContext.jsx';
+import { InvestigationProvider } from './context/InvestigationContext.jsx';
 import LoginPage from './components/LoginPage.jsx';
 import InvestigationWorkstation from './components/InvestigationWorkstation.jsx';
 import { api } from './services/api.js';
@@ -14,16 +15,18 @@ export default function App() {
   };
 
   const handleLogout = () => {
-    api.setToken(null);
+    api.logout();
     setCurrentUser(null);
     setStage('login');
   };
 
   if (stage === 'workstation') {
     return (
-      <CIRAProvider>
-        <InvestigationWorkstation currentUser={currentUser} onLogout={handleLogout} />
-      </CIRAProvider>
+      <InvestigationProvider>
+        <CIRAProvider>
+          <InvestigationWorkstation currentUser={currentUser} onLogout={handleLogout} />
+        </CIRAProvider>
+      </InvestigationProvider>
     );
   }
 
