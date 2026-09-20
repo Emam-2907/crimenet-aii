@@ -1,16 +1,19 @@
 """
-CRIMENET AI — CIRA AI Investigation Assistant Router (Phase 4)
+CRIMENET AI — CIRA AI Investigation Assistant Router
 Provides case-isolated conversation management, tool-backed investigation copilot endpoints,
 and integration with Neo4j and Case Intelligence repositories.
+Protected with authentication, RBAC, case verification, and audit logging.
 """
 
-from fastapi import APIRouter, HTTPException, Header, Query
-from pydantic import BaseModel
+from fastapi import APIRouter, HTTPException, Depends, Header, Query, status
+from pydantic import BaseModel, Field
 from typing import List, Optional, Dict, Any
 from datetime import datetime
 
 from backend.cira_service import cira_service
 from backend.database import db
+from backend.auth_service import get_current_user, verify_case_access, require_role
+from backend.audit_service import audit_service
 
 router = APIRouter(tags=["CIRA AI Investigation Assistant"])
 
@@ -18,15 +21,14 @@ router = APIRouter(tags=["CIRA AI Investigation Assistant"])
 # Request & Response Schemas
 # =============================================================================
 class CIRAChatRequest(BaseModel):
-    message: str
-    case_id: Optional[str] = "CASE #CR-2026-0142"
+    message: str = Field(..., min_length=1, max_length=2000)
+    case_id: Optional[str] = "CR-204"
     conversation_id: Optional[str] = None
     active_entity_id: Optional[str] = None
-    ai_provider: Optional[str] = None  # "openai", "claude", "gemini", "groq", "openrouter", "ollama", "builtin"
+    ai_provider: Optional[str] = None
     api_key: Optional[str] = None
     model_name: Optional[str] = None
     base_url: Optional[str] = None
-
 
 class CIRAConfigRequest(BaseModel):
     provider: Optional[str] = "builtin"
@@ -34,46 +36,42 @@ class CIRAConfigRequest(BaseModel):
     api_key: Optional[str] = ""
     base_url: Optional[str] = ""
 
-
 class CIRATestConnectionRequest(BaseModel):
     provider: str
     model: Optional[str] = None
     api_key: Optional[str] = None
     base_url: Optional[str] = None
 
-
 class CreateConversationRequest(BaseModel):
-    title: Optional[str] = None
-
+    title: Optional[str] = Field(None, max_length=100)
 
 class RenameConversationRequest(BaseModel):
-    title: str
+    title: str = Field(..., min_length=1, max_length=100)
 
-
-# Legacy compatibility schema
 class LegacyChatMessage(BaseModel):
     role: str
     content: str
     timestamp: Optional[str] = None
 
-
 class LegacyChatRequest(BaseModel):
     messages: List[LegacyChatMessage]
-    active_case_id: Optional[str] = "CASE #CR-2026-0142"
+    active_case_id: Optional[str] = "CR-204"
     gemini_api_key: Optional[str] = None
 
-
 # =============================================================================
-# 1. Main CIRA Chat Endpoint (Both Case-Scoped and Global)
+# 1. Main CIRA Chat Endpoint
 # =============================================================================
 @router.post("/api/cases/{case_id:path}/cira/chat")
-def cira_case_chat(case_id: str, req: CIRAChatRequest):
+def cira_case_chat(
+    case_id: str,
+    req: CIRAChatRequest,
+    current_user: dict = Depends(get_current_user)
+):
     """
-    Primary Phase 4 CIRA Chat Endpoint:
+    Primary CIRA Chat Endpoint:
     Processes investigator queries strictly scoped to the active case_id.
-    Executes backend investigation tools against Neo4j and Case DB.
-    Returns structured markdown, source citations, linked entities, and follow-ups.
     """
+    verify_case_access(case_id, current_user)
     if not req.message or not req.message.strip():
         raise HTTPException(status_code=400, detail="Query message cannot be empty.")
 
@@ -88,24 +86,33 @@ def cira_case_chat(case_id: str, req: CIRAChatRequest):
             model_name=req.model_name,
             base_url=req.base_url
         )
+
+        audit_service.log_event(
+            action="AI_ANALYSIS",
+            actor=current_user["email"],
+            resource=f"/cases/{case_id}/cira/chat",
+            case_id=case_id,
+            result="SUCCESS",
+            details={"conversation_id": req.conversation_id, "active_entity_id": req.active_entity_id}
+        )
+
         return res
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"CIRA processing error: {str(e)}")
 
-
 @router.post("/api/cira/chat")
-def cira_general_chat(req: CIRAChatRequest):
+def cira_general_chat(req: CIRAChatRequest, current_user: dict = Depends(get_current_user)):
     """Direct CIRA Chat endpoint defaulting to active or specified case."""
-    effective_case = req.case_id or "CASE #CR-2026-0142"
-    return cira_case_chat(case_id=effective_case, req=req)
-
+    effective_case = req.case_id or "CR-204"
+    return cira_case_chat(case_id=effective_case, req=req, current_user=current_user)
 
 # =============================================================================
 # 2. Case-Isolated Conversation Management
 # =============================================================================
 @router.get("/api/cases/{case_id:path}/cira/conversations")
-def get_case_conversations(case_id: str):
+def get_case_conversations(case_id: str, current_user: dict = Depends(get_current_user)):
     """Retrieves all conversation sessions associated with the active case."""
+    verify_case_access(case_id, current_user)
     norm_case_id = db.normalize_case_id(case_id)
     convs = db.get_conversations(norm_case_id)
     return {
@@ -114,54 +121,70 @@ def get_case_conversations(case_id: str):
         "total": len(convs)
     }
 
-
 @router.post("/api/cases/{case_id:path}/cira/conversations")
-def create_case_conversation(case_id: str, req: CreateConversationRequest):
+def create_case_conversation(
+    case_id: str,
+    req: CreateConversationRequest,
+    current_user: dict = Depends(get_current_user)
+):
     """Creates a new conversation thread strictly scoped to this case docket."""
+    verify_case_access(case_id, current_user)
     norm_case_id = db.normalize_case_id(case_id)
     new_conv = db.create_conversation(case_id=norm_case_id, title=req.title)
     return new_conv
 
-
 @router.get("/api/cases/{case_id:path}/cira/conversations/{conversation_id}")
-def get_conversation_detail(case_id: str, conversation_id: str):
+def get_conversation_detail(
+    case_id: str,
+    conversation_id: str,
+    current_user: dict = Depends(get_current_user)
+):
     """Retrieves the full message history and metadata for a conversation."""
+    verify_case_access(case_id, current_user)
     norm_case_id = db.normalize_case_id(case_id)
     conv = db.get_conversation(case_id=norm_case_id, conversation_id=conversation_id)
     if not conv:
         raise HTTPException(status_code=404, detail="Conversation session not found in docket.")
     return conv
 
-
 @router.patch("/api/cases/{case_id:path}/cira/conversations/{conversation_id}")
-def rename_conversation(case_id: str, conversation_id: str, req: RenameConversationRequest):
+def rename_conversation(
+    case_id: str,
+    conversation_id: str,
+    req: RenameConversationRequest,
+    current_user: dict = Depends(get_current_user)
+):
     """Renames an existing conversation thread."""
+    verify_case_access(case_id, current_user)
     norm_case_id = db.normalize_case_id(case_id)
     updated = db.rename_conversation(case_id=norm_case_id, conversation_id=conversation_id, new_title=req.title)
     if not updated:
         raise HTTPException(status_code=404, detail="Conversation session not found.")
     return updated
 
-
 @router.delete("/api/cases/{case_id:path}/cira/conversations/{conversation_id}")
-def delete_conversation(case_id: str, conversation_id: str):
+def delete_conversation(
+    case_id: str,
+    conversation_id: str,
+    current_user: dict = Depends(get_current_user)
+):
     """Deletes a conversation session from the case docket."""
+    verify_case_access(case_id, current_user)
     norm_case_id = db.normalize_case_id(case_id)
     success = db.delete_conversation(case_id=norm_case_id, conversation_id=conversation_id)
     if not success:
         raise HTTPException(status_code=404, detail="Conversation session not found.")
     return {"status": "DELETED", "conversation_id": conversation_id, "case_id": norm_case_id}
 
-
 # =============================================================================
 # 3. Live Case Context Telemetry for Copilot HUD
 # =============================================================================
 @router.get("/api/cases/{case_id:path}/cira/context")
-def get_cira_case_context(case_id: str):
+def get_cira_case_context(case_id: str, current_user: dict = Depends(get_current_user)):
     """
-    Returns real-time telemetry metrics for the CIRA Right Panel:
-    Total evidence, entities, relationships, density, and key targets.
+    Returns real-time telemetry metrics for the CIRA Right Panel.
     """
+    verify_case_access(case_id, current_user)
     norm_case_id = db.normalize_case_id(case_id)
     summary = cira_service.tools.get_case_summary(norm_case_id)
     return {
@@ -177,21 +200,18 @@ def get_cira_case_context(case_id: str):
         "timestamp": datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC")
     }
 
-
 # =============================================================================
 # 4. Engine Health, Configuration & Testing
 # =============================================================================
 @router.get("/api/cira/status")
-def get_cira_engine_status():
+def get_cira_engine_status(current_user: dict = Depends(get_current_user)):
     """Returns AI model and inference engine health."""
     return cira_service.get_status()
 
-
 @router.get("/api/cira/config")
-def get_cira_configuration():
-    """Retrieves the active AI provider, model, and endpoint settings."""
+def get_cira_configuration(current_user: dict = Depends(get_current_user)):
+    """Retrieves active AI provider and model settings (keys masked)."""
     cfg = db.get_ai_config()
-    # Mask API key for security
     raw_key = cfg.get("api_key", "")
     masked = f"...{raw_key[-4:]}" if len(raw_key) > 4 else ("***" if raw_key else "")
     return {
@@ -202,16 +222,25 @@ def get_cira_configuration():
         "base_url": cfg.get("base_url", "")
     }
 
-
 @router.post("/api/cira/config")
-def set_cira_configuration(req: CIRAConfigRequest):
-    """Updates runtime AI provider settings."""
+def set_cira_configuration(
+    req: CIRAConfigRequest,
+    current_user: dict = Depends(require_role("ADMIN"))
+):
+    """Updates runtime AI provider settings. Restricted to ADMIN."""
     updated = db.set_ai_config({
         "provider": req.provider,
         "model": req.model,
         "api_key": req.api_key,
         "base_url": req.base_url
     })
+    audit_service.log_event(
+        action="CONFIG_CHANGE",
+        actor=current_user["email"],
+        resource="/api/cira/config",
+        result="SUCCESS",
+        details={"provider": req.provider, "model": req.model}
+    )
     return {
         "success": True,
         "provider": updated.get("provider"),
@@ -220,11 +249,12 @@ def set_cira_configuration(req: CIRAConfigRequest):
         "base_url": updated.get("base_url")
     }
 
-
 @router.post("/api/cira/test-connection")
-def test_cira_connection(req: CIRATestConnectionRequest):
-    """Verifies authentication and response from chosen AI provider."""
-    # Resolve API key if omitted from request
+def test_cira_connection(
+    req: CIRATestConnectionRequest,
+    current_user: dict = Depends(require_role("ADMIN"))
+):
+    """Verifies authentication and response from chosen AI provider. Restricted to ADMIN."""
     key_to_test = req.api_key
     if not key_to_test:
         cfg = db.get_ai_config()
@@ -238,12 +268,11 @@ def test_cira_connection(req: CIRATestConnectionRequest):
     )
     return res
 
-
 # =============================================================================
 # 5. Backward Compatibility Route for Legacy Frontend Callers
 # =============================================================================
 @router.post("/api/chat/query")
-def legacy_chat_query(req: LegacyChatRequest):
+def legacy_chat_query(req: LegacyChatRequest, current_user: dict = Depends(get_current_user)):
     """Preserves compatibility with legacy callers by delegating to CIRA service."""
     if not req.messages:
         return {
@@ -257,7 +286,8 @@ def legacy_chat_query(req: LegacyChatRequest):
         }
     
     user_msg = req.messages[-1].content
-    case_id = req.active_case_id or "CASE #CR-2026-0142"
+    case_id = req.active_case_id or "CR-204"
+    verify_case_access(case_id, current_user)
     
     res = cira_service.process_chat(
         case_id=case_id,
@@ -275,9 +305,8 @@ def legacy_chat_query(req: LegacyChatRequest):
         "case_id": case_id
     }
 
-
 @router.get("/api/chat/status")
-def legacy_chat_status():
+def legacy_chat_status(current_user: dict = Depends(get_current_user)):
     """Preserves compatibility for status checks."""
     stat = cira_service.get_status()
     return {

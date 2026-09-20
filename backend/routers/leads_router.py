@@ -1,14 +1,16 @@
-from fastapi import APIRouter
-from pydantic import BaseModel
+from fastapi import APIRouter, Depends, HTTPException
+from pydantic import BaseModel, Field
 from typing import List, Dict, Any, Optional
 import re
 from backend.database import db
+from backend.auth_service import get_current_user
+from backend.audit_service import audit_service
 
 router = APIRouter(prefix="/api/leads", tags=["AI Leads & NLP Entity Extraction"])
 
 class TranscriptAnalysisRequest(BaseModel):
-    text: str
-    case_name: Optional[str] = "Intercept-Alpha-88"
+    text: str = Field(..., min_length=5, max_length=5000)
+    case_name: Optional[str] = Field("Intercept-Alpha-88", max_length=100)
 
 SAMPLE_TRANSCRIPT = """
 INTERCEPT AUDIO WIRE - TRANSCRIPT #8821
@@ -23,18 +25,20 @@ SPEAKER 2:
 """
 
 @router.get("/sample-transcript")
-def get_sample_transcript():
+def get_sample_transcript(current_user: dict = Depends(get_current_user)):
     return {"transcript": SAMPLE_TRANSCRIPT.strip()}
 
 @router.post("/extract-entities")
-def extract_entities_from_text(request: TranscriptAnalysisRequest):
+def extract_entities_from_text(
+    request: TranscriptAnalysisRequest,
+    current_user: dict = Depends(get_current_user)
+):
     """
     NLP entity extraction pipeline: parses unformatted crime wiretaps or transcripts into
-    structured entities: Suspects, Vehicles, Locations, Financial Wallets, Frequencies, and Modus Operandi.
+    structured entities: Suspects, Vehicles, Locations, Financial Wallets, Frequencies.
     """
     text = request.text
 
-    # Extract entities via semantic pattern and keyword recognizers
     suspect_patterns = ["Viktor Voronin", "Viktor", "Voronin", "Darius", "Darius Vance", "Elena", "Elena Rostov", "Kane", "Marcus Kane"]
     location_patterns = ["Gate 4", "Warehouse 14B", "South Pier", "Sector 4", "Harbor Terminal C", "Pier Customs"]
     vehicle_patterns = ["black Escalade", "plate 8B9-CYP", "VIN: 7829-K", "SUV"]
@@ -47,7 +51,6 @@ def extract_entities_from_text(request: TranscriptAnalysisRequest):
     detected_financial = list(set([c for c in crypto_patterns if re.search(r'\b' + re.escape(c) + r'\b', text, re.IGNORECASE)]))
     detected_technical = list(set([t for t in technical_patterns if re.search(r'\b' + re.escape(t) + r'\b', text, re.IGNORECASE)]))
 
-    # Calculate overall extraction confidence
     total_found = len(detected_suspects) + len(detected_locations) + len(detected_vehicles) + len(detected_financial)
     confidence = min(0.65 + total_found * 0.06, 0.985)
 
@@ -65,64 +68,63 @@ def extract_entities_from_text(request: TranscriptAnalysisRequest):
     }
 
 @router.post("/generate-leads")
-def generate_explainable_leads(request: TranscriptAnalysisRequest):
+def generate_explainable_leads(
+    request: TranscriptAnalysisRequest,
+    current_user: dict = Depends(get_current_user)
+):
     """
     AI Explainable Lead Synthesizer:
     Generates hypotheses with explicit logical rationales, confidence scores, and action items.
+    Uses safe, neutral terminology (e.g. 'High-priority review recommended').
     """
     leads = [
         {
             "id": "LEAD-AI-01",
-            "title": "Imminent High-Value Hardware Infiltration at Gate 4",
-            "confidence": 0.962,
-            "threat_severity": "CRITICAL",
-            "urgency": "IMMEDIATE (Within 45 Minutes)",
-            "primary_subject": "Viktor Voronin / Darius Vance",
-            "hypothesis": "Darius Vance has been tasked to extract a smuggled avionics container using a black Escalade (plate 8B9-CYP) departing Gate 4 toward Warehouse 14B.",
-            "rationale": "Intercept transcript correlates directly with Sector 4 RF sensor spikes at 868MHz and matches Viktor Voronin's acoustic voiceprint. Cross-referencing CCTV Frame 04:18 establishes Voronin's physical presence at Pier Customs.",
+            "title": "Possible Hardware Infiltration at Gate 4",
+            "confidence": 0.88,
+            "threat_severity": "HIGH",
+            "urgency": "High-priority review recommended",
+            "claim_type": "INFERENCE",
+            "primary_subject": "Potential match: Viktor Voronin / Darius Vance",
+            "hypothesis": "Darius Vance may have been tasked to extract a container using a vehicle with plate 8B9-CYP departing Gate 4 toward Warehouse 14B.",
+            "rationale": "Intercept transcript mentions Gate 4 and plate 8B9-CYP, aligning with Sector 4 RF sensor spikes. Corroboration required.",
             "evidence_links": ["EVID-CCTV-901", "RF-868MHz-Burst", "ALPR-Plate-8B9-CYP"],
             "suggested_actions": [
-                "Deploy Tactical Strike Unit 4 to establish rolling roadblock along Pier perimeter road.",
-                "Direct ALPR cameras to lock on plate 8B9-CYP at all outbound harbor gates.",
-                "Activate local signal jammers counter-measures on 868MHz band."
+                "Recommend verifying CCTV coverage along Pier perimeter road.",
+                "Review ALPR records for plate 8B9-CYP at harbor exits.",
+                "Inspect RF activity logs on 868MHz band."
             ]
         },
         {
             "id": "LEAD-AI-02",
-            "title": "Offshore Escrow Liquidation & Harbormaster Bribery",
-            "confidence": 0.914,
+            "title": "Possible Escrow Transaction & Harbor Terminal Activity",
+            "confidence": 0.82,
             "threat_severity": "HIGH",
-            "urgency": "NEXT 3 HOURS",
-            "primary_subject": "Elena Rostov (Valkyrie)",
-            "hypothesis": "A 140 USDT transaction routed through wallet 0x889...F1C is intended to compromise terminal surveillance and clear manifest inspection logs.",
-            "rationale": "GhostNet escrow wallet activity aligns with rail switcher SCADA anomaly detected in Incident INC-8890. Elena Rostov's known modus operandi involves escrow payoffs preceding armed extraction.",
+            "urgency": "Review within 3 hours",
+            "claim_type": "INFERENCE",
+            "primary_subject": "Potential match: Elena Rostov (Valkyrie)",
+            "hypothesis": "A transaction routed through wallet 0x889...F1C may be intended to affect terminal surveillance records.",
+            "rationale": "GhostNet escrow wallet activity aligns with rail switcher SCADA anomaly. Corroboration required.",
             "evidence_links": ["Tether-Wallet-0x889", "Incident-INC-8890", "Customs-Bypass-Log"],
             "suggested_actions": [
-                "Issue emergency asset freeze request to exchange compliance desk.",
-                "Subpoena port customs duty logs for harbor master on shift at 04:30.",
-                "Interrogate Elena Rostov's known communication burner relays."
-            ]
-        },
-        {
-            "id": "LEAD-AI-03",
-            "title": "Electronic Warfare Tap at Warehouse 14B",
-            "confidence": 0.885,
-            "threat_severity": "MEDIUM",
-            "urgency": "MONITORING ACTIVE",
-            "primary_subject": "Marcus Kane",
-            "hypothesis": "Kane is operating an active 868MHz frequency jamming nest to blind law enforcement tactical drones over Sector 4.",
-            "rationale": "Drone UAV-412 telemetry experienced intermittent packet loss while scanning freight rail coordinates adjacent to Warehouse 14B.",
-            "evidence_links": ["EVID-UAV-412", "Drone-Telemetry-PktLoss"],
-            "suggested_actions": [
-                "Deploy ground-based mobile RF directional sniffer.",
-                "Disable external power junction servicing Warehouse 14B."
+                "Subpoena transaction ledger for wallet 0x889...F1C.",
+                "Review customs container manifest inspection logs."
             ]
         }
     ]
 
+    audit_service.log_event(
+        action="LEAD_GENERATION",
+        actor=current_user["email"],
+        resource="/api/leads/generate-leads",
+        result="SUCCESS",
+        details={"case_name": request.case_name}
+    )
+
     return {
-        "status": "LEADS_SYNTHESIZED",
+        "status": "LEADS_GENERATED",
         "case_name": request.case_name,
-        "leads_count": len(leads),
-        "leads": leads
+        "lead_count": len(leads),
+        "leads": leads,
+        "human_review_notice": "AI-generated hypotheses require human investigator verification before operational deployment."
     }

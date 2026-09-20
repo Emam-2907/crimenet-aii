@@ -1,8 +1,20 @@
 from contextlib import asynccontextmanager
-from fastapi import FastAPI
+from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
-from backend.routers import auth_router, graph_router, forensics_router, leads_router, entity_resolution_router, incidents_router, chat_router, cases_router, face_router
+from backend.routers import (
+    auth_router,
+    graph_router,
+    forensics_router,
+    leads_router,
+    entity_resolution_router,
+    incidents_router,
+    chat_router,
+    cases_router,
+    face_router,
+)
 from backend.neo4j_service import neo4j_service
+from backend.config import ALLOWED_ORIGINS, CRIMENET_ENV
+from backend.health_service import probe_system_health
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -30,21 +42,40 @@ app = FastAPI(
     - **Incident Command**: Real-time telemetry, threat radar, and tactical unit dispatch.
     """,
     version="3.0.0",
-    docs_url="/docs",
-    redoc_url="/redoc",
+    docs_url="/docs" if CRIMENET_ENV != "production" else None,
+    redoc_url="/redoc" if CRIMENET_ENV != "production" else None,
     lifespan=lifespan
 )
 
-# CORS configuration allowing local frontend communication
+# Security Headers Middleware
+@app.middleware("http")
+async def add_security_headers(request: Request, call_next):
+    response: Response = await call_next(request)
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()"
+    response.headers["Content-Security-Policy"] = (
+        "default-src 'self'; "
+        "script-src 'self'; "
+        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
+        "font-src 'self' https://fonts.gstatic.com data:; "
+        "img-src 'self' data: blob: https:; "
+        "connect-src 'self' http://localhost:8000 https://crimenet-ai-2.vercel.app; "
+        "frame-ancestors 'none';"
+    )
+    return response
+
+# CORS configuration with explicit origins (No wildcard '*' with credentials)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=ALLOWED_ORIGINS,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allow_headers=["Authorization", "Content-Type", "X-Gemini-Key", "X-Requested-With", "Accept"],
 )
 
-# Mount all intelligence routers (graph_router and chat_router mounted first for exact case precedence)
+# Mount all intelligence routers
 app.include_router(auth_router.router)
 app.include_router(graph_router.router)
 app.include_router(chat_router.router)
@@ -56,20 +87,8 @@ app.include_router(entity_resolution_router.router)
 app.include_router(incidents_router.router)
 
 @app.get("/")
-def health_check():
-    neo_stat = neo4j_service.get_status()
-    return {
-        "service": "CRIMENET AI Intelligence Core",
-        "status": "OPERATIONAL",
-        "version": "3.0.0",
-        "clearance_level": "ORCON-RESTRICTED",
-        "graph_database": {
-            "connected": neo_stat["connected"],
-            "engine": neo_stat["mode"],
-            "uri": neo_stat["uri"]
-        },
-        "docs": "/docs"
-    }
+def root():
+    return probe_system_health()
 
 if __name__ == "__main__":
     import uvicorn

@@ -1,160 +1,137 @@
-from fastapi import APIRouter, HTTPException, Depends, status
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from pydantic import BaseModel
-import jwt
-from datetime import datetime, timedelta, timezone
-from backend.config import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES, DEMO_USER
+"""
+CRIMENET AI - Authentication, Authorization & Health Router
+"""
 
-from typing import Optional
-from backend.neo4j_service import neo4j_service
-from backend.database import db, CANDIDATE_GALLERY
+from typing import Optional, List, Dict, Any
+from fastapi import APIRouter, HTTPException, Depends, Request, Response, status
+from pydantic import BaseModel, Field
 
-router = APIRouter(prefix="/api", tags=["Authentication & System Connectivity"])
-security = HTTPBearer()
+from backend.auth_service import (
+    authenticate_user,
+    create_access_token,
+    revoke_token,
+    get_current_user,
+    require_role,
+)
+from backend.audit_service import audit_service
+from backend.health_service import probe_system_health
+from backend.config import CRIMENET_ENV
+
+router = APIRouter(prefix="/api", tags=["Authentication & System Health"])
 
 class LoginRequest(BaseModel):
-    user_id: Optional[str] = None
-    email: Optional[str] = None
-    password: str
+    user_id: Optional[str] = Field(None, description="Username, Badge ID, or Email")
+    email: Optional[str] = Field(None, description="Email address")
+    password: str = Field(..., min_length=1, description="Account password")
 
 class TokenResponse(BaseModel):
     access_token: str
-    token_type: str
-    user: dict
-    system_status: Optional[dict] = None
-
-def create_access_token(data: dict):
-    to_encode = data.copy()
-    expire = datetime.now(timezone.utc) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-    return encoded_jwt
-
-def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)):
-    token = credentials.credentials
-    try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        email: str = payload.get("sub")
-        if email is None:
-            raise HTTPException(status_code=401, detail="Invalid token payload")
-        return {
-            "email": email,
-            "full_name": payload.get("name", "Investigator"),
-            "role": payload.get("role", "Field Agent"),
-            "clearance": payload.get("clearance", "SECRET"),
-            "badge_id": payload.get("badge_id", "CN-0000")
-        }
-    except jwt.PyJWTError:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or expired tactical credentials")
+    token_type: str = "bearer"
+    user: Dict[str, Any]
+    system_status: Optional[Dict[str, Any]] = None
 
 @router.post("/auth/login", response_model=TokenResponse)
-def login(request: LoginRequest):
-    ident = (request.user_id or request.email or "").strip()
-    pwd = (request.password or "").strip()
+async def login(request_data: LoginRequest, request: Request, response: Response):
+    identifier = (request_data.user_id or request_data.email or "").strip()
+    password = request_data.password.strip()
 
-    if not ident or not pwd:
+    if not identifier or not password:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="User ID and Password are required."
+            detail="User identifier and password are required."
         )
 
-    ident_lower = ident.lower()
+    # Client IP resolution (supporting X-Forwarded-For if behind proxy)
+    forwarded = request.headers.get("x-forwarded-for")
+    client_ip = forwarded.split(",")[0].strip() if forwarded else (request.client.host if request.client else "127.0.0.1")
 
-    # Map user id / email to database credentials
-    if ident_lower in ["agent.vance@crimenet.gov", "agent.vance", "vance", "marcus", "marcus vance", "demo"]:
-        user_info = dict(DEMO_USER)
-    elif ident_lower in ["admin", "root", "administrator"]:
-        user_info = {
-            "email": "admin@crimenet.gov",
-            "full_name": "Command Administrator",
-            "role": "Chief Information Security Officer",
-            "clearance": "TS//SCI-ORCON",
-            "badge_id": "CN-HQ-0001",
-            "station": "Joint Intelligence Headquarters"
-        }
-    elif ident_lower in ["elena", "rostova", "elena.rostova@crimenet.gov"]:
-        user_info = {
-            "email": "elena.rostova@crimenet.gov",
-            "full_name": "Dr. Elena Rostova",
-            "role": "Senior Biometric & Forensic Analyst",
-            "clearance": "SECRET//NOFORN",
-            "badge_id": "CN-BIO-4822",
-            "station": "Forensic Biometrics & Sensor Lab"
-        }
-    elif ident_lower in ["wright", "thomas", "thomas.wright@crimenet.gov"]:
-        user_info = {
-            "email": "thomas.wright@crimenet.gov",
-            "full_name": "Inspector Thomas Wright",
-            "role": "Financial Crimes & Asset Seizure Lead",
-            "clearance": "SECRET",
-            "badge_id": "CN-FIN-7719",
-            "station": "Illicit Finance & Blockchain Fusion Unit"
-        }
-    else:
-        # Standard field investigator / custom user ID
-        clean_name = ident.split("@")[0].replace(".", " ").replace("_", " ").strip().title()
-        if clean_name.lower().startswith("investigator") or clean_name.lower().startswith("agent") or clean_name.lower().startswith("officer"):
-            display_name = clean_name
-        else:
-            display_name = f"Investigator {clean_name}"
-        user_info = {
-            "email": ident if "@" in ident else f"{ident}@crimenet.gov",
-            "full_name": display_name,
-            "role": "Field Analyst",
-            "clearance": "SECRET//ORCON",
-            "badge_id": f"CN-OPS-{abs(hash(ident)) % 9000 + 1000}",
-            "station": "Regional Fusion Center"
-        }
+    # Authenticate user (server-side PBKDF2 verification, rate limiting, generic errors)
+    user = authenticate_user(identifier, password, client_ip=client_ip)
 
-    token_data = {
-        "sub": user_info["email"],
-        "name": user_info["full_name"],
-        "role": user_info["role"],
-        "clearance": user_info["clearance"],
-        "badge_id": user_info["badge_id"]
-    }
-    token = create_access_token(token_data)
+    # Issue short-lived token with unique JTI
+    token, jti, expire = create_access_token(user)
 
-    # Gather live system connection status (Database + Neo4j)
-    neo_stat = neo4j_service.get_status()
-    db_stat = {
-        "connected": True,
-        "mode": "DATABASE_ACTIVE",
-        "cases_count": len(db.get_cases()),
-        "evidence_count": len(db.get_evidence()),
-        "candidates_count": len(CANDIDATE_GALLERY)
+    # Set HttpOnly, Secure, SameSite session cookie
+    # Secure=True in production, False only for plain HTTP localhost dev
+    is_secure = CRIMENET_ENV == "production" or request.url.scheme == "https"
+    response.set_cookie(
+        key="crimenet_session",
+        value=token,
+        httponly=True,
+        secure=is_secure,
+        samesite="lax",
+        expires=int(expire.timestamp())
+    )
+
+    # Probe truthful system health
+    health = probe_system_health()
+
+    # User profile payload (scrub password hashes)
+    user_profile = {
+        "email": user["email"],
+        "full_name": user["full_name"],
+        "role": user["role"],
+        "clearance": user.get("clearance", "SECRET"),
+        "badge_id": user.get("badge_id", "CN-0000"),
+        "station": user.get("station", "Metro Tactical Operations Command"),
+        "allowed_cases": user.get("allowed_cases", ["*"]),
+        "mfa_enrolled": False,
+        "mfa_required": False
     }
 
     return {
         "access_token": token,
         "token_type": "bearer",
-        "user": user_info,
-        "system_status": {
-            "database": db_stat,
-            "neo4j": neo_stat
-        }
+        "user": user_profile,
+        "system_status": health
     }
+
+@router.post("/auth/logout")
+async def logout(
+    request: Request,
+    response: Response,
+    current_user: dict = Depends(get_current_user)
+):
+    # Revoke current token via JTI
+    jti = current_user.get("jti")
+    if jti:
+        revoke_token(jti)
+
+    # Delete session cookie
+    response.delete_cookie("crimenet_session")
+
+    # Log to audit service
+    audit_service.log_event(
+        action="LOGOUT",
+        actor=current_user["email"],
+        resource="/api/auth/logout",
+        result="SUCCESS"
+    )
+
+    return {"message": "Session invalidated successfully.", "status": "LOGGED_OUT"}
 
 @router.get("/auth/me")
-def get_profile(current_user: dict = Depends(get_current_user)):
+async def get_profile(current_user: dict = Depends(get_current_user)):
     return current_user
 
+@router.get("/health")
 @router.get("/system/connectivity")
-def get_system_connectivity():
+async def get_health():
     """
-    Direct system health check verifying both relational database and Neo4j connections.
+    Truthful system health probe.
+    Never returns LIVE for unverified or offline components.
     """
-    neo_stat = neo4j_service.get_status()
-    db_stat = {
-        "connected": True,
-        "status": "OPERATIONAL",
-        "total_cases": len(db.get_cases()),
-        "total_evidence": len(db.get_evidence()),
-        "total_entities": len(CANDIDATE_GALLERY)
-    }
-    return {
-        "database": db_stat,
-        "neo4j": neo_stat,
-        "api_online": True
-    }
+    return probe_system_health()
 
+@router.get("/audit/logs")
+async def get_audit_logs(
+    case_id: Optional[str] = None,
+    actor: Optional[str] = None,
+    action: Optional[str] = None,
+    limit: int = 100,
+    current_user: dict = Depends(require_role("SUPERVISOR", "ADMIN"))
+):
+    """
+    Query audit logs. Restricted to SUPERVISOR and ADMIN.
+    """
+    return audit_service.get_logs(case_id=case_id, actor=actor, action=action, limit=limit)

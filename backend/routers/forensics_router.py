@@ -1,22 +1,25 @@
-from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel
+from fastapi import APIRouter, HTTPException, Depends, status
+from pydantic import BaseModel, Field
 from typing import Optional, List
 from backend.database import db, CANDIDATE_GALLERY, VISUAL_EVIDENCE_CASES
+from backend.auth_service import get_current_user, require_role
+from backend.audit_service import audit_service
+from backend.health_service import assert_feature_available
 import random
 
 router = APIRouter(prefix="/api/forensics", tags=["Forensics & Facial Candidate Matching"])
 
 class DetectFaceRequest(BaseModel):
-    evidence_id: Optional[str] = None
-    image_url: Optional[str] = None
+    evidence_id: Optional[str] = Field(None, max_length=100)
+    image_url: Optional[str] = Field(None, max_length=500)
 
 class LinkEvidenceRequest(BaseModel):
-    evidence_id: str
-    suspect_id: str
-    match_confidence: float
+    evidence_id: str = Field(..., max_length=100)
+    suspect_id: str = Field(..., max_length=100)
+    match_confidence: float = Field(..., ge=0.0, le=1.0)
 
 @router.get("/cases")
-def list_forensic_cases():
+def list_forensic_cases(current_user: dict = Depends(get_current_user)):
     return {
         "cases": db.evidence_cases,
         "gallery": db.candidates,
@@ -25,24 +28,24 @@ def list_forensic_cases():
     }
 
 @router.post("/detect-face")
-def detect_facial_biometrics(request: DetectFaceRequest):
+def detect_facial_biometrics(
+    request: DetectFaceRequest,
+    current_user: dict = Depends(get_current_user)
+):
     """
     Computer Vision pipeline: executes facial landmark alignment, facial ratio computation,
     and returns localized reticle coordinates with feature vector.
     """
-    # Look up evidence case if passed
     case = None
     if request.evidence_id:
         case = next((c for c in db.evidence_cases if c["id"] == request.evidence_id), None)
 
     reticle = case["reticle"] if case else {"x": 38, "y": 28, "w": 28, "h": 36}
     
-    # 68-point facial landmark grid points (simulated spatial normalized coordinates)
     landmarks = []
     base_x = reticle["x"] + reticle["w"] / 2
     base_y = reticle["y"] + reticle["h"] / 2
     for i in range(12):
-        angle = (i / 12) * 6.28
         landmarks.append({
             "id": f"pt-{i}",
             "x": round(base_x + (reticle["w"] / 3.2) * (0.8 + 0.2 * (i % 2)) * (1 if i % 2 == 0 else -1) * 0.5, 2),
@@ -65,10 +68,13 @@ def detect_facial_biometrics(request: DetectFaceRequest):
     }
 
 @router.post("/match-candidates")
-def match_candidates(request: DetectFaceRequest):
+def match_candidates(
+    request: DetectFaceRequest,
+    current_user: dict = Depends(get_current_user)
+):
     """
-    Candidate matching against the criminal intelligence mugshot gallery.
-    Returns ranked suspects with confidence scores, biometrics, and alias cross-references.
+    Candidate matching against the criminal intelligence gallery.
+    Output is strictly probabilistic and transparent.
     """
     case = next((c for c in db.evidence_cases if c["id"] == request.evidence_id), None)
     target_candidate_id = case["primary_match_id"] if case else "cand-01"
@@ -77,35 +83,47 @@ def match_candidates(request: DetectFaceRequest):
     for cand in db.candidates:
         cand_copy = cand.copy()
         if cand["id"] == target_candidate_id:
-            cand_copy["match_score"] = case["match_score"] if case else 0.964
+            cand_copy["match_score"] = case["match_score"] if case else 0.87
             cand_copy["is_primary_match"] = True
+            cand_copy["match_statement"] = f"Potential match identified. Model similarity: {int(cand_copy['match_score'] * 100)}%; human verification required."
         else:
-            # Distance degradation
-            cand_copy["match_score"] = round(cand["confidence"] * 0.82, 3)
+            cand_copy["match_score"] = round(cand["confidence"] * 0.72, 3)
             cand_copy["is_primary_match"] = False
+            cand_copy["match_statement"] = f"Low similarity candidate ({int(cand_copy['match_score'] * 100)}%). Not considered primary."
         ranked.append(cand_copy)
 
     ranked.sort(key=lambda x: x["match_score"], reverse=True)
 
+    audit_service.log_event(
+        action="CANDIDATE_MATCH",
+        actor=current_user["email"],
+        resource=request.evidence_id or "forensics",
+        result="SUCCESS",
+        details={"top_candidate": ranked[0]["id"] if ranked else None}
+    )
+
     return {
         "status": "MATCHING_COMPLETE",
         "candidates": ranked,
-        "top_match": ranked[0],
+        "top_match": ranked[0] if ranked else None,
         "algorithm": "ArcFace-ResNet50 + Cosine Metric Fusion",
-        "threshold_verified": True
+        "verification_notice": "Potential match identified. Human verification required before any tactical action."
     }
 
 @router.post("/link-evidence-to-graph")
-def link_evidence_to_knowledge_graph(request: LinkEvidenceRequest):
+def link_evidence_to_knowledge_graph(
+    request: LinkEvidenceRequest,
+    current_user: dict = Depends(require_role("INVESTIGATOR", "SUPERVISOR", "ADMIN"))
+):
     """
-    Crucial investigation bridge: takes the biometric candidate match and dynamically
-    links the evidence node to the suspect node inside the Cytoscape Knowledge Graph!
+    Links biometric candidate match to graph.
+    Requires investigator role, checks degraded mode, and writes audit record.
     """
-    # Map cand-01 -> suspect-1, cand-02 -> suspect-2, etc.
+    assert_feature_available("GRAPH_MUTATION")
+
     suspect_node_id = request.suspect_id.replace("cand-", "suspect-") if "cand-" in request.suspect_id else request.suspect_id
     evidence_node_id = request.evidence_id.lower().replace("evid-", "evid-").replace("cctv-", "")
 
-    # Ensure evidence node is present or add it
     graph = db.get_graph()
     node_ids = {n["data"]["id"] for n in graph["nodes"]}
 
@@ -122,13 +140,20 @@ def link_evidence_to_knowledge_graph(request: LinkEvidenceRequest):
                 "color": "#38bdf8",
                 "size": 36,
                 "icon": "camera",
-                "details": f"Visual biometric match linked with {int(request.match_confidence * 100)}% facial similarity confidence."
+                "details": f"Visual biometric match linked with {int(request.match_confidence * 100)}% facial similarity confidence. Human verification required."
             }
         }
         graph["nodes"].append(new_evid_node)
 
-    # Link edge
     new_edge = db.add_evidence_link(evid_id, suspect_node_id, request.match_confidence)
+
+    audit_service.log_event(
+        action="GRAPH_MUTATION",
+        actor=current_user["email"],
+        resource=f"{evid_id}->{suspect_node_id}",
+        result="SUCCESS",
+        details={"match_confidence": request.match_confidence}
+    )
 
     return {
         "success": True,

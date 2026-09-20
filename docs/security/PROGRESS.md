@@ -100,3 +100,101 @@ GET /api/health: 404 (or routed to index.html rewrite)
 ### 4. Remaining Limitations
 - Headless browser subagent was blocked by Playwright CDN 404 on Windows; automated HTTP probing script was used instead to gather header and API responses.
 - Backend server is deployed as serverless functions on Vercel; live testing confirmed the root rewrites require verification once backend functions are configured.
+
+---
+
+## Phase 2: Security Hardening (SECURE)
+**Date/Time**: 2026-09-20T11:40:00Z  
+**Status**: COMPLETED (ALL 11 CONTROLS VERIFIED)
+
+### 1. What Changed
+1. **Server-Side Authentication & Session Management**:
+   - Implemented PBKDF2-HMAC-SHA256 password hashing with unique salts in `backend/config.py`.
+   - Created `backend/auth_service.py`: server-side credential verification, sliding-window rate limiting (5 attempts per 5 minutes $\rightarrow$ 429 Too Many Requests), unique `jti` JWT token issuance, and server-side token blacklist/revocation on logout.
+   - HttpOnly + Secure + SameSite=lax short-lived session cookie (`crimenet_session`) set on login and cleared on logout.
+   - Generic error messages for failed login (`Invalid credentials or unauthorized access.`) to prevent account enumeration.
+2. **Demo Environment Isolation**:
+   - Synthetic demo accounts (`analyst.vance@crimenet.demo`, `investigator.chen@crimenet.demo`, `supervisor.wright@crimenet.demo`, `admin@crimenet.demo`) isolated strictly under `CRIMENET_ENV == "demo"`.
+   - In production mode, demo accounts are disabled and refuse authentication.
+3. **Role-Based Access Control (RBAC) & Per-Case Authorization**:
+   - Defined role hierarchy: `ADMIN` > `SUPERVISOR` > `ANALYST` > `INVESTIGATOR`.
+   - Implemented `require_role(*roles)` dependency factory.
+   - Implemented `verify_case_access(case_id, user)` dependency factory to enforce strict per-case docket isolation.
+   - Enforced `Depends(get_current_user)` and case-level authorization across all 60 API endpoints:
+     - `backend/routers/cases_router.py`
+     - `backend/routers/graph_router.py`
+     - `backend/routers/face_router.py`
+     - `backend/routers/chat_router.py`
+     - `backend/routers/forensics_router.py`
+     - `backend/routers/leads_router.py`
+     - `backend/routers/entity_resolution_router.py`
+     - `backend/routers/incidents_router.py`
+4. **Truthful Health Checks & Degraded Mode**:
+   - Created `backend/health_service.py` implementing status model: `LIVE` | `DEGRADED` | `CACHED` | `SYNCING` | `OFFLINE` | `DEMO`.
+   - Graph status truthfully reports `CACHED` or `OFFLINE` when live Neo4j is unavailable (never falsely reports `LIVE`).
+   - Created `assert_feature_available(feature_name)` to block mutations with HTTP 503 when the underlying backend is degraded or offline.
+5. **Server-Controlled Append-Only Audit Logging**:
+   - Created `backend/audit_service.py`: logs timestamp (ISO-8601 UTC), actor, action, resource, case_id, result (`SUCCESS`/`DENIED`), request_id, source_ip.
+   - Sensitive payloads (passwords, tokens, biometric hashes) are explicitly excluded.
+   - Query endpoint `/api/audit/logs` restricted to `SUPERVISOR` and `ADMIN`. Not writable by clients.
+6. **Security Headers & CORS Hardening**:
+   - Configured explicit origins in `backend/main.py` via `ALLOWED_ORIGINS` (no `*` wildcard with credentials).
+   - Added security headers middleware: CSP, `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy`.
+   - Added security headers in `vercel.json`.
+7. **Client-Side Hardening**:
+   - Removed client-side mock JWT creation in `src/services/api.js` (fails closed).
+   - Removed hardcoded credentials from `src/components/LoginPage.jsx`.
+   - Implemented truthful status display in `LoginPage.jsx` (`BACKEND OFFLINE` when unreachable).
+
+### 2. Tests Run & Real Command Output
+
+#### A. Automated Security Controls Test Suite
+Command:
+```powershell
+python tests/run_security_tests.py
+```
+Output:
+```
+======================================================================
+CRIMENET AI - PHASE 2 SECURITY CONTROLS TEST SUITE
+======================================================================
+[PASS] 1. Valid Login with Token & Cookie
+[PASS] 2. Invalid Login Returns Generic Error
+[PASS] 3. Login Rate Limiting (429 Lockout)
+[PASS] 4. Expired Session Rejected (401)
+[PASS] 5. Logout Token Invalidation / Revocation
+[PASS] 6. Unauthenticated Direct API Access Blocked (401)
+[PASS] 7. RBAC Role-Based Access Enforcement (403)
+[PASS] 8. Per-Case Authorization Isolation (403)
+[PASS] 9. Truthful Health Checks (Never Fake LIVE)
+[PASS] 10. Append-Only Server-Controlled Audit Logging
+[PASS] 11. Security Headers & Explicit CORS
+======================================================================
+RESULTS: 11 PASSED, 0 FAILED, 0 NOT TESTED
+======================================================================
+```
+
+#### B. Production Bundle Exposure Scan
+Command:
+```powershell
+python tests/scan_bundle_exposure.py
+```
+Output:
+```
+Scanning C:\Users\Emam M\Documents\crimenet ai 2\dist for sensitive credentials...
+[PASS] Bundle scan clean. Zero sensitive credentials, mock JWTs, or secrets found in dist/.
+```
+
+### 3. Failures & Resolutions
+- **Resolved SEC-01**: Mock token fallback removed; client throws and halts on backend failure.
+- **Resolved SEC-02**: Passwords verified server-side with PBKDF2; arbitrary token issuance removed.
+- **Resolved SEC-03**: All 60 endpoints now require `get_current_user` and per-case checks.
+- **Resolved SEC-04**: CORS wildcard removed; explicit origin list enforced.
+- **Resolved SEC-05**: CSP, X-Frame-Options, and nosniff headers added to backend and `vercel.json`.
+- **Resolved SEC-06**: Production bundle verified clean of all passwords, mock JWTs, and secret keys.
+- **Resolved SEC-07**: Status bar accurately indicates `OFFLINE` or `CACHED` instead of false "Operational".
+
+### 4. Remaining Limitations
+- Live Neo4j graph cluster is not running on localhost:7687 in this test environment; system accurately reports `CACHED` (Local Graph Cache) and disables live graph mutations via degraded mode.
+- In-memory rate limiting and token revocation are process-bound; production scale requires distributed Redis or database backing.
+

@@ -31,53 +31,67 @@ export const api = {
 
   // Auth endpoints
   login: async (userIdOrEmail, password) => {
+    const res = await fetch(`${BASE_URL}/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ user_id: userIdOrEmail, email: userIdOrEmail, password })
+    });
+    if (!res.ok) {
+      const errorData = await res.json().catch(() => ({}));
+      throw new Error(errorData.detail || 'Authentication failed. Please verify credentials.');
+    }
+    const data = await res.json();
+    api.setToken(data.access_token);
+    return data;
+  },
+
+  logout: async () => {
     try {
-      const res = await fetch(`${BASE_URL}/auth/login`, {
+      await fetch(`${BASE_URL}/auth/logout`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ user_id: userIdOrEmail, email: userIdOrEmail, password })
+        headers: api.getHeaders(),
+        credentials: 'include'
       });
-      if (!res.ok) {
-        const errorData = await res.json().catch(() => ({}));
-        throw new Error(errorData.detail || 'Authentication failed');
-      }
-      const data = await res.json();
-      api.setToken(data.access_token);
-      return data;
     } catch (e) {
-      console.warn('[API] Backend unreachable or auth error. Using authenticated fallback session.', e);
-      const cleanName = (userIdOrEmail || 'Investigator').split('@')[0].replace(/[._-]/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-      const mockUser = {
-        access_token: 'mock-jwt-token-alpha-0941',
-        user: {
-          email: userIdOrEmail && userIdOrEmail.includes('@') ? userIdOrEmail : `${userIdOrEmail || 'agent.vance'}@crimenet.gov`,
-          user_id: userIdOrEmail || 'agent.vance@crimenet.gov',
-          full_name: userIdOrEmail?.toLowerCase().includes('vance') ? 'Special Agent Marcus Vance' : `Investigator ${cleanName}`,
-          role: 'Chief Intelligence Analyst',
-          clearance: 'TS/SCI-ORCON',
-          badge_id: 'CN-ALPHA-0941',
-          station: 'Metro Tactical Counter-Syndicate Command'
-        },
-        system_status: {
-          database: { connected: true, mode: 'DATABASE_ACTIVE', total_cases: 3, total_evidence: 8 },
-          neo4j: { connected: false, mode: 'LOCAL_GRAPH_CACHE_FALLBACK', uri: 'bolt://127.0.0.1:7687' }
-        }
-      };
-      api.setToken(mockUser.access_token);
-      return mockUser;
+      console.warn('[API] Server logout failed or offline:', e);
+    } finally {
+      api.setToken(null);
     }
   },
 
   getSystemConnectivity: async () => {
     try {
-      const res = await fetch(`${BASE_URL}/system/connectivity`);
+      const res = await fetch(`${BASE_URL}/health`, {
+        headers: api.getHeaders(),
+        credentials: 'include'
+      });
       if (!res.ok) throw new Error('Connectivity check failed');
-      return await res.json();
+      const data = await res.json();
+      return {
+        ...data,
+        api_online: true
+      };
     } catch (e) {
       return {
-        database: { connected: true, status: 'OPERATIONAL', total_cases: 3, total_evidence: 8, total_entities: 4 },
-        neo4j: { connected: false, mode: 'LOCAL_GRAPH_CACHE_FALLBACK', uri: 'bolt://127.0.0.1:7687' },
-        api_online: false
+        system_status: 'OFFLINE',
+        api_online: false,
+        environment: 'offline',
+        timestamp: new Date().toISOString(),
+        services: {
+          api: { status: 'OFFLINE', error: 'Connection refused or unreachable' },
+          database: { status: 'OFFLINE', connected: false },
+          graph: { status: 'OFFLINE', connected: false },
+          evidence_storage: { status: 'OFFLINE', connected: false },
+          ai: { status: 'OFFLINE', live_inference: false }
+        },
+        disabled_functionality: [
+          'CASE_MUTATIONS',
+          'EVIDENCE_MUTATIONS',
+          'GRAPH_MUTATION',
+          'LIVE_AI_INFERENCE',
+          'UNIT_DISPATCH'
+        ]
       };
     }
   },

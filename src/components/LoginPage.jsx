@@ -17,8 +17,9 @@ export default function LoginPage({ onLoginSuccess }) {
   const [authSuccess, setAuthSuccess] = useState(false);
   const [connectivity, setConnectivity] = useState({
     api_online: false,
-    database: { connected: false, status: 'CHECKING...', total_cases: 0, total_evidence: 0 },
-    neo4j: { connected: false, mode: 'CHECKING...', uri: 'bolt://127.0.0.1:7687' }
+    system_status: 'CHECKING',
+    database: { connected: false, status: 'CHECKING...' },
+    graph: { connected: false, status: 'CHECKING...' }
   });
   const [isCheckingSystem, setIsCheckingSystem] = useState(false);
   const [currentTimeUtc, setCurrentTimeUtc] = useState('');
@@ -48,12 +49,12 @@ export default function LoginPage({ onLoginSuccess }) {
       setConnectivity(stat);
     } catch (e) {
       console.warn('System status probe error:', e);
-      setConnectivity(prev => ({
-        ...prev,
+      setConnectivity({
         api_online: false,
-        database: { connected: true, status: 'LOCAL_STANDALONE', total_cases: 3, total_evidence: 8 },
-        neo4j: { connected: false, mode: 'LOCAL_GRAPH_CACHE_FALLBACK', uri: 'bolt://127.0.0.1:7687' }
-      }));
+        system_status: 'OFFLINE',
+        database: { connected: false, status: 'OFFLINE' },
+        graph: { connected: false, status: 'OFFLINE' }
+      });
     } finally {
       setIsCheckingSystem(false);
     }
@@ -63,12 +64,6 @@ export default function LoginPage({ onLoginSuccess }) {
     if (e.getModifierState) {
       setCapsLockOn(e.getModifierState('CapsLock'));
     }
-  };
-
-  const handleFillDemo = () => {
-    setUserId('agent.vance');
-    setPassword('Crimenet2026!');
-    setErrorMsg('');
   };
 
   const handleSubmit = async (e) => {
@@ -100,6 +95,22 @@ export default function LoginPage({ onLoginSuccess }) {
     }
   };
 
+  // Demo synthetic persona selection (No credentials bundled)
+  const isDemoEnv = connectivity.environment === 'demo' || !import.meta.env.PROD;
+
+  const demoPersonas = [
+    { name: 'Analyst Vance', id: 'analyst.vance@crimenet.demo', role: 'ANALYST' },
+    { name: 'Det. Chen', id: 'investigator.chen@crimenet.demo', role: 'INVESTIGATOR' },
+    { name: 'Insp. Wright', id: 'supervisor.wright@crimenet.demo', role: 'SUPERVISOR' },
+    { name: 'Command Admin', id: 'admin@crimenet.demo', role: 'ADMIN' }
+  ];
+
+  const handleSelectDemoPersona = (personaId) => {
+    setUserId(personaId);
+    setPassword('');
+    setErrorMsg('');
+  };
+
   return (
     <div style={{
       minHeight: '100vh',
@@ -116,7 +127,7 @@ export default function LoginPage({ onLoginSuccess }) {
     }}>
 
       {/* Top Telemetry & Status Bar */}
-      <div className="classification-bar" style={{
+      <header className="classification-bar" style={{
         position: 'absolute',
         top: 0,
         left: 0,
@@ -128,11 +139,16 @@ export default function LoginPage({ onLoginSuccess }) {
             width: '6px',
             height: '6px',
             borderRadius: '50%',
-            backgroundColor: connectivity.api_online ? 'var(--success)' : 'var(--warning)'
+            backgroundColor: connectivity.api_online ? 'var(--success)' : '#ef4444'
           }} />
           <span style={{ color: 'var(--text-secondary)' }}>SYSTEM STATUS:</span>
-          <span style={{ color: connectivity.api_online ? 'var(--success)' : 'var(--warning)', fontWeight: 600 }}>
-            {connectivity.api_online ? 'FASTAPI BACKEND ONLINE (8000)' : 'LOCAL STANDALONE ACTIVE'}
+          <span style={{
+            color: connectivity.api_online ? (connectivity.system_status === 'LIVE' ? 'var(--success)' : 'var(--warning)') : '#ef4444',
+            fontWeight: 600
+          }}>
+            {connectivity.api_online
+              ? `API ONLINE [${connectivity.system_status || 'ACTIVE'}]`
+              : 'BACKEND OFFLINE (Unreachable)'}
           </span>
         </div>
 
@@ -147,10 +163,10 @@ export default function LoginPage({ onLoginSuccess }) {
           <span>NODE: ALPHA-01</span>
           <span>{currentTimeUtc}</span>
         </div>
-      </div>
+      </header>
 
       {/* Main Single Login Card Container */}
-      <div style={{
+      <main style={{
         width: '100%',
         maxWidth: '440px',
         zIndex: 10,
@@ -207,12 +223,12 @@ export default function LoginPage({ onLoginSuccess }) {
 
           {/* Feedback Error Banner */}
           {errorMsg && (
-            <div style={{
+            <div role="alert" style={{
               display: 'flex',
               alignItems: 'center',
               gap: '10px',
-              backgroundColor: 'var(--danger-dim)',
-              border: '1px solid var(--danger-border)',
+              backgroundColor: 'rgba(239, 68, 68, 0.12)',
+              border: '1px solid rgba(239, 68, 68, 0.3)',
               color: '#F87171',
               padding: '10px 14px',
               borderRadius: '6px',
@@ -226,12 +242,12 @@ export default function LoginPage({ onLoginSuccess }) {
 
           {/* Success Banner */}
           {authSuccess && (
-            <div style={{
+            <div role="status" style={{
               display: 'flex',
               alignItems: 'center',
               gap: '10px',
-              backgroundColor: 'var(--success-dim)',
-              border: '1px solid var(--success-border)',
+              backgroundColor: 'rgba(34, 197, 94, 0.12)',
+              border: '1px solid rgba(34, 197, 94, 0.3)',
               color: '#4ADE80',
               padding: '10px 14px',
               borderRadius: '6px',
@@ -244,12 +260,12 @@ export default function LoginPage({ onLoginSuccess }) {
             </div>
           )}
 
-          {/* Pure Login Form (User ID & Password) */}
+          {/* Login Form (User ID & Password) */}
           <form onSubmit={handleSubmit} onKeyDown={handleKeyDown}>
 
             {/* Field 1: User ID */}
             <div style={{ marginBottom: '16px' }}>
-              <label style={{
+              <label htmlFor="login-user-id" style={{
                 display: 'block',
                 fontSize: '0.72rem',
                 fontFamily: 'var(--font-mono)',
@@ -282,7 +298,7 @@ export default function LoginPage({ onLoginSuccess }) {
                   autoComplete="username"
                   value={userId}
                   onChange={(e) => setUserId(e.target.value)}
-                  placeholder="e.g. agent.vance or investigator ID"
+                  placeholder="e.g. analyst.vance@crimenet.demo"
                   disabled={isLoading || authSuccess}
                   style={{
                     width: '100%',
@@ -295,7 +311,7 @@ export default function LoginPage({ onLoginSuccess }) {
             {/* Field 2: Password */}
             <div style={{ marginBottom: '16px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                <label style={{
+                <label htmlFor="login-password" style={{
                   fontSize: '0.72rem',
                   fontFamily: 'var(--font-mono)',
                   fontWeight: 600,
@@ -331,7 +347,7 @@ export default function LoginPage({ onLoginSuccess }) {
                   autoComplete="current-password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Enter access password"
+                  placeholder="Enter security access password"
                   disabled={isLoading || authSuccess}
                   style={{
                     width: '100%',
@@ -355,6 +371,7 @@ export default function LoginPage({ onLoginSuccess }) {
                     alignItems: 'center',
                     padding: '4px'
                   }}
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
                   title={showPassword ? 'Hide password' : 'Show password'}
                 >
                   {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
@@ -362,42 +379,34 @@ export default function LoginPage({ onLoginSuccess }) {
               </div>
             </div>
 
-            {/* Quick Profile Autofill Helpers */}
-            <div style={{ marginBottom: '18px' }}>
-              <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)', marginBottom: '6px' }}>
-                QUICK SIGN-IN PROFILE:
+            {/* Synthetic Demo Account Persona Selector (Only in Demo / Dev Mode) */}
+            {isDemoEnv && (
+              <div style={{ marginBottom: '18px' }}>
+                <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)', marginBottom: '6px' }}>
+                  SYNTHETIC DEMO PERSONAS:
+                </div>
+                <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                  {demoPersonas.map(p => (
+                    <button
+                      key={p.id}
+                      type="button"
+                      onClick={() => handleSelectDemoPersona(p.id)}
+                      style={{
+                        background: userId === p.id ? 'var(--accent)' : 'var(--bg-elevated)',
+                        border: '1px solid var(--border-default)',
+                        borderRadius: '4px',
+                        padding: '4px 8px',
+                        color: userId === p.id ? '#fff' : 'var(--text-secondary)',
+                        fontSize: '0.70rem',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      {p.name} ({p.role})
+                    </button>
+                  ))}
+                </div>
               </div>
-              <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-                {[
-                  { name: 'Special Agent Vance', id: 'agent.vance' },
-                  { name: 'Dr. Rostova (Biometrics)', id: 'dr.rostova' },
-                  { name: 'Analyst Wright (FinCEN)', id: 'analyst.wright' }
-                ].map(p => (
-                  <button
-                    key={p.id}
-                    type="button"
-                    onClick={() => {
-                      setUserId(p.id);
-                      setPassword('Crimenet2026!');
-                      setErrorMsg('');
-                    }}
-                    style={{
-                      background: 'var(--bg-elevated)',
-                      border: '1px solid var(--border-default)',
-                      borderRadius: '4px',
-                      padding: '4px 8px',
-                      color: 'var(--text-secondary)',
-                      fontSize: '0.70rem',
-                      cursor: 'pointer'
-                    }}
-                    onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--accent)'; e.currentTarget.style.color = '#fff'; }}
-                    onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border-default)'; e.currentTarget.style.color = 'var(--text-secondary)'; }}
-                  >
-                    {p.name}
-                  </button>
-                ))}
-              </div>
-            </div>
+            )}
 
             {/* Remember Session */}
             <div style={{
@@ -458,12 +467,12 @@ export default function LoginPage({ onLoginSuccess }) {
             fontSize: '0.70rem',
             color: 'var(--text-muted)'
           }}>
-            Authorized law enforcement & intelligence personnel only. All activity is audited.
+            Authorized personnel only. Synthetic prototype data. All activity is audited.
           </div>
         </div>
 
-        {/* Live Backend, Database & Neo4j Connectivity Status Bar */}
-        <div style={{
+        {/* Live Backend, Database & Graph Connectivity Status Bar */}
+        <aside aria-label="System Connectivity Telemetry" style={{
           marginTop: '14px',
           backgroundColor: 'var(--bg-surface)',
           border: '1px solid var(--border-default)',
@@ -477,7 +486,7 @@ export default function LoginPage({ onLoginSuccess }) {
             alignItems: 'center',
             justifyContent: 'space-between',
             marginBottom: '8px',
-            color: 'var(--t-secondary, #94a3b8)',
+            color: 'var(--text-secondary, #94a3b8)',
             textTransform: 'uppercase',
             letterSpacing: '0.06em',
             fontSize: '0.68rem',
@@ -485,7 +494,7 @@ export default function LoginPage({ onLoginSuccess }) {
           }}>
             <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
               <Activity size={13} color="var(--blue-light, #38bdf8)" />
-              LIVE SYSTEM CONNECTIVITY
+              SYSTEM TELEMETRY
             </span>
             <button
               type="button"
@@ -494,7 +503,7 @@ export default function LoginPage({ onLoginSuccess }) {
               style={{
                 background: 'none',
                 border: 'none',
-                color: 'var(--t-muted, #64748b)',
+                color: 'var(--text-muted, #64748b)',
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
@@ -504,7 +513,7 @@ export default function LoginPage({ onLoginSuccess }) {
               title="Ping Backend Services"
             >
               <RefreshCw size={11} style={{ animation: isCheckingSystem ? 'spin 1s linear infinite' : 'none' }} />
-              CHECK
+              PROBE
             </button>
           </div>
 
@@ -519,13 +528,18 @@ export default function LoginPage({ onLoginSuccess }) {
               borderRadius: '6px',
               border: '1px solid var(--border-default)'
             }}>
-              <Database size={14} color={connectivity.database?.connected ? 'var(--success)' : 'var(--warning)'} />
+              <Database size={14} color={connectivity.api_online && (connectivity.database?.connected || connectivity.services?.database?.connected) ? 'var(--success)' : '#ef4444'} />
               <div style={{ overflow: 'hidden' }}>
                 <div style={{ color: 'var(--text-primary)', fontWeight: 600, fontSize: '0.7rem' }}>
                   Database
                 </div>
-                <div style={{ color: connectivity.database?.connected ? 'var(--success)' : 'var(--text-secondary)', fontSize: '0.65rem' }}>
-                  {connectivity.database?.connected ? `Connected (${connectivity.database.total_cases || 3} Cases)` : 'Local Standalone'}
+                <div style={{
+                  color: connectivity.api_online && (connectivity.database?.connected || connectivity.services?.database?.connected) ? 'var(--success)' : '#ef4444',
+                  fontSize: '0.65rem'
+                }}>
+                  {connectivity.api_online && (connectivity.database?.connected || connectivity.services?.database?.connected)
+                    ? `Active (${connectivity.services?.database?.case_count || connectivity.database?.total_cases || 3} Cases)`
+                    : 'OFFLINE'}
                 </div>
               </div>
             </div>
@@ -540,20 +554,29 @@ export default function LoginPage({ onLoginSuccess }) {
               borderRadius: '6px',
               border: '1px solid var(--border-default)'
             }}>
-              <Share2 size={14} color={connectivity.neo4j?.connected ? 'var(--success)' : 'var(--accent)'} />
+              <Share2 size={14} color={connectivity.api_online && (connectivity.graph?.connected || connectivity.services?.graph?.connected) ? 'var(--success)' : 'var(--warning)'} />
               <div style={{ overflow: 'hidden' }}>
                 <div style={{ color: 'var(--text-primary)', fontWeight: 600, fontSize: '0.7rem' }}>
-                  Neo4j Graph
+                  Graph Engine
                 </div>
-                <div style={{ color: connectivity.neo4j?.connected ? 'var(--success)' : 'var(--accent)', fontSize: '0.65rem', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
-                  {connectivity.neo4j?.connected ? 'Live Neo4j (7687)' : 'Graph Engine Active'}
+                <div style={{
+                  color: connectivity.api_online && (connectivity.graph?.connected || connectivity.services?.graph?.connected)
+                    ? 'var(--success)'
+                    : (connectivity.api_online ? 'var(--warning)' : '#ef4444'),
+                  fontSize: '0.65rem',
+                  whiteSpace: 'nowrap',
+                  textOverflow: 'ellipsis'
+                }}>
+                  {!connectivity.api_online
+                    ? 'OFFLINE'
+                    : (connectivity.services?.graph?.connected ? 'Live Neo4j' : 'Local Cache Only')}
                 </div>
               </div>
             </div>
           </div>
-        </div>
+        </aside>
 
-      </div>
+      </main>
 
       <style>{`
         @keyframes spin {
