@@ -27,8 +27,19 @@ import logging
 from datetime import datetime
 from typing import Dict, List, Any, Optional, Tuple
 
-import numpy as np
-from PIL import Image
+try:
+    import numpy as np
+    _HAS_NUMPY = True
+except ImportError:
+    np = None
+    _HAS_NUMPY = False
+
+try:
+    from PIL import Image
+    _HAS_PIL = True
+except ImportError:
+    Image = None
+    _HAS_PIL = False
 
 try:
     import cv2
