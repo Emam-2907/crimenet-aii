@@ -1,5 +1,6 @@
 {
   "framework": "vite",
+  "alias": ["crimenet-ai-emam-2907.vercel.app"],
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "headers": [
@@ -8,7 +9,7 @@
       "headers": [
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' blob:; worker-src 'self' blob:; child-src 'self' blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' http://localhost:8000 https://crimenet-ai-2.vercel.app https://*.basemaps.cartocdn.com https://basemaps.cartocdn.com https://images.unsplash.com blob:; frame-ancestors 'none';"
+          "value": "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' blob:; worker-src 'self' blob:; child-src 'self' blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' http://localhost:8000 https://crimenet-ai-emam-2907.vercel.app https://crimenet-ai-2-emam-2907.vercel.app https://*.basemaps.cartocdn.com https://basemaps.cartocdn.com https://tile.openstreetmap.org https://images.unsplash.com blob:; frame-ancestors 'none';"
         },
         {
           "key": "X-Frame-Options",
