@@ -113,14 +113,16 @@ function SettingsPanel() {
               GOOGLE GEMINI API KEY (OPTIONAL)
             </label>
             <input
-              type="password"
+              type="text"
+              autoComplete="off"
               value={geminiKey}
               onChange={e => setGeminiKey(e.target.value)}
               placeholder="AIzaSy..."
               style={{
                 width: '100%', padding: '10px 12px', background: 'var(--ink-2)',
                 border: '1px solid var(--b-soft)', borderRadius: '6px',
-                color: '#fff', fontSize: '0.84rem', fontFamily: 'var(--f-mono)'
+                color: '#fff', fontSize: '0.84rem', fontFamily: 'var(--f-mono)',
+                WebkitTextSecurity: 'disc'
               }}
             />
           </div>

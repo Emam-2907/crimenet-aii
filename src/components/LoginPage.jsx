@@ -308,13 +308,13 @@ export default function LoginPage({ onLoginSuccess }) {
             </div>
           )}
 
-          {/* Demo Persona Quick-Selector (1-Click Fill) */}
+          {/* Demo Persona Quick-Selector (1-Click Launch) */}
           <div style={{
             marginBottom: '18px',
             backgroundColor: 'var(--bg-elevated)',
             border: '1px solid var(--border-default)',
             borderRadius: '6px',
-            padding: '10px 12px'
+            padding: '12px 14px'
           }}>
             <div style={{
               fontSize: '0.68rem',
@@ -323,47 +323,72 @@ export default function LoginPage({ onLoginSuccess }) {
               fontWeight: 600,
               textTransform: 'uppercase',
               letterSpacing: '0.05em',
-              marginBottom: '8px',
+              marginBottom: '10px',
               display: 'flex',
               alignItems: 'center',
-              gap: '5px'
+              justifyContent: 'space-between'
             }}>
-              <User size={12} color="var(--accent)" />
-              DEMO PERSONAS (1-CLICK AUTO-FILL):
+              <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                <User size={12} color="var(--accent)" />
+                SELECT PERSONA TO LAUNCH (1-CLICK):
+              </span>
+              <span style={{ color: 'var(--success)', fontSize: '0.64rem' }}>
+                PASSWORDLESS
+              </span>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
               {demoPersonas.map((p) => (
                 <button
                   key={p.id}
                   type="button"
-                  onClick={() => handleSelectDemoPersona(p.id)}
+                  disabled={isLoading || authSuccess}
+                  onClick={async () => {
+                    setUserId(p.id);
+                    setErrorMsg('');
+                    setIsLoading(true);
+                    try {
+                      const data = await api.login(p.id, 'demo123');
+                      setAuthSuccess(true);
+                      setTimeout(() => {
+                        if (onLoginSuccess) {
+                          onLoginSuccess(data.user);
+                        }
+                      }, 500);
+                    } catch (err) {
+                      console.error('Launch error:', err);
+                      setErrorMsg(err.message || 'Authentication error.');
+                      setIsLoading(false);
+                    }
+                  }}
                   style={{
                     backgroundColor: userId === p.id ? 'rgba(59, 130, 246, 0.25)' : 'var(--bg-surface)',
                     border: userId === p.id ? '1px solid var(--accent)' : '1px solid var(--border-default)',
-                    borderRadius: '4px',
-                    padding: '6px 8px',
+                    borderRadius: '6px',
+                    padding: '8px 10px',
                     cursor: 'pointer',
                     textAlign: 'left',
                     display: 'flex',
                     flexDirection: 'column',
+                    gap: '2px',
                     transition: 'all 0.15s ease'
                   }}
                 >
-                  <span style={{ fontWeight: 600, fontSize: '0.72rem', color: userId === p.id ? '#93c5fd' : 'var(--text-primary)' }}>
+                  <span style={{ fontWeight: 600, fontSize: '0.74rem', color: userId === p.id ? '#93c5fd' : 'var(--text-primary)' }}>
                     {p.name}
                   </span>
-                  <span style={{ fontSize: '0.62rem', color: 'var(--text-muted)' }}>
+                  <span style={{ fontSize: '0.64rem', color: 'var(--text-muted)' }}>
                     {p.role} · {p.desc}
+                  </span>
+                  <span style={{ fontSize: '0.62rem', color: 'var(--accent)', marginTop: '2px', fontWeight: 500 }}>
+                    Launch →
                   </span>
                 </button>
               ))}
             </div>
           </div>
 
-          {/* Login Form (User ID & Password) */}
+          {/* Alternative: Enter Custom Persona ID (Passwordless) */}
           <form onSubmit={handleSubmit} onKeyDown={handleKeyDown}>
-
-            {/* Field 1: User ID */}
             <div style={{ marginBottom: '14px' }}>
               <label htmlFor="login-user-id" style={{
                 display: 'block',
@@ -374,7 +399,7 @@ export default function LoginPage({ onLoginSuccess }) {
                 color: 'var(--text-secondary)',
                 marginBottom: '6px'
               }}>
-                DEMO ACCOUNT / USER ID
+                OR ENTER CUSTOM DEMO PERSONA ID
               </label>
 
               <div style={{ position: 'relative' }}>
@@ -394,8 +419,7 @@ export default function LoginPage({ onLoginSuccess }) {
                 <input
                   id="login-user-id"
                   type="text"
-                  autoFocus
-                  autoComplete="username"
+                  autoComplete="off"
                   value={userId}
                   onChange={(e) => setUserId(e.target.value)}
                   placeholder="e.g. analyst.vance@crimenet.demo"
@@ -408,100 +432,7 @@ export default function LoginPage({ onLoginSuccess }) {
               </div>
             </div>
 
-            {/* Field 2: Password */}
-            <div style={{ marginBottom: '14px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                <label htmlFor="login-password" style={{
-                  fontSize: '0.72rem',
-                  fontFamily: 'var(--font-mono)',
-                  fontWeight: 600,
-                  letterSpacing: '0.04em',
-                  color: 'var(--text-secondary)'
-                }}>
-                  DEMO PASSWORD
-                </label>
-                {capsLockOn && (
-                  <span style={{ fontSize: '0.68rem', color: '#FBBF24', display: 'flex', alignItems: 'center', gap: '3px' }}>
-                    <Key size={12} /> CAPS LOCK ON
-                  </span>
-                )}
-              </div>
-
-              <div style={{ position: 'relative' }}>
-                <div style={{
-                  position: 'absolute',
-                  left: '12px',
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                  color: 'var(--text-muted)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  pointerEvents: 'none'
-                }}>
-                  <Lock size={16} />
-                </div>
-
-                <input
-                  id="login-password"
-                  type={showPassword ? 'text' : 'password'}
-                  autoComplete="current-password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Enter demo password (e.g. demo123)"
-                  disabled={isLoading || authSuccess}
-                  style={{
-                    width: '100%',
-                    padding: '10px 38px 10px 38px'
-                  }}
-                />
-
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  style={{
-                    position: 'absolute',
-                    right: '10px',
-                    top: '50%',
-                    transform: 'translateY(-50%)',
-                    background: 'none',
-                    border: 'none',
-                    color: 'var(--text-muted)',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    padding: '4px'
-                  }}
-                  aria-label={showPassword ? 'Hide password' : 'Show password'}
-                  title={showPassword ? 'Hide password' : 'Show password'}
-                >
-                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                </button>
-              </div>
-            </div>
-
-            {/* Remember Session */}
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              marginBottom: '18px',
-              fontSize: '0.78rem'
-            }}>
-              <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', color: 'var(--text-secondary)' }}>
-                <input
-                  type="checkbox"
-                  checked={rememberMe}
-                  onChange={(e) => setRememberMe(e.target.checked)}
-                  style={{ accentColor: 'var(--accent)', cursor: 'pointer' }}
-                />
-                <span>Remember session</span>
-              </label>
-              <span style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>
-                Default: <code>demo123</code>
-              </span>
-            </div>
-
-            {/* Submit Button */}
+            {/* Launch Button */}
             <button
               id="login-submit-btn"
               type="submit"
@@ -516,7 +447,7 @@ export default function LoginPage({ onLoginSuccess }) {
               {isLoading ? (
                 <>
                   <RefreshCw size={16} className="animate-spin" style={{ animation: 'spin 1s linear infinite' }} />
-                  <span>INITIALIZING PROTOTYPE...</span>
+                  <span>INITIALIZING WORKSTATION...</span>
                 </>
               ) : authSuccess ? (
                 <>
@@ -525,7 +456,7 @@ export default function LoginPage({ onLoginSuccess }) {
                 </>
               ) : (
                 <>
-                  <span>Launch Research Prototype</span>
+                  <span>Launch Custom Persona</span>
                   <ArrowRight size={16} />
                 </>
               )}

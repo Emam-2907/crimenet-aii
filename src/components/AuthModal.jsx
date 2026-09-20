@@ -69,29 +69,31 @@ export default function AuthModal({ onClose, onLoginSuccess }) {
         <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
           <div>
             <label style={{ display: 'block', fontSize: '0.76rem', color: 'var(--text-secondary)', marginBottom: '6px', fontWeight: 500 }}>
-              Official Agency Email / Badge ID
+              Demo Persona Email / Badge ID
             </label>
             <input
-              type="email"
+              type="text"
+              autoComplete="off"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
               style={{ width: '100%' }}
-              placeholder="e.g. agent.vance@crimenet.gov"
+              placeholder="e.g. analyst.vance@crimenet.demo"
             />
           </div>
 
           <div>
             <label style={{ display: 'block', fontSize: '0.76rem', color: 'var(--text-secondary)', marginBottom: '6px', fontWeight: 500 }}>
-              Cryptographic Keyphrase
+              Demo Access Code
             </label>
             <input
-              type="password"
+              type="text"
+              autoComplete="off"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              style={{ width: '100%' }}
-              placeholder="••••••••••••"
+              style={{ width: '100%', WebkitTextSecurity: 'disc' }}
+              placeholder="demo123"
             />
           </div>
 
