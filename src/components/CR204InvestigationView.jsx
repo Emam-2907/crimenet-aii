@@ -95,13 +95,15 @@ Ask a question or select a prompt below to investigate.`,
   ];
 
   return (
-    <main className="cr204-investigation-view min-h-screen" role="main" aria-label="CR-204 Geographic CCTV Investigation Matrix" style={{
+    <div className="cr204-investigation-view" role="region" aria-label="CR-204 Geographic CCTV Investigation Matrix" style={{
       display: 'flex',
       flexDirection: 'column',
-      gap: '14px',
+      gap: '16px',
       padding: '16px 20px',
       backgroundColor: 'var(--bg-main)',
-      color: 'var(--text-primary)'
+      color: 'var(--text-primary)',
+      width: '100%',
+      minHeight: '100%'
     }}>
 
       {/* ── Top Investigation Header ────────────────────────────────────── */}
@@ -182,18 +184,20 @@ Ask a question or select a prompt below to investigate.`,
       {/* ── Primary Investigation Workspace: Map + Camera Details ──────── */}
       <section aria-label="Geographic CCTV Network and Camera Dossier" style={{
         display: 'grid',
-        gridTemplateColumns: 'minmax(0, 1fr) 380px',
-        gap: '14px',
-        minHeight: '520px',
-        alignItems: 'stretch'
+        gridTemplateColumns: 'minmax(0, 1fr) 420px',
+        gap: '16px',
+        height: '620px',
+        minHeight: '560px',
+        alignItems: 'stretch',
+        width: '100%'
       }}>
-        {/* Dominant Real Geographic Map */}
-        <div style={{ minHeight: '520px', height: '100%' }}>
+        {/* Dominant Real Geographic Map Container */}
+        <div style={{ height: '620px', minHeight: '560px', position: 'relative', borderRadius: '8px', overflow: 'hidden' }}>
           <InvestigationMap />
         </div>
 
         {/* Dynamic Camera Details Panel */}
-        <div style={{ height: '100%', minHeight: '520px' }}>
+        <div style={{ height: '620px', minHeight: '560px', position: 'relative' }}>
           <CameraDetailsPanel />
         </div>
       </section>
@@ -594,7 +598,6 @@ Ask a question or select a prompt below to investigate.`,
         )}
 
       </section>
-
-    </main>
+    </div>
   );
 }

@@ -127,6 +127,79 @@ export default function Dashboard({ currentUser, onSwitchPersona }) {
         </div>
       </div>
 
+      {/* Tactical CCTV Surveillance & Geographic Investigation Map Hero Banner */}
+      <div style={{
+        background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(2, 132, 199, 0.18) 100%)',
+        border: '1.5px solid rgba(56, 189, 248, 0.45)',
+        borderRadius: '8px',
+        padding: '18px 24px',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        flexWrap: 'wrap',
+        gap: '16px',
+        boxShadow: '0 4px 20px rgba(0, 0, 0, 0.4)'
+      }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', maxWidth: '720px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#22c55e', boxShadow: '0 0 8px #22c55e' }} />
+            <span style={{ fontSize: '0.72rem', fontFamily: 'var(--font-mono)', color: '#38bdf8', fontWeight: 800, letterSpacing: '0.06em' }}>
+              PRIMARY CCTV SURVEILLANCE & GEOGRAPHIC TRACKING MATRIX
+            </span>
+            <span style={{
+              fontSize: '0.62rem', fontFamily: 'var(--font-mono)', padding: '1px 6px',
+              borderRadius: '3px', background: 'rgba(239, 68, 68, 0.2)', color: '#f87171', border: '1px solid rgba(239, 68, 68, 0.3)'
+            }}>
+              SYNTHETIC PROTOCOL
+            </span>
+          </div>
+          <h3 style={{ margin: 0, fontSize: '1.18rem', fontWeight: 700, color: '#ffffff' }}>
+            CR-204 Sector 4 CCTV Surveillance Network (12 Active Cameras)
+          </h3>
+          <p style={{ margin: 0, fontSize: '0.80rem', color: 'var(--text-secondary)', lineHeight: 1.45 }}>
+            Geographic camera tracking for <strong>South Pier Logistics Depot</strong>. Inspect live camera telemetry, recorded sightings of <strong>Vehicle V-102</strong>, ArcFace-ResNet50 candidate match <strong>FM-042 (87% similarity)</strong> on CCTV-04, and incident <strong>INC-204</strong> alarm.
+          </p>
+          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '4px' }}>
+            <span style={{ fontSize: '0.68rem', fontFamily: 'var(--font-mono)', padding: '2px 8px', borderRadius: '4px', background: 'rgba(34, 197, 94, 0.15)', color: '#4ade80', border: '1px solid rgba(34, 197, 94, 0.3)' }}>
+              ✓ 12 CAMERAS ONLINE / MONITORED
+            </span>
+            <span style={{ fontSize: '0.68rem', fontFamily: 'var(--font-mono)', padding: '2px 8px', borderRadius: '4px', background: 'rgba(56, 189, 248, 0.15)', color: '#38bdf8', border: '1px solid rgba(56, 189, 248, 0.3)' }}>
+              🎯 87% BIOMETRIC REVIEW (FM-042)
+            </span>
+            <span style={{ fontSize: '0.68rem', fontFamily: 'var(--font-mono)', padding: '2px 8px', borderRadius: '4px', background: 'rgba(251, 191, 36, 0.15)', color: '#fbbf24', border: '1px solid rgba(251, 191, 36, 0.3)' }}>
+              🚚 INFERRED TRANSIT ROUTE (V-102)
+            </span>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => navigate('cr204')}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            padding: '10px 20px',
+            background: 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)',
+            border: '1px solid #38bdf8',
+            borderRadius: '6px',
+            color: '#ffffff',
+            fontSize: '0.86rem',
+            fontWeight: 700,
+            cursor: 'pointer',
+            boxShadow: '0 0 16px rgba(56, 189, 248, 0.4)',
+            transition: 'all 0.15s ease'
+          }}
+          onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-1px)'}
+          onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
+        >
+          <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M9 6.75V15m6-6v8.25m.503 3.498l4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.284a2.25 2.25 0 00-2.006 0L2.622 5.72A1.125 1.125 0 002 6.727v11.454c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0l4.994 2.497c.317.158.69.158 1.006 0z" />
+          </svg>
+          <span>Launch CCTV Map & Live Cameras →</span>
+        </button>
+      </div>
+
       {/* Connected Case System Metrics */}
       <div style={{
         display: 'grid', gap: '12px',
@@ -255,16 +328,32 @@ export default function Dashboard({ currentUser, onSwitchPersona }) {
                       </span>
                     </td>
                     <td style={{ textAlign: 'center' }}>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          openCaseWorkspace(c);
-                        }}
-                        className="btn-secondary"
-                        style={{ padding: '3px 10px', fontSize: '0.70rem' }}
-                      >
-                        Workspace →
-                      </button>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+                        {c.id === 'CR-204' && (
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              navigate('cr204');
+                            }}
+                            className="btn-primary"
+                            style={{ padding: '3px 8px', fontSize: '0.68rem', backgroundColor: '#0284c7', borderColor: '#38bdf8' }}
+                            title="Open CR-204 CCTV Surveillance Map"
+                          >
+                            🗺️ CCTV Map
+                          </button>
+                        )}
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            openCaseWorkspace(c);
+                          }}
+                          className="btn-secondary"
+                          style={{ padding: '3px 10px', fontSize: '0.70rem' }}
+                        >
+                          Workspace →
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 );

@@ -4,9 +4,11 @@ import { api } from '../services/api.js';
 import EvidenceExplorer from './EvidenceExplorer.jsx';
 import EvidenceDetailModal from './EvidenceDetailModal.jsx';
 import ForensicFaceLab from './ForensicFaceLab.jsx';
+import CR204InvestigationView from './CR204InvestigationView.jsx';
 
 const TABS = [
   { id: 'OVERVIEW',          label: 'Overview' },
+  { id: 'CCTV_MAP',          label: '🗺️ CCTV & Map' },
   { id: 'EVIDENCE',          label: 'Evidence' },
   { id: 'FACE_INTELLIGENCE', label: 'Face Intelligence' },
   { id: 'ENTITIES',          label: 'Entities' },
@@ -211,11 +213,19 @@ export default function CaseWorkspace() {
         {/* Action Buttons Toolbar */}
         <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', paddingTop: '4px' }}>
           <button
+            onClick={() => setActiveCaseTab('CCTV_MAP')}
+            className="btn-primary"
+            style={{ fontSize: '0.78rem', padding: '7px 14px', backgroundColor: '#0284c7', borderColor: '#38bdf8' }}
+          >
+            🗺️ CCTV Surveillance Map
+          </button>
+
+          <button
             onClick={() => {
               setActiveCaseTab('EVIDENCE');
               setShowUploader(true);
             }}
-            className="btn-primary"
+            className="btn-secondary"
             style={{ fontSize: '0.78rem', padding: '7px 14px' }}
           >
             + Upload Evidence
@@ -318,6 +328,43 @@ export default function CaseWorkspace() {
               )}
             </div>
 
+            {/* CCTV Tactical Surveillance Banner in Case Overview */}
+            <div style={{
+              background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(2, 132, 199, 0.16) 100%)',
+              border: '1.5px solid rgba(56, 189, 248, 0.4)',
+              borderRadius: '10px',
+              padding: '16px 20px',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              flexWrap: 'wrap',
+              gap: '14px'
+            }}>
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                  <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#22c55e', boxShadow: '0 0 6px #22c55e' }} />
+                  <span style={{ fontSize: '0.68rem', fontFamily: 'var(--font-mono)', color: '#38bdf8', fontWeight: 800, letterSpacing: '0.04em' }}>
+                    SECTOR 4 GEOGRAPHIC CCTV NETWORK
+                  </span>
+                </div>
+                <h4 style={{ margin: 0, fontSize: '0.96rem', fontWeight: 700, color: '#fff' }}>
+                  12 Active CCTV Surveillance Cameras Monitored
+                </h4>
+                <p style={{ margin: '4px 0 0', fontSize: '0.76rem', color: 'var(--text-secondary)' }}>
+                  Interactive geographic tracking: Vehicle V-102 route, ArcFace 87% candidate match FM-042, and live camera telemetry.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setActiveCaseTab('CCTV_MAP')}
+                className="btn-primary"
+                style={{ fontSize: '0.78rem', padding: '8px 16px', backgroundColor: '#0284c7', borderColor: '#38bdf8' }}
+              >
+                Launch CCTV Map Tab →
+              </button>
+            </div>
+
             {/* Key Subjects Preview */}
             <div style={{ background: 'var(--ink-1)', border: '1px solid var(--b-faint)', borderRadius: '10px', padding: '18px 20px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
@@ -393,6 +440,13 @@ export default function CaseWorkspace() {
               ))}
             </div>
           </div>
+        </div>
+      )}
+
+      {/* ── TAB: CCTV & MAP ─────────────────────────────────────────────────── */}
+      {activeCaseTab === 'CCTV_MAP' && (
+        <div style={{ width: '100%', minHeight: '680px' }}>
+          <CR204InvestigationView />
         </div>
       )}
 

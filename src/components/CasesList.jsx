@@ -16,7 +16,7 @@ const PRIORITY_CONFIG = {
 };
 
 export default function CasesList() {
-  const { cases, openCaseWorkspace, setIsCreateCaseOpen } = useCIRA();
+  const { cases, openCaseWorkspace, setIsCreateCaseOpen, navigate } = useCIRA();
 
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL');
@@ -385,16 +385,32 @@ export default function CasesList() {
 
                     {/* Action */}
                     <td style={{ textAlign: 'center' }}>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          openCaseWorkspace(c);
-                        }}
-                        className="btn-secondary"
-                        style={{ padding: '3px 10px', fontSize: '0.70rem' }}
-                      >
-                        Workspace →
-                      </button>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+                        {c.id === 'CR-204' && (
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              navigate('cr204');
+                            }}
+                            className="btn-primary"
+                            style={{ padding: '3px 8px', fontSize: '0.68rem', backgroundColor: '#0284c7', borderColor: '#38bdf8' }}
+                            title="Open CR-204 CCTV Surveillance Map"
+                          >
+                            🗺️ CCTV Map
+                          </button>
+                        )}
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            openCaseWorkspace(c);
+                          }}
+                          className="btn-secondary"
+                          style={{ padding: '3px 10px', fontSize: '0.70rem' }}
+                        >
+                          Workspace →
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 );
@@ -505,9 +521,27 @@ export default function CasesList() {
                   fontSize: '0.74rem', color: 'var(--t-muted)', paddingTop: '6px', borderTop: '1px solid var(--b-faint)'
                 }}>
                   <span>Lead: <strong style={{ color: 'var(--t-secondary)' }}>{c.investigator?.split(' ').slice(-1)[0]}</strong></span>
-                  <span style={{ color: 'var(--green-light)', fontWeight: 600, fontSize: '0.72rem' }}>
-                    Open Workspace →
-                  </span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    {c.id === 'CR-204' && (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate('cr204');
+                        }}
+                        style={{
+                          padding: '2px 8px', borderRadius: '4px', background: 'rgba(56, 189, 248, 0.2)',
+                          color: '#38bdf8', border: '1px solid rgba(56, 189, 248, 0.4)', fontSize: '0.68rem',
+                          fontFamily: 'var(--font-mono)', fontWeight: 700, cursor: 'pointer'
+                        }}
+                      >
+                        🗺️ CCTV Map
+                      </button>
+                    )}
+                    <span style={{ color: 'var(--green-light)', fontWeight: 600, fontSize: '0.72rem' }}>
+                      Open Workspace →
+                    </span>
+                  </div>
                 </div>
               </div>
             );

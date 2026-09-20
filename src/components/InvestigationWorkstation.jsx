@@ -37,7 +37,7 @@ const IC = {
 // ── Primary Navigation Hierarchy ──────────────────────
 const PRIMARY_NAV = [
   { id: 'dashboard',  label: 'Dashboard',         icon: IC.dashboard },
-  { id: 'cr204',      label: 'CR-204 Matrix',     icon: IC.cr204 },
+  { id: 'cr204',      label: 'CCTV Tactical Map', icon: IC.cr204, badge: 'LIVE' },
   { id: 'cases',      label: 'Cases',             icon: IC.cases },
   { id: 'evidence',   label: 'Evidence',          icon: IC.evidence },
   { id: 'graph',      label: 'Graph Analysis',    icon: IC.graph },
@@ -54,7 +54,7 @@ const SECONDARY_TOOLS = [
 
 const PAGE_TITLES = {
   dashboard:  'Operational Dashboard & Command Summary',
-  cr204:      'CR-204 Unified Investigation Matrix (Synchronized Modules)',
+  cr204:      'CR-204 Geographic CCTV Surveillance & Map Investigation Matrix',
   cases:      'Investigation Case Registry',
   workspace:  'Dedicated Case Workspace',
   evidence:   'Evidence Intelligence Repository',
@@ -190,7 +190,7 @@ export default function InvestigationWorkstation({ currentUser, onLogout }) {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [setIsSearchOpen]);
 
-  const fullscreen = activePage === 'graph' || activePage === 'faceid';
+  const fullscreen = activePage === 'graph' || activePage === 'faceid' || activePage === 'cr204';
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden', background: 'var(--ink)', fontFamily: 'var(--f-body)' }}>
@@ -326,6 +326,22 @@ export default function InvestigationWorkstation({ currentUser, onLogout }) {
                   {item.icon}
                 </span>
                 {!collapsed && <span>{item.label}</span>}
+                {!collapsed && item.badge && (
+                  <span style={{
+                    marginLeft: 'auto',
+                    fontSize: '0.58rem',
+                    fontFamily: 'var(--font-mono)',
+                    fontWeight: 800,
+                    padding: '1px 6px',
+                    borderRadius: '4px',
+                    backgroundColor: 'rgba(56, 189, 248, 0.2)',
+                    color: '#38bdf8',
+                    border: '1px solid rgba(56, 189, 248, 0.4)',
+                    letterSpacing: '0.04em'
+                  }}>
+                    {item.badge}
+                  </span>
+                )}
               </button>
             );
           })}

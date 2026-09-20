@@ -221,7 +221,32 @@ export default function InvestigationMap() {
 
     mapRef.current = map;
 
+    // Auto-resize observers and timers to guarantee WebGL canvas never initializes with 0px or collapses
+    const resizeObserver = new ResizeObserver(() => {
+      if (mapRef.current) {
+        mapRef.current.resize();
+      }
+    });
+
+    if (mapContainerRef.current) {
+      resizeObserver.observe(mapContainerRef.current);
+    }
+
+    const t1 = setTimeout(() => mapRef.current?.resize(), 80);
+    const t2 = setTimeout(() => mapRef.current?.resize(), 250);
+    const t3 = setTimeout(() => mapRef.current?.resize(), 600);
+    const t4 = setTimeout(() => mapRef.current?.resize(), 1200);
+
+    const onWinResize = () => mapRef.current?.resize();
+    window.addEventListener('resize', onWinResize);
+
     return () => {
+      resizeObserver.disconnect();
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(t3);
+      clearTimeout(t4);
+      window.removeEventListener('resize', onWinResize);
       markersRef.current.forEach(m => m.remove());
       map.remove();
       mapRef.current = null;
@@ -554,15 +579,17 @@ export default function InvestigationMap() {
       position: 'relative',
       width: '100%',
       height: '100%',
-      minHeight: '520px',
+      minHeight: '560px',
       backgroundColor: '#020617',
       borderRadius: '8px',
       overflow: 'hidden',
-      border: '1px solid var(--border-default)'
+      border: '1px solid var(--border-default)',
+      display: 'flex',
+      flexDirection: 'column'
     }}>
 
       {/* MapLibre WebGL Canvas Container */}
-      <div ref={mapContainerRef} style={{ width: '100%', height: '100%' }} />
+      <div ref={mapContainerRef} style={{ width: '100%', height: '100%', minHeight: '560px', flex: 1 }} />
 
       {/* Persistent Synthetic Data Disclaimer */}
       <div style={{
@@ -745,6 +772,96 @@ export default function InvestigationMap() {
           <Eye size={12} />
           <span>Coverage Area</span>
         </button>
+      </div>
+
+      {/* Interactive Camera Quick-Select Ribbon */}
+      <div style={{
+        position: 'absolute',
+        top: '56px',
+        left: '14px',
+        right: '14px',
+        zIndex: 10,
+        display: 'flex',
+        alignItems: 'center',
+        gap: '6px',
+        overflowX: 'auto',
+        padding: '6px 10px',
+        backgroundColor: 'rgba(15, 23, 42, 0.94)',
+        border: '1px solid var(--border-default)',
+        borderRadius: '6px',
+        backdropFilter: 'blur(8px)',
+        boxShadow: '0 4px 16px rgba(0,0,0,0.6)'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '5px', marginRight: '6px', flexShrink: 0 }}>
+          <Camera size={14} color="var(--accent)" />
+          <span style={{ fontSize: '0.68rem', fontFamily: 'var(--font-mono)', color: 'var(--accent)', fontWeight: 700 }}>
+            CAMERAS ({allCameras.length}):
+          </span>
+        </div>
+
+        {allCameras.map(cam => {
+          const isSelected = selectedEntityId === cam.id;
+          const hasFaceMatch = cam.relatedFaceMatches?.length > 0 || cam.id === 'CCTV-04';
+          const hasVehicle = cam.relatedVehicles?.length > 0;
+          const hasIncident = cam.relatedIncidents?.length > 0;
+
+          const dotColor = cam.status === 'ONLINE' ? '#22c55e' :
+                           cam.status === 'WARNING' ? '#f59e0b' :
+                           cam.status === 'MAINTENANCE' ? '#eab308' : '#94a3b8';
+
+          return (
+            <button
+              key={cam.id}
+              type="button"
+              onClick={() => {
+                selectCamera(cam.id);
+                if (mapRef.current) {
+                  mapRef.current.flyTo({
+                    center: [cam.lng || cam.longitude, cam.lat || cam.latitude],
+                    zoom: 16.5,
+                    duration: 1000
+                  });
+                }
+              }}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '5px',
+                padding: '4px 8px',
+                borderRadius: '4px',
+                fontSize: '0.68rem',
+                fontFamily: 'var(--font-mono)',
+                fontWeight: isSelected ? 700 : 500,
+                border: isSelected ? '1.5px solid #38bdf8' : '1px solid var(--border-subtle)',
+                backgroundColor: isSelected ? 'rgba(2, 132, 199, 0.35)' : 'rgba(30, 41, 59, 0.65)',
+                color: isSelected ? '#ffffff' : 'var(--text-secondary)',
+                cursor: 'pointer',
+                whiteSpace: 'nowrap',
+                transition: 'all 0.15s ease',
+                boxShadow: isSelected ? '0 0 10px rgba(56, 189, 248, 0.6)' : 'none'
+              }}
+              title={`Inspect ${cam.name} (${cam.status})`}
+            >
+              <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: dotColor }} />
+              <span>{cam.cameraId || cam.id}</span>
+              {hasFaceMatch && (
+                <span style={{ fontSize: '0.58rem', padding: '1px 3px', borderRadius: '2px', backgroundColor: 'rgba(56, 189, 248, 0.25)', color: '#38bdf8', fontWeight: 700 }}>
+                  87% FACE
+                </span>
+              )}
+              {hasVehicle && !hasFaceMatch && (
+                <span style={{ fontSize: '0.58rem', padding: '1px 3px', borderRadius: '2px', backgroundColor: 'rgba(251, 191, 36, 0.25)', color: '#fbbf24', fontWeight: 700 }}>
+                  VEHICLE
+                </span>
+              )}
+              {hasIncident && (
+                <span style={{ fontSize: '0.58rem', padding: '1px 3px', borderRadius: '2px', backgroundColor: 'rgba(239, 68, 68, 0.25)', color: '#f87171', fontWeight: 700 }}>
+                  ALARM
+                </span>
+              )}
+            </button>
+          );
+        })}
       </div>
 
       {/* Filter Bar Floating at Bottom */}

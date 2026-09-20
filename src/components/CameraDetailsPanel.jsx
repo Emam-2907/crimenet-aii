@@ -101,6 +101,52 @@ export default function CameraDetailsPanel() {
         <div style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', marginTop: '2px' }}>
           Location: <strong>{selectedCamera.location_name || selectedCamera.locationId}</strong>
         </div>
+
+        {/* Telemetry and Coordinates */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '6px', fontSize: '0.66rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)', flexWrap: 'wrap' }}>
+          <span>GPS: {selectedCamera.lat?.toFixed(4) || '40.7142'}°N, {Math.abs(selectedCamera.lng || -74.0062).toFixed(4)}°W</span>
+          <span>·</span>
+          <span>{selectedCamera.resolution || '1080p Optical'}</span>
+          <span>·</span>
+          <span style={{ color: 'var(--accent)' }}>~{selectedCamera.coverageRadius || 85}m Coverage</span>
+        </div>
+
+        {/* Action Buttons */}
+        <div style={{ display: 'flex', gap: '6px', marginTop: '8px', flexWrap: 'wrap' }}>
+          <button
+            type="button"
+            onClick={() => selectEntity(selectedCamera.id, 'camera')}
+            style={{
+              padding: '3px 8px',
+              backgroundColor: 'var(--accent-dim)',
+              border: '1px solid var(--accent-border)',
+              borderRadius: '4px',
+              color: 'var(--accent)',
+              fontSize: '0.66rem',
+              fontWeight: 600,
+              cursor: 'pointer'
+            }}
+          >
+            🗺️ Center on Map
+          </button>
+          {selectedCamera.events?.[0]?.entityId && (
+            <button
+              type="button"
+              onClick={() => selectEntity(selectedCamera.events[0].entityId)}
+              style={{
+                padding: '3px 8px',
+                backgroundColor: 'var(--bg-elevated)',
+                border: '1px solid var(--border-default)',
+                borderRadius: '4px',
+                color: '#fff',
+                fontSize: '0.66rem',
+                cursor: 'pointer'
+              }}
+            >
+              🎯 Track {selectedCamera.events[0].entityId}
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Synthetic CCTV Preview with Unremovable Watermark */}
