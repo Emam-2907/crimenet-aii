@@ -1,65 +1,72 @@
 import React, { useState } from 'react';
 import { api } from '../services/api.js';
 import { useAuth } from '../context/AuthContext.jsx';
-import { Shield, Eye, EyeOff, Loader2, ArrowRight } from 'lucide-react';
+import { Eye, EyeOff, Loader2 } from 'lucide-react';
 
-const DEMO_ACCOUNTS = [
-  {
-    name: 'Agent Vance',
-    role: 'Analyst',
-    email: 'analyst.vance@crimenet.demo',
-    password: 'Crimenet2026!'
-  },
-  {
-    name: 'Det. Chen',
-    role: 'Investigator',
-    email: 'investigator.chen@crimenet.demo',
-    password: 'Investigator2026!'
-  },
-  {
-    name: 'Insp. Wright',
-    role: 'Supervisor',
-    email: 'supervisor.wright@crimenet.demo',
-    password: 'Supervisor2026!'
-  },
-  {
-    name: 'Admin',
-    role: 'Admin',
-    email: 'admin@crimenet.demo',
-    password: 'Admin2026!'
-  }
+const STARS = [
+  { top: '15%', left: '7%', size: '3px', opacity: 0.85, glow: true },
+  { top: '14%', left: '25%', size: '2.5px', opacity: 0.9, glow: true },
+  { top: '19%', left: '37%', size: '2px', opacity: 0.6 },
+  { top: '17%', left: '49%', size: '2px', opacity: 0.75 },
+  { top: '15%', left: '68%', size: '2.5px', opacity: 0.85 },
+  { top: '14%', left: '92%', size: '3px', opacity: 0.9, glow: true },
+  { top: '19%', left: '95%', size: '2px', opacity: 0.7 },
+  { top: '48%', left: '9%', size: '2px', opacity: 0.55 },
+  { top: '38%', left: '94%', size: '2px', opacity: 0.6 },
+  { top: '91%', left: '65%', size: '2.5px', opacity: 0.8 },
+  { top: '95%', left: '33%', size: '2px', opacity: 0.7 },
+  { top: '95%', left: '80%', size: '2.5px', opacity: 0.85 }
 ];
+
+const DEMO_PASSWORD_MAP = {
+  'analyst.vance@crimenet.demo': 'Crimenet2026!',
+  'investigator.chen@crimenet.demo': 'Investigator2026!',
+  'supervisor.wright@crimenet.demo': 'Supervisor2026!',
+  'admin@crimenet.demo': 'Admin2026!'
+};
+
+function normalizeIdentifier(input) {
+  const trimmed = (input || '').trim();
+  const lower = trimmed.toLowerCase();
+  if (lower === 'vance' || lower === 'analyst.vance' || lower === 'agent vance' || lower === 'marcus') {
+    return 'analyst.vance@crimenet.demo';
+  }
+  if (lower === 'chen' || lower === 'investigator.chen' || lower === 'det. chen' || lower === 'sarah') {
+    return 'investigator.chen@crimenet.demo';
+  }
+  if (lower === 'wright' || lower === 'supervisor.wright' || lower === 'insp. wright' || lower === 'thomas') {
+    return 'supervisor.wright@crimenet.demo';
+  }
+  if (lower === 'admin' || lower === 'administrator') {
+    return 'admin@crimenet.demo';
+  }
+  return trimmed;
+}
 
 export default function LoginPage({ onLoginSuccess }) {
   const auth = useAuth ? useAuth() : null;
 
-  const [email, setEmail] = useState(DEMO_ACCOUNTS[0].email);
-  const [password, setPassword] = useState(DEMO_ACCOUNTS[0].password);
+  const [id, setId] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [rememberMe, setRememberMe] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
-
-  const handleSelectDemo = (acc) => {
-    setEmail(acc.email);
-    setPassword(acc.password);
-    setErrorMsg('');
-  };
 
   const handleSubmit = async (e) => {
     if (e && e.preventDefault) e.preventDefault();
     setErrorMsg('');
 
-    const cleanEmail = email.trim();
-    const cleanPassword = password.trim();
+    const cleanId = id.trim();
+    let cleanPassword = password.trim();
 
-    if (!cleanEmail) {
-      setErrorMsg('Please enter your email address.');
+    if (!cleanId || !cleanPassword) {
+      setErrorMsg('Please enter username and password. (Demo: analyst.vance / Crimenet2026!)');
       return;
     }
-    if (!cleanPassword) {
-      setErrorMsg('Please enter your password.');
-      return;
+
+    const resolvedId = normalizeIdentifier(cleanId);
+    if (cleanPassword === 'demo123' && DEMO_PASSWORD_MAP[resolvedId]) {
+      cleanPassword = DEMO_PASSWORD_MAP[resolvedId];
     }
 
     setIsLoading(true);
@@ -67,9 +74,9 @@ export default function LoginPage({ onLoginSuccess }) {
     try {
       let loggedUser;
       if (auth && auth.login) {
-        loggedUser = await auth.login(cleanEmail, cleanPassword);
+        loggedUser = await auth.login(resolvedId, cleanPassword);
       } else {
-        const res = await api.login(cleanEmail, cleanPassword);
+        const res = await api.login(resolvedId, cleanPassword);
         loggedUser = res.user;
       }
 
@@ -78,375 +85,349 @@ export default function LoginPage({ onLoginSuccess }) {
       }
     } catch (err) {
       console.error('Login error:', err);
-      setErrorMsg(err.message || 'Incorrect email or password. Please try again.');
+      setErrorMsg(err.message || 'Incorrect ID or password. Please try again.');
       setIsLoading(false);
     }
   };
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      backgroundColor: '#090d16',
-      display: 'flex',
-      flexDirection: 'column',
-      justifyContent: 'space-between',
-      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
-      color: '#f1f5f9',
-      position: 'relative'
-    }}>
-      {/* Simulation Notice Ribbon */}
-      <div style={{
-        backgroundColor: '#1e293b',
-        color: '#94a3b8',
-        fontSize: '0.74rem',
-        textAlign: 'center',
-        padding: '8px 16px',
-        borderBottom: '1px solid #334155',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: '8px'
-      }}>
-        <span style={{
-          backgroundColor: '#3b82f6',
-          color: '#fff',
-          fontSize: '0.62rem',
-          fontWeight: 700,
-          padding: '2px 6px',
-          borderRadius: '4px',
-          letterSpacing: '0.04em'
-        }}>
-          DEMO
-        </span>
-        <span>
-          Simulation Environment — All people, cases, and data shown are fictional.
-        </span>
+    <div className="login-page">
+      {/* Background Star Specks */}
+      <div className="stars-container" aria-hidden="true">
+        {STARS.map((star, idx) => (
+          <span
+            key={idx}
+            style={{
+              position: 'absolute',
+              top: star.top,
+              left: star.left,
+              width: star.size,
+              height: star.size,
+              borderRadius: '50%',
+              backgroundColor: '#fff',
+              opacity: star.opacity,
+              boxShadow: star.glow ? '0 0 6px #93c5fd' : 'none',
+              pointerEvents: 'none'
+            }}
+          />
+        ))}
       </div>
 
-      {/* Main Container */}
-      <div style={{
-        flex: 1,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '24px 16px'
-      }}>
-        <div style={{
-          width: '100%',
-          maxWidth: '400px'
-        }}>
-          {/* Brand Header */}
-          <div style={{ textAlign: 'center', marginBottom: '28px' }}>
-            <div style={{
-              width: '44px',
-              height: '44px',
-              borderRadius: '10px',
-              backgroundColor: '#1d4ed8',
-              display: 'inline-flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: '#ffffff',
-              marginBottom: '14px',
-              boxShadow: '0 4px 12px rgba(29, 78, 216, 0.35)'
-            }}>
-              <Shield size={24} strokeWidth={2.2} />
-            </div>
-            <h1 style={{
-              fontSize: '1.45rem',
-              fontWeight: 700,
-              color: '#f8fafc',
-              margin: '0 0 6px 0',
-              letterSpacing: '-0.02em'
-            }}>
-              Sign in to CrimeNet
-            </h1>
-            <p style={{
-              fontSize: '0.86rem',
-              color: '#94a3b8',
-              margin: 0
-            }}>
-              Enter your email and password to access your account
-            </p>
-          </div>
+      {/* Login Card */}
+      <div className="login-card">
+        {/* Detective Logo */}
+        <div className="logo" role="img" aria-label="Detective logo">
+          🕵️
+        </div>
 
-          {/* Login Card */}
-          <div style={{
-            backgroundColor: '#111827',
-            border: '1px solid #1f2937',
-            borderRadius: '12px',
-            padding: '28px 24px',
-            boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.5)'
-          }}>
-            {/* Quick Demo Sign-in Pills */}
-            <div style={{ marginBottom: '20px' }}>
-              <label style={{
-                display: 'block',
-                fontSize: '0.72rem',
-                fontWeight: 600,
+        {/* Header */}
+        <h1>CRIMENET AI</h1>
+        <p className="subtitle">Criminal Network Analysis System</p>
+
+        {/* Form */}
+        <form onSubmit={handleSubmit} noValidate>
+          <label htmlFor="investigator-id">Investigator ID</label>
+          <input
+            id="investigator-id"
+            type="text"
+            placeholder="Enter your ID"
+            value={id}
+            onChange={(e) => setId(e.target.value)}
+            autoComplete="username"
+            disabled={isLoading}
+          />
+
+          <label htmlFor="investigator-password">Password</label>
+          <div style={{ position: 'relative' }}>
+            <input
+              id="investigator-password"
+              type={showPassword ? 'text' : 'password'}
+              placeholder="Enter your password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              autoComplete="current-password"
+              disabled={isLoading}
+              style={{ paddingRight: '40px' }}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              aria-label={showPassword ? 'Hide password' : 'Show password'}
+              style={{
+                position: 'absolute',
+                right: '10px',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                background: 'none',
+                border: 'none',
+                boxShadow: 'none',
                 color: '#64748b',
-                marginBottom: '8px',
-                textTransform: 'uppercase',
-                letterSpacing: '0.04em'
-              }}>
-                Demo accounts
-              </label>
-              <div style={{
-                display: 'grid',
-                gridTemplateColumns: '1fr 1fr',
-                gap: '6px'
-              }}>
-                {DEMO_ACCOUNTS.map((acc) => {
-                  const isSelected = email === acc.email;
-                  return (
-                    <button
-                      key={acc.email}
-                      type="button"
-                      onClick={() => handleSelectDemo(acc)}
-                      disabled={isLoading}
-                      style={{
-                        padding: '6px 10px',
-                        backgroundColor: isSelected ? '#1e293b' : '#0f172a',
-                        border: `1px solid ${isSelected ? '#3b82f6' : '#1e293b'}`,
-                        borderRadius: '6px',
-                        color: isSelected ? '#38bdf8' : '#94a3b8',
-                        fontSize: '0.75rem',
-                        fontWeight: 500,
-                        cursor: 'pointer',
-                        textAlign: 'left',
-                        transition: 'all 0.15s ease'
-                      }}
-                    >
-                      <div style={{ fontWeight: 600, color: isSelected ? '#f8fafc' : '#cbd5e1' }}>
-                        {acc.name}
-                      </div>
-                      <div style={{ fontSize: '0.66rem', color: '#64748b' }}>
-                        {acc.role}
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Error Message */}
-            {errorMsg && (
-              <div role="alert" style={{
-                backgroundColor: 'rgba(239, 68, 68, 0.1)',
-                border: '1px solid rgba(239, 68, 68, 0.25)',
-                color: '#f87171',
-                padding: '10px 12px',
-                borderRadius: '6px',
-                fontSize: '0.80rem',
-                marginBottom: '16px'
-              }}>
-                {errorMsg}
-              </div>
-            )}
-
-            {/* Form */}
-            <form onSubmit={handleSubmit}>
-              {/* Email */}
-              <div style={{ marginBottom: '16px' }}>
-                <label
-                  htmlFor="login-email"
-                  style={{
-                    display: 'block',
-                    fontSize: '0.82rem',
-                    fontWeight: 500,
-                    color: '#e2e8f0',
-                    marginBottom: '6px'
-                  }}
-                >
-                  Email address
-                </label>
-                <input
-                  id="login-email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="name@crimenet.demo"
-                  autoComplete="email"
-                  disabled={isLoading}
-                  style={{
-                    width: '100%',
-                    backgroundColor: '#0b0f19',
-                    border: '1px solid #334155',
-                    borderRadius: '6px',
-                    padding: '10px 12px',
-                    fontSize: '0.88rem',
-                    color: '#f8fafc',
-                    outline: 'none',
-                    boxSizing: 'border-box',
-                    transition: 'border-color 0.15s'
-                  }}
-                  onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
-                  onBlur={(e) => e.target.style.borderColor = '#334155'}
-                />
-              </div>
-
-              {/* Password */}
-              <div style={{ marginBottom: '18px' }}>
-                <div style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  marginBottom: '6px'
-                }}>
-                  <label
-                    htmlFor="login-password"
-                    style={{
-                      fontSize: '0.82rem',
-                      fontWeight: 500,
-                      color: '#e2e8f0'
-                    }}
-                  >
-                    Password
-                  </label>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const acc = DEMO_ACCOUNTS.find(a => a.email === email) || DEMO_ACCOUNTS[0];
-                      setPassword(acc.password);
-                    }}
-                    style={{
-                      background: 'none',
-                      border: 'none',
-                      color: '#38bdf8',
-                      fontSize: '0.74rem',
-                      cursor: 'pointer',
-                      padding: 0
-                    }}
-                  >
-                    Reset to default
-                  </button>
-                </div>
-
-                <div style={{ position: 'relative' }}>
-                  <input
-                    id="login-password"
-                    type={showPassword ? 'text' : 'password'}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Enter your password"
-                    autoComplete="current-password"
-                    disabled={isLoading}
-                    style={{
-                      width: '100%',
-                      backgroundColor: '#0b0f19',
-                      border: '1px solid #334155',
-                      borderRadius: '6px',
-                      padding: '10px 38px 10px 12px',
-                      fontSize: '0.88rem',
-                      color: '#f8fafc',
-                      outline: 'none',
-                      boxSizing: 'border-box',
-                      transition: 'border-color 0.15s'
-                    }}
-                    onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
-                    onBlur={(e) => e.target.style.borderColor = '#334155'}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    style={{
-                      position: 'absolute',
-                      right: '8px',
-                      top: '50%',
-                      transform: 'translateY(-50%)',
-                      background: 'none',
-                      border: 'none',
-                      color: '#64748b',
-                      cursor: 'pointer',
-                      padding: '4px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center'
-                    }}
-                  >
-                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                  </button>
-                </div>
-              </div>
-
-              {/* Remember me */}
-              <div style={{
+                padding: '4px',
+                margin: 0,
+                cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'space-between',
-                marginBottom: '22px'
-              }}>
-                <label style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  fontSize: '0.80rem',
-                  color: '#94a3b8',
-                  cursor: 'pointer'
-                }}>
-                  <input
-                    type="checkbox"
-                    checked={rememberMe}
-                    onChange={(e) => setRememberMe(e.target.checked)}
-                    style={{ cursor: 'pointer' }}
-                  />
-                  <span>Remember this device</span>
-                </label>
-              </div>
-
-              {/* Submit Button */}
-              <button
-                id="authenticate-workstation-btn"
-                type="submit"
-                disabled={isLoading}
-                style={{
-                  width: '100%',
-                  padding: '11px 16px',
-                  backgroundColor: '#2563eb',
-                  color: '#ffffff',
-                  border: 'none',
-                  borderRadius: '6px',
-                  fontSize: '0.90rem',
-                  fontWeight: 600,
-                  cursor: isLoading ? 'not-allowed' : 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '8px',
-                  transition: 'background-color 0.15s'
-                }}
-                onMouseEnter={(e) => {
-                  if (!isLoading) e.currentTarget.style.backgroundColor = '#1d4ed8';
-                }}
-                onMouseLeave={(e) => {
-                  if (!isLoading) e.currentTarget.style.backgroundColor = '#2563eb';
-                }}
-              >
-                {isLoading ? (
-                  <>
-                    <Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} />
-                    <span>Signing in...</span>
-                  </>
-                ) : (
-                  <>
-                    <span>Sign in</span>
-                    <ArrowRight size={16} />
-                  </>
-                )}
-              </button>
-            </form>
+                justifyContent: 'center'
+              }}
+            >
+              {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+            </button>
           </div>
-        </div>
+
+          {/* Left-Aligned Login Action Button */}
+          <button type="submit" disabled={isLoading} className="login-btn">
+            {isLoading ? (
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+                <Loader2 size={15} style={{ animation: 'spin 1s linear infinite' }} />
+                <span>LOGGING IN...</span>
+              </span>
+            ) : (
+              'LOGIN'
+            )}
+          </button>
+
+          {/* Feedback Message */}
+          {errorMsg && (
+            <p className="error-message" role="alert">
+              {errorMsg}
+            </p>
+          )}
+        </form>
+
+        {/* Footer Text */}
+        <p className="footer-text">AI-Powered Crime Investigation Platform</p>
       </div>
 
-      {/* Footer */}
-      <footer style={{
-        textAlign: 'center',
-        padding: '16px',
-        color: '#64748b',
-        fontSize: '0.74rem'
-      }}>
-        © 2026 CrimeNet AI · Prototype Demo · Fictional Benchmark Evaluation
-      </footer>
+      {/* Embedded Component Styles */}
+      <style>{`
+        .login-page {
+          background: radial-gradient(circle at 20% 20%, #173a70 0, transparent 35%),
+                      radial-gradient(circle at 80% 80%, #17245c 0, transparent 35%),
+                      #060b16;
+          justify-content: center;
+          align-items: center;
+          min-height: 100vh;
+          width: 100%;
+          display: flex;
+          position: relative;
+          overflow: hidden;
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+          margin: 0;
+          padding: 16px;
+          box-sizing: border-box;
+        }
+
+        .login-page::before {
+          content: "";
+          border: 1px solid rgba(79, 140, 255, 0.15);
+          border-radius: 50%;
+          width: 500px;
+          height: 500px;
+          animation: 5s ease-in-out infinite pulseRing;
+          position: absolute;
+          pointer-events: none;
+        }
+
+        .login-page::after {
+          content: "";
+          background: rgba(79, 140, 255, 0.08);
+          border-radius: 50%;
+          width: 280px;
+          height: 280px;
+          animation: 7s ease-in-out infinite loginFloatTwo;
+          position: absolute;
+          bottom: -100px;
+          right: -90px;
+          pointer-events: none;
+        }
+
+        .stars-container {
+          position: absolute;
+          inset: 0;
+          pointer-events: none;
+          z-index: 1;
+        }
+
+        .login-card {
+          z-index: 2;
+          -webkit-backdrop-filter: blur(18px);
+          backdrop-filter: blur(18px);
+          text-align: center;
+          background: rgba(17, 28, 46, 0.88);
+          border: 1px solid #2b4168;
+          border-radius: 20px;
+          width: 400px;
+          max-width: 100%;
+          padding: 40px 32px 30px;
+          box-sizing: border-box;
+          animation: 0.7s ease-out loginCardEnter;
+          position: relative;
+          box-shadow: 0 25px 70px rgba(0, 0, 0, 0.55);
+          transition: border-color 0.25s, box-shadow 0.25s, transform 0.25s;
+        }
+
+        .login-card:hover {
+          border-color: #4f8cff;
+          box-shadow: 0 25px 80px rgba(37, 87, 197, 0.2);
+        }
+
+        .login-card .logo {
+          margin-bottom: 12px;
+          font-size: 52px;
+          line-height: 1;
+          display: inline-block;
+          animation: 3s ease-in-out infinite logoFloat;
+          user-select: none;
+        }
+
+        .login-card h1 {
+          color: #ffffff;
+          margin: 0 0 8px 0;
+          font-size: 26px;
+          font-weight: 700;
+          letter-spacing: 0.04em;
+        }
+
+        .login-card .subtitle {
+          color: #9aa8bd;
+          margin: 0 0 28px 0;
+          font-size: 14px;
+        }
+
+        .login-card form {
+          text-align: left;
+        }
+
+        .login-card label {
+          color: #dce2ef;
+          margin-top: 18px;
+          margin-bottom: 8px;
+          font-size: 14px;
+          font-weight: 500;
+          display: block;
+        }
+
+        .login-card form > label:first-of-type {
+          margin-top: 0;
+        }
+
+        .login-card input {
+          color: #ffffff;
+          background: rgba(8, 17, 31, 0.9);
+          border: 1px solid #30425f;
+          border-radius: 10px;
+          outline: none;
+          width: 100%;
+          padding: 13px 15px;
+          font-size: 14px;
+          box-sizing: border-box;
+          transition: all 0.25s ease;
+          font-family: inherit;
+        }
+
+        .login-card input:focus {
+          border-color: #5b8cff;
+          box-shadow: 0 0 0 3px rgba(91, 140, 255, 0.15), 0 0 18px rgba(91, 140, 255, 0.12);
+          transform: translateY(-1px);
+        }
+
+        .login-card input::placeholder {
+          color: #5a6e8c;
+        }
+
+        .login-card .login-btn {
+          color: #ffffff;
+          cursor: pointer;
+          background: linear-gradient(135deg, #3568e8, #2457c5);
+          border: none;
+          border-radius: 10px;
+          margin-top: 24px;
+          padding: 12px 28px;
+          font-size: 14px;
+          font-weight: 700;
+          letter-spacing: 0.05em;
+          box-shadow: 0 8px 25px rgba(36, 87, 197, 0.25);
+          transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
+          display: inline-block;
+          font-family: inherit;
+        }
+
+        .login-card .login-btn:hover:not(:disabled) {
+          transform: translateY(-2px);
+          box-shadow: 0 8px 22px rgba(53, 104, 232, 0.4);
+        }
+
+        .login-card .login-btn:active:not(:disabled) {
+          transform: scale(0.97);
+        }
+
+        .login-card .login-btn:disabled {
+          opacity: 0.7;
+          cursor: not-allowed;
+        }
+
+        .login-card .error-message {
+          color: #f87171;
+          text-align: center;
+          background: rgba(239, 68, 68, 0.1);
+          border: 1px solid rgba(239, 68, 68, 0.25);
+          border-radius: 8px;
+          margin-top: 18px;
+          margin-bottom: 0;
+          padding: 10px 12px;
+          font-size: 13px;
+          animation: 0.3s ease-out messageFade;
+        }
+
+        .login-card .footer-text {
+          color: #69758f;
+          margin-top: 26px;
+          margin-bottom: 0;
+          font-size: 12px;
+          text-align: center;
+          user-select: none;
+        }
+
+        @keyframes pulseRing {
+          0%, 100% { opacity: 0.2; transform: scale(0.85); }
+          50% { opacity: 0.5; transform: scale(1.15); }
+        }
+
+        @keyframes loginFloatTwo {
+          0%, 100% { transform: translate(0, 0); }
+          50% { transform: translate(-20px, -25px); }
+        }
+
+        @keyframes loginCardEnter {
+          0% { opacity: 0; transform: translateY(25px) scale(0.97); }
+          100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        @keyframes logoFloat {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-5px); }
+        }
+
+        @keyframes messageFade {
+          0% { opacity: 0; transform: translateY(6px); }
+          100% { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 480px) {
+          .login-card {
+            padding: 32px 22px 24px;
+            border-radius: 18px;
+          }
+          .login-card h1 {
+            font-size: 24px;
+          }
+        }
+      `}</style>
     </div>
   );
 }
