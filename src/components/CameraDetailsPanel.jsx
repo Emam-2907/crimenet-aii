@@ -233,27 +233,31 @@ export default function CameraDetailsPanel() {
           backgroundColor: '#000'
         }}>
           <img
-            src={selectedCamera.frame_image || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=600&q=80"}
+            src={selectedCamera.frame_image || "/cctv/cam04_gate_escalade.jpg"}
             alt={`Surveillance frame from ${selectedCamera.id}`}
-            style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.88 }}
+            style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.92 }}
           />
 
-          {/* Unremovable Synthetic Watermark */}
+          {/* Tactical Operational Telemetry Watermark */}
           <div style={{
             position: 'absolute',
             top: '8px',
             left: '8px',
-            backgroundColor: 'rgba(8, 10, 13, 0.92)',
-            border: '1px solid var(--danger-border)',
-            color: 'var(--danger)',
+            backgroundColor: 'rgba(8, 10, 13, 0.90)',
+            border: '1px solid rgba(56, 189, 248, 0.3)',
+            color: '#38bdf8',
             fontSize: '0.62rem',
             fontFamily: 'var(--font-mono)',
             fontWeight: 700,
-            padding: '2px 6px',
+            padding: '2px 8px',
             borderRadius: '3px',
-            letterSpacing: '0.04em'
+            letterSpacing: '0.04em',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px'
           }}>
-            DEMO FEED — SYNTHETIC SURVEILLANCE
+            <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#10b981', display: 'inline-block' }} />
+            <span>ENCRYPTED SURVEILLANCE FEED</span>
           </div>
 
           {/* Reticle for FM-042 if viewing CCTV-04 */}

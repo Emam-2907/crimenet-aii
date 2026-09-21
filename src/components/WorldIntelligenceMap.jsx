@@ -8,32 +8,46 @@ import {
   X, Radio, Navigation, Anchor, DollarSign, Crosshair
 } from 'lucide-react';
 
-// Free Tile Provider Definitions (Zero API Key Required)
+// High-Resolution Geospatial Tile Definitions (Zero API Key Required / Unwatermarked)
 const MAP_STYLES = {
-  cartoDark: {
-    id: 'cartoDark',
-    name: 'Carto Dark Matter (Obsidian Tactical)',
+  satellite: {
+    id: 'satellite',
+    name: 'Satellite Reconnaissance (Esri Orthophoto)',
     version: 8,
     sources: {
-      'carto-dark': {
+      'esri-satellite': {
         type: 'raster',
         tiles: [
-          'https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png',
-          'https://b.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png',
-          'https://c.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png',
-          'https://d.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png'
+          'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
         ],
         tileSize: 256,
-        attribution: '© OpenStreetMap contributors, © CARTO'
+        maxzoom: 19,
+        attribution: '© Esri, Maxar'
+      },
+      'esri-transport': {
+        type: 'raster',
+        tiles: [
+          'https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}'
+        ],
+        tileSize: 256,
+        maxzoom: 19,
+        attribution: ''
       }
     },
     layers: [
       {
-        id: 'carto-dark-layer',
+        id: 'esri-sat-layer',
         type: 'raster',
-        source: 'carto-dark',
+        source: 'esri-satellite',
         minzoom: 0,
-        maxzoom: 20
+        maxzoom: 19
+      },
+      {
+        id: 'esri-trans-layer',
+        type: 'raster',
+        source: 'esri-transport',
+        minzoom: 0,
+        maxzoom: 19
       }
     ]
   },
@@ -48,6 +62,7 @@ const MAP_STYLES = {
           'https://tile.openstreetmap.org/{z}/{x}/{y}.png'
         ],
         tileSize: 256,
+        maxzoom: 19,
         attribution: '© OpenStreetMap contributors'
       }
     },
@@ -61,29 +76,28 @@ const MAP_STYLES = {
       }
     ]
   },
-  cartoVoyager: {
-    id: 'cartoVoyager',
-    name: 'Carto Voyager (High Contrast Maritime)',
+  esriStreet: {
+    id: 'esriStreet',
+    name: 'Esri World Street Map (Maritime & Logistics)',
     version: 8,
     sources: {
-      'carto-voyager': {
+      'esri-street': {
         type: 'raster',
         tiles: [
-          'https://a.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png',
-          'https://b.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png',
-          'https://c.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png'
+          'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}'
         ],
         tileSize: 256,
-        attribution: '© OpenStreetMap contributors, © CARTO'
+        maxzoom: 19,
+        attribution: '© Esri'
       }
     },
     layers: [
       {
-        id: 'carto-voyager-layer',
+        id: 'esri-street-layer',
         type: 'raster',
-        source: 'carto-voyager',
+        source: 'esri-street',
         minzoom: 0,
-        maxzoom: 20
+        maxzoom: 19
       }
     ]
   }
@@ -103,7 +117,7 @@ export const DEFAULT_GLOBAL_NODES = [
     lng: -74.0060,
     interpol: 'RED_NOTICE_A-4891',
     details: 'Orchestrates ransomware extortion, avionics smuggling vectors, and multi-tier offshore escrow laundering networks. Subject of FBI/Interpol Red Notice.',
-    mugshot: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=240&q=80',
+    mugshot: '/cctv/voronin_mugshot.jpg',
     color: '#9B3D45'
   },
   {
@@ -380,7 +394,7 @@ export default function WorldIntelligenceMap({
   const mapRef = useRef(null);
   const markersRef = useRef([]);
 
-  const [activeStyle, setActiveStyle] = useState('cartoDark');
+  const [activeStyle, setActiveStyle] = useState('satellite');
   const [activeRegion, setActiveRegion] = useState('GLOBAL');
   const [activeInspectNode, setActiveInspectNode] = useState(() => {
     if (selectedEntity && selectedEntity.lat != null && selectedEntity.lng != null) {
@@ -788,9 +802,9 @@ export default function WorldIntelligenceMap({
                 cursor: 'pointer'
               }}
             >
-              <option value="cartoDark">CARTO Dark Matter (Free CDN)</option>
+              <option value="satellite">Satellite Recon (Esri Aerial)</option>
               <option value="osmStandard">OpenStreetMap Global (Free)</option>
-              <option value="cartoVoyager">CARTO Maritime High-Contrast</option>
+              <option value="esriStreet">Esri Maritime & Logistics</option>
             </select>
           </div>
 
@@ -862,7 +876,7 @@ export default function WorldIntelligenceMap({
           <div>GLOBAL HUBS: <strong style={{ color: 'var(--blue-light)' }}>{filteredNodes.length}</strong></div>
           <div>CORRIDORS: <strong style={{ color: 'var(--accent)' }}>{GLOBAL_CORRIDORS.length} ACTIVE</strong></div>
           <div style={{ color: 'var(--b-soft)' }}>|</div>
-          <div style={{ color: 'var(--green-light)' }}>● LIVE OPENSTREETMAP / CARTO FREE API</div>
+          <div style={{ color: 'var(--green-light)' }}>● LIVE GLOBAL GEO-INTEL & SATELLITE MATRIX</div>
         </div>
 
         {/* Global Search Bar Floating on Map */}

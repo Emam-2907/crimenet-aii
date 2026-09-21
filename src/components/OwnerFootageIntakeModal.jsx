@@ -27,7 +27,7 @@ export default function OwnerFootageIntakeModal({ isOpen, onClose, onInjectIntoC
     lng: -74.0048,
     timestamp: '2026-09-18 14:12:44 UTC',
     fileLabel: 'CAM-PVT-0412_1412UTC_SURVEILLANCE.mp4',
-    frameImage: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=800&q=80',
+    frameImage: '/cctv/cam07_corridor.jpg',
     suspectMatch: {
       name: 'Viktor Voronin',
       alias: 'The Architect / Cypher-9',
@@ -648,7 +648,7 @@ export default function OwnerFootageIntakeModal({ isOpen, onClose, onInjectIntoC
                         border: '1px solid rgba(192, 74, 82, 0.4)'
                       }}>
                         <img
-                          src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=120&q=80"
+                          src="/cctv/voronin_mugshot.jpg"
                           alt="Suspect Gallery Mugshot"
                           style={{ width: '48px', height: '48px', borderRadius: '4px', objectFit: 'cover' }}
                         />

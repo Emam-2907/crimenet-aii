@@ -505,4 +505,18 @@ textarea,
   }
 }
 
+/* ── Tactical Map Filters (Zero Watermark / Unwatermarked High-Res Basemaps) ── */
+.tactical-dark-filter .maplibregl-canvas {
+  filter: invert(92%) hue-rotate(180deg) brightness(85%) contrast(115%);
+}
+
+.tactical-satellite-filter .maplibregl-canvas {
+  filter: brightness(92%) contrast(108%);
+}
+
+.tactical-street-filter .maplibregl-canvas {
+  filter: none;
+}
+
+
 

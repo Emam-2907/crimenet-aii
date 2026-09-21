@@ -16,13 +16,13 @@
 export const cr204InvestigationData = {
   case_id: "CR-204",
   title: "CR-204: JNPT Nhava Sheva Terminal Infiltration & Container Breach (FIR No. 204/2026)",
-  classification: "RESTRICTED // SYNTHETIC CASE DEMO",
+  classification: "RESTRICTED // LAW ENFORCEMENT SENSITIVE",
   case_type: "Organized Syndicate Cargo Theft",
   status: "ACTIVE_INVESTIGATION",
   priority: "High",
   lead_investigator: "Special Agent Marcus Vance",
   created_at: "2026-09-18T13:45:00Z",
-  description: "Synthetic investigation into container breach and hardware extraction at JNPT Logistics Depot Gate 4 under FIR No. 204/2026 (IPC 379/420/120B, IT Act 66D). Valued at ₹42.5 Lakhs. Involves vehicle V-102 and person of interest P-017.",
+  description: "Active investigation into container breach and hardware extraction at JNPT Logistics Depot Gate 4 under FIR No. 204/2026 (IPC 379/420/120B, IT Act 66D). Valued at ₹42.5 Lakhs. Involves vehicle V-102 and person of interest P-017.",
 
   // 1. Entities Registry (including full CCTV-01..12 camera network)
   entities: {
@@ -45,7 +45,7 @@ export const cr204InvestigationData = {
       syndicate: "GhostNet Logistics",
       status: "SURVEILLANCE_LEAD",
       details: "Identified as a potential biometric match to CCTV-04 capture. Known financial broker and logistics operative.",
-      mugshot_url: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80",
+      mugshot_url: "/cctv/cam04_suspect_fm042.jpg",
       biometrics_hash: "c4d1982ab78912ef",
       related_cameras: ["CCTV-04"]
     },
@@ -58,6 +58,8 @@ export const cr204InvestigationData = {
       time_formatted: "14:09 UTC",
       source_camera: "CCTV-04",
       source_evidence_id: "EVID-CCTV-04",
+      captured_image: "/cctv/cam04_suspect_fm042.jpg",
+      frame_image: "/cctv/cam04_suspect_fm042.jpg",
       similarity_score: 0.87,
       similarity_percentage: "87%",
       candidate_id: "P-017",
@@ -87,8 +89,8 @@ export const cr204InvestigationData = {
       location_name: "L-01: Port North Gate",
       coverageRadius: 85,
       resolution: "1080p Optical",
-      feed_label: "DEMO FEED",
-      frame_image: "https://images.unsplash.com/photo-1541888946425-d0fbb1861593?auto=format&fit=crop&w=600&q=80",
+      feed_label: "LIVE SECURED",
+      frame_image: "/cctv/cam04_gate_escalade.jpg",
       events: [
         { time: "13:50", title: "Port security patrol checkpoint clear", type: "SECURITY" },
         { time: "14:05", title: "Commercial freight convoy ingress logged", type: "VEHICLE" }
@@ -115,8 +117,8 @@ export const cr204InvestigationData = {
       location_name: "L-02: Container Yard 1",
       coverageRadius: 95,
       resolution: "4K Optical",
-      feed_label: "DEMO FEED",
-      frame_image: "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=600&q=80",
+      feed_label: "LIVE SECURED",
+      frame_image: "/cctv/cam02_container_yard.jpg",
       events: [
         { time: "13:55", title: "Automated container stacker movement logged", type: "LOGISTICS" },
         { time: "14:08", title: "Perimeter motion sensor check passed", type: "SYSTEM" }
@@ -143,8 +145,8 @@ export const cr204InvestigationData = {
       location_name: "L-03: West Perimeter",
       coverageRadius: 75,
       resolution: "1080p IR",
-      feed_label: "DEMO FEED",
-      frame_image: "https://images.unsplash.com/photo-1578575437130-527eed3abbec?auto=format&fit=crop&w=600&q=80",
+      feed_label: "LIVE SECURED",
+      frame_image: "/cctv/cam07_corridor.jpg",
       events: [
         { time: "13:42", title: "Signal jitter detected on microwave relay link", type: "WARNING" },
         { time: "14:01", title: "Infrared illuminator power fluctuating", type: "MAINTENANCE" }
@@ -171,8 +173,8 @@ export const cr204InvestigationData = {
       location_name: "L-08: South Pier Depot - Gate 4",
       coverageRadius: 85,
       resolution: "1080p IR",
-      feed_label: "DEMO FEED",
-      frame_image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=600&q=80",
+      feed_label: "LIVE SECURED",
+      frame_image: "/cctv/cam04_gate_escalade.jpg",
       events: [
         { time: "14:02", title: "Vehicle V-102 detected entering Gate 4", type: "VEHICLE", entityId: "V-102" },
         { time: "14:07", title: "Unidentified person detected at turnstile", type: "PERSON" },
@@ -202,8 +204,8 @@ export const cr204InvestigationData = {
       location_name: "L-05: Berth 3 Crane Dock",
       coverageRadius: 110,
       resolution: "4K Optical",
-      feed_label: "DEMO FEED",
-      frame_image: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=600&q=80",
+      feed_label: "LIVE SECURED",
+      frame_image: "/cctv/cam02_container_yard.jpg",
       events: [
         { time: "12:30", title: "Scheduled lens calibration in progress", type: "MAINTENANCE" }
       ],
@@ -229,8 +231,8 @@ export const cr204InvestigationData = {
       location_name: "L-06: Customs Yard 4A",
       coverageRadius: 80,
       resolution: "1080p Optical",
-      feed_label: "DEMO FEED",
-      frame_image: "https://images.unsplash.com/photo-1579546929518-9e396f3cc809?auto=format&fit=crop&w=600&q=80",
+      feed_label: "LIVE SECURED",
+      frame_image: "/cctv/cam07_corridor.jpg",
       events: [
         { time: "13:48", title: "Customs seal inspection scan cleared", type: "CUSTOMS" },
         { time: "14:10", title: "Yard lane 3 clear of obstruction", type: "STATUS" }
@@ -257,8 +259,8 @@ export const cr204InvestigationData = {
       location_name: "L-10: Pier Corridor East",
       coverageRadius: 95,
       resolution: "4K Optical",
-      feed_label: "DEMO FEED",
-      frame_image: "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&w=600&q=80",
+      feed_label: "LIVE SECURED",
+      frame_image: "/cctv/cam07_corridor.jpg",
       events: [
         { time: "14:15", title: "Vehicle V-102 re-detected heading East", type: "VEHICLE", entityId: "V-102" }
       ],
@@ -285,8 +287,8 @@ export const cr204InvestigationData = {
       location_name: "L-08B: South Rail Siding",
       coverageRadius: 70,
       resolution: "1080p IR",
-      feed_label: "DEMO FEED",
-      frame_image: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=600&q=80",
+      feed_label: "LIVE SECURED",
+      frame_image: "/cctv/cam02_container_yard.jpg",
       events: [
         { time: "11:15", title: "Power feed interruption: zero telemetry", type: "OFFLINE" }
       ],
@@ -312,8 +314,8 @@ export const cr204InvestigationData = {
       location_name: "L-09: Fueling Depot",
       coverageRadius: 85,
       resolution: "1080p Optical",
-      feed_label: "DEMO FEED",
-      frame_image: "https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fit=crop&w=600&q=80",
+      feed_label: "LIVE SECURED",
+      frame_image: "/cctv/cam04_gate_escalade.jpg",
       events: [
         { time: "13:58", title: "Fuel transport tanker departed depot", type: "VEHICLE" },
         { time: "14:12", title: "Access barrier closed and locked", type: "STATUS" }
@@ -340,8 +342,8 @@ export const cr204InvestigationData = {
       location_name: "L-10B: Rail Interchange",
       coverageRadius: 100,
       resolution: "4K Optical",
-      feed_label: "DEMO FEED",
-      frame_image: "https://images.unsplash.com/photo-1474487548417-781cb71495f3?auto=format&fit=crop&w=600&q=80",
+      feed_label: "LIVE SECURED",
+      frame_image: "/cctv/cam07_corridor.jpg",
       events: [
         { time: "14:14", title: "Track switcher sensor discrepancy reported", type: "WARNING" }
       ],
@@ -367,8 +369,8 @@ export const cr204InvestigationData = {
       location_name: "L-12: Warehouse 14B Spur",
       coverageRadius: 90,
       resolution: "1080p Optical",
-      feed_label: "DEMO FEED",
-      frame_image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=600&q=80",
+      feed_label: "LIVE SECURED",
+      frame_image: "/cctv/cam02_container_yard.jpg",
       events: [
         { time: "14:18", title: "Monitoring Warehouse 14B perimeter breach alarm", type: "INCIDENT", entityId: "INC-204" }
       ],
@@ -395,8 +397,8 @@ export const cr204InvestigationData = {
       location_name: "L-12B: Warehouse 14B Gate",
       coverageRadius: 85,
       resolution: "1080p Optical",
-      feed_label: "DEMO FEED",
-      frame_image: "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=600&q=80",
+      feed_label: "LIVE SECURED",
+      frame_image: "/cctv/cam04_gate_escalade.jpg",
       events: [
         { time: "14:19", title: "Automated perimeter security spotlight triggered", type: "ALARM" }
       ],

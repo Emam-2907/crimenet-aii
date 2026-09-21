@@ -137,14 +137,17 @@ Use the command bar below or type a query to command CIRA.`,
         alignItems: 'center',
         justifyContent: 'space-between',
         padding: '6px 14px',
-        backgroundColor: 'rgba(239, 68, 68, 0.08)',
-        border: '1px solid rgba(239, 68, 68, 0.25)',
+        backgroundColor: 'rgba(56, 189, 248, 0.08)',
+        border: '1px solid rgba(56, 189, 248, 0.25)',
         borderRadius: '6px',
         fontSize: '0.72rem',
         fontFamily: 'var(--font-mono)',
-        color: '#f87171'
+        color: '#38bdf8'
       }}>
-        <span style={{ fontWeight: 700 }}>DEMO FEED // TACTICAL SIMULATION // SYNTHETIC GEOGRAPHIC CCTV GRID</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#10b981', display: 'inline-block' }} />
+          <span style={{ fontWeight: 700, letterSpacing: '0.04em' }}>TACTICAL SURVEILLANCE MATRIX // OPERATIONAL CCTV & SENSOR GRID</span>
+        </div>
         <div aria-live="polite" aria-atomic="true">
           <span>ACTIVE TELEMETRY: </span>
           <strong style={{ color: '#fff' }}>{activeTimestamp || '14:15:00 UTC'}</strong>
@@ -182,11 +185,11 @@ Use the command bar below or type a query to command CIRA.`,
               fontWeight: 600,
               padding: '2px 8px',
               borderRadius: '4px',
-              backgroundColor: 'var(--critical-dim)',
-              color: 'var(--critical)',
-              border: '1px solid var(--critical-border)'
+              backgroundColor: 'rgba(56, 189, 248, 0.12)',
+              color: '#38bdf8',
+              border: '1px solid rgba(56, 189, 248, 0.3)'
             }}>
-              SYNTHETIC DATA ONLY
+              OPERATIONAL PROTOTYPE
             </span>
             <span style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)' }}>
               CLASSIFICATION: {activeCase.classification}

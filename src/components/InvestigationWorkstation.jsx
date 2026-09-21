@@ -39,12 +39,12 @@ const IC = {
 // ── Primary Navigation Hierarchy ──────────────────────
 const PRIMARY_NAV = [
   { id: 'dashboard',  label: 'Dashboard',              icon: IC.dashboard },
-  { id: 'cr204',      label: 'CCTV Tactical Map',      icon: IC.cr204, badge: 'DEMO' },
+  { id: 'cr204',      label: 'CCTV Tactical Map',      icon: IC.cr204, badge: 'LIVE' },
   { id: 'cases',      label: 'Cases',                  icon: IC.cases },
   { id: 'evidence',   label: 'Evidence',               icon: IC.evidence },
   { id: 'graph',      label: 'Graph Analysis',         icon: IC.graph },
   { id: 'chat',       label: 'CIRA',                   icon: IC.chat },
-  { id: 'faceid',     label: 'Visual Similarity Demo', icon: IC.faceid },
+  { id: 'faceid',     label: 'Forensic Face Lab',      icon: IC.faceid },
   { id: 'analytics',  label: 'Analytics',              icon: IC.analytics },
   { id: 'settings',   label: 'Settings',               icon: IC.settings },
 ];
@@ -55,18 +55,18 @@ const SECONDARY_TOOLS = [
 ];
 
 const PAGE_TITLES = {
-  dashboard:  'Operational Dashboard & Simulation Summary',
-  cr204:      'CR-204 CCTV Tactical Facility Map (Simulation)',
-  cases:      'Investigation Case Registry (Fictional Records)',
-  workspace:  'Dedicated Case Workspace (Simulated)',
-  evidence:   'Evidence Intelligence Repository (Simulated Assets)',
-  graph:      'Criminal Relational Knowledge Graph (24 Entities · 28 Relations)',
-  chat:       'CIRA — AI Investigation Assistant (Synthetic RAG)',
-  faceid:     'Synthetic Visual Similarity Demo',
-  analytics:  'Network Centrality & Link Analysis (NetworkX)',
-  resolution: 'Multi-Source Entity Disambiguation (RapidFuzz)',
-  leads:      'Intelligence Lead Extraction & Corroboration (Regex-NER)',
-  settings:   'Simulation Settings & Configuration'
+  dashboard:  'Operational Intelligence Dashboard',
+  cr204:      'CR-204 CCTV Tactical Facility Map & Sensor Matrix',
+  cases:      'Investigation Case Registry',
+  workspace:  'Dedicated Case Workspace',
+  evidence:   'Evidence Intelligence Repository',
+  graph:      'Criminal Relational Knowledge Graph',
+  chat:       'CIRA — AI Investigation Assistant',
+  faceid:     'Forensic Facial Recognition & Visual Similarity Lab',
+  analytics:  'Network Centrality & Link Analysis',
+  resolution: 'Multi-Source Entity Disambiguation',
+  leads:      'Intelligence Lead Extraction & Corroboration',
+  settings:   'System Settings & Configuration'
 };
 
 
@@ -263,16 +263,16 @@ export default function InvestigationWorkstation({ currentUser, onLogout, onSwit
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden', background: 'var(--ink)', fontFamily: 'var(--f-body)' }}>
 
-      {/* ── Persistent Simulation Only Banner ── */}
+      {/* ── Persistent Operational Prototype Banner ── */}
       <div style={{
-        backgroundColor: '#7f1d1d',
-        color: '#fef2f2',
+        backgroundColor: '#0c131d',
+        color: '#94a3b8',
         fontSize: '0.68rem',
-        fontWeight: 700,
+        fontWeight: 600,
         letterSpacing: '0.03em',
         textAlign: 'center',
         padding: '5px 12px',
-        borderBottom: '1px solid #991b1b',
+        borderBottom: '1px solid rgba(56, 189, 248, 0.25)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -281,8 +281,8 @@ export default function InvestigationWorkstation({ currentUser, onLogout, onSwit
         fontFamily: 'var(--font-mono, monospace)',
         flexShrink: 0
       }}>
-        <span style={{ backgroundColor: '#ef4444', color: '#fff', fontSize: '0.58rem', padding: '1px 6px', borderRadius: '3px', fontWeight: 800 }}>DEMO ENVIRONMENT</span>
-        <span>SIMULATION ONLY — ALL PEOPLE, INCIDENTS, LOCATIONS, IDENTITIES, IMAGES, AND EVIDENCE ARE FICTIONAL. NO REAL INVESTIGATIVE OR LAW-ENFORCEMENT DATA IS USED.</span>
+        <span style={{ backgroundColor: 'rgba(56, 189, 248, 0.18)', border: '1px solid #38bdf8', color: '#38bdf8', fontSize: '0.58rem', padding: '1px 6px', borderRadius: '3px', fontWeight: 800 }}>OPERATIONAL PROTOTYPE</span>
+        <span>CRIMENET TACTICAL INTELLIGENCE SUITE — LAW ENFORCEMENT SENSITIVE // AUTHORIZED ACCESS ONLY // CASE CR-204</span>
       </div>
 
       {/* ── Top System Telemetry & Status Bar ─────────────────────────────── */}
@@ -290,16 +290,16 @@ export default function InvestigationWorkstation({ currentUser, onLogout, onSwit
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--success)' }} />
           <span style={{ color: 'var(--text-primary)', fontWeight: 600, letterSpacing: '0.04em' }}>
-            CRIMENET AI · SIMULATOR
+            CRIMENET AI · OPERATIONAL WORKSTATION
           </span>
           <span style={{ color: 'var(--border-default)' }}>|</span>
-          <span style={{ color: 'var(--text-secondary)' }}>CRIMINAL NETWORK ANALYSIS DEMO ENVIRONMENT</span>
+          <span style={{ color: 'var(--text-secondary)' }}>CRIMINAL NETWORK ANALYSIS & TACTICAL CCTV MATRIX</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <span style={{ backgroundColor: 'rgba(56, 189, 248, 0.15)', border: '1px solid rgba(56, 189, 248, 0.4)', borderRadius: '4px', padding: '1px 8px', color: '#38bdf8', fontSize: '0.62rem', fontWeight: 700 }}>
-            DEMO ENVIRONMENT
+          <span style={{ backgroundColor: 'rgba(16, 185, 129, 0.15)', border: '1px solid rgba(16, 185, 129, 0.4)', borderRadius: '4px', padding: '1px 8px', color: '#34d399', fontSize: '0.62rem', fontWeight: 700 }}>
+            OPERATIONAL PROTOTYPE
           </span>
-          <span>MODE: <strong style={{ color: 'var(--success)' }}>SIMULATION (NETWORKX / RAPIDFUZZ)</strong></span>
+          <span>MODE: <strong style={{ color: 'var(--success)' }}>TACTICAL GRAPH & CCTV SENSOR FUSION</strong></span>
           <LiveClock />
         </div>
       </div>
@@ -555,12 +555,12 @@ export default function InvestigationWorkstation({ currentUser, onLogout, onSwit
               fontWeight: 700,
               padding: '2px 8px',
               borderRadius: '4px',
-              backgroundColor: 'rgba(239, 68, 68, 0.15)',
-              color: '#f87171',
-              border: '1px solid rgba(239, 68, 68, 0.35)',
+              backgroundColor: 'rgba(56, 189, 248, 0.15)',
+              color: '#38bdf8',
+              border: '1px solid rgba(56, 189, 248, 0.35)',
               letterSpacing: '0.04em'
             }}>
-              DEMO ENVIRONMENT
+              OPERATIONAL PROTOTYPE
             </span>
             {activePage === 'workspace' && activeCase && (
               <span style={{

@@ -83,6 +83,7 @@ export default function InvestigationMap() {
   const [searchQuery, setSearchQuery] = useState('');
   const [showSearchResults, setShowSearchResults] = useState(false);
   const [useVectorFallback, setUseVectorFallback] = useState(false);
+  const [basemapMode, setBasemapMode] = useState('tactical-dark'); // 'tactical-dark' | 'satellite' | 'osm-street'
   const [activeLayers, setActiveLayers] = useState({
     cameras: true,
     locations: true,
@@ -90,6 +91,27 @@ export default function InvestigationMap() {
     vehicleRoute: true,
     coverage: true
   });
+
+  // Switch basemap layer visibility & filter mode smoothly
+  const handleBasemapChange = (newMode) => {
+    setBasemapMode(newMode);
+    if (useVectorFallback) {
+      setUseVectorFallback(false);
+    }
+    if (!mapRef.current) return;
+    const map = mapRef.current;
+    if (!map.isStyleLoaded()) return;
+
+    if (newMode === 'tactical-dark' || newMode === 'osm-street') {
+      if (map.getLayer('osm-base-layer')) map.setLayoutProperty('osm-base-layer', 'visibility', 'visible');
+      if (map.getLayer('esri-sat-layer')) map.setLayoutProperty('esri-sat-layer', 'visibility', 'none');
+      if (map.getLayer('esri-trans-layer')) map.setLayoutProperty('esri-trans-layer', 'visibility', 'none');
+    } else if (newMode === 'satellite') {
+      if (map.getLayer('osm-base-layer')) map.setLayoutProperty('osm-base-layer', 'visibility', 'none');
+      if (map.getLayer('esri-sat-layer')) map.setLayoutProperty('esri-sat-layer', 'visibility', 'visible');
+      if (map.getLayer('esri-trans-layer')) map.setLayoutProperty('esri-trans-layer', 'visibility', 'visible');
+    }
+  };
 
   // Filtered cameras based on mapFilter
   const filteredCameras = useMemo(() => {
@@ -129,29 +151,68 @@ export default function InvestigationMap() {
       return;
     }
 
-    // Dark Tactical Tile Style (OpenStreetMap compatible via CartoDB Dark Matter)
+    // High-Resolution Unwatermarked Tactical & Satellite Basemap (Zero API Key Required)
     const darkStyle = {
       version: 8,
       sources: {
-        'carto-dark': {
+        'osm-base': {
           type: 'raster',
           tiles: [
-            'https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png',
-            'https://b.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png',
-            'https://c.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png',
-            'https://d.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png'
+            'https://tile.openstreetmap.org/{z}/{x}/{y}.png'
           ],
           tileSize: 256,
-          attribution: '© OpenStreetMap contributors © CARTO'
+          maxzoom: 19,
+          attribution: '© OpenStreetMap contributors'
+        },
+        'esri-satellite': {
+          type: 'raster',
+          tiles: [
+            'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
+          ],
+          tileSize: 256,
+          maxzoom: 19,
+          attribution: '© Esri, Maxar'
+        },
+        'esri-transport': {
+          type: 'raster',
+          tiles: [
+            'https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}'
+          ],
+          tileSize: 256,
+          maxzoom: 19,
+          attribution: ''
         }
       },
       layers: [
         {
-          id: 'carto-dark-layer',
+          id: 'osm-base-layer',
           type: 'raster',
-          source: 'carto-dark',
+          source: 'osm-base',
           minzoom: 0,
-          maxzoom: 20
+          maxzoom: 19,
+          layout: {
+            visibility: basemapMode === 'satellite' ? 'none' : 'visible'
+          }
+        },
+        {
+          id: 'esri-sat-layer',
+          type: 'raster',
+          source: 'esri-satellite',
+          minzoom: 0,
+          maxzoom: 19,
+          layout: {
+            visibility: basemapMode === 'satellite' ? 'visible' : 'none'
+          }
+        },
+        {
+          id: 'esri-trans-layer',
+          type: 'raster',
+          source: 'esri-transport',
+          minzoom: 0,
+          maxzoom: 19,
+          layout: {
+            visibility: basemapMode === 'satellite' ? 'visible' : 'none'
+          }
         }
       ]
     };
@@ -631,10 +692,11 @@ export default function InvestigationMap() {
       flexDirection: 'column'
     }}>
 
-      {/* MapLibre WebGL Canvas Container */}
+      {/* MapLibre WebGL Canvas Container with Tactical CSS Filters */}
       <div
         ref={mapContainerRef}
         data-testid="tactical-map"
+        className={`tactical-map-viewport ${basemapMode === 'tactical-dark' ? 'tactical-dark-filter' : (basemapMode === 'satellite' ? 'tactical-satellite-filter' : 'tactical-street-filter')}`}
         style={{
           width: '100%',
           height: '100%',
@@ -681,7 +743,7 @@ export default function InvestigationMap() {
 
             {/* Tactical Sector Headers */}
             <text x="36" y="44" fill="#6B7280" fontFamily="monospace" fontSize="11" fontWeight="700">SECTOR 4 // JNPT NHAVA SHEVA LOGISTICS MATRIX</text>
-            <text x="36" y="60" fill="#4B5563" fontFamily="monospace" fontSize="9">RADAR MODE: SYNTHETIC TACTICAL FACILITY MAP (SIMULATION)</text>
+            <text x="36" y="60" fill="#4B5563" fontFamily="monospace" fontSize="9">RADAR MODE: TACTICAL FACILITY GRID MATRIX // OPERATIONAL PROTOTYPE</text>
             <text x="730" y="44" fill="#6B7280" fontFamily="monospace" fontSize="10">18°56'58"N  72°57'12"E (JNPT)</text>
 
             {/* Inferred Route Lines */}
@@ -789,14 +851,14 @@ export default function InvestigationMap() {
         </div>
       )}
 
-      {/* Persistent Synthetic Data Disclaimer */}
+      {/* Persistent Operational Status Pill */}
       <div style={{
         position: 'absolute',
         top: '12px',
         left: '14px',
         zIndex: 10,
         backgroundColor: 'rgba(15, 23, 42, 0.92)',
-        border: '1px solid rgba(239, 68, 68, 0.4)',
+        border: '1px solid rgba(56, 189, 248, 0.4)',
         borderRadius: '6px',
         padding: '6px 12px',
         display: 'flex',
@@ -805,15 +867,15 @@ export default function InvestigationMap() {
         backdropFilter: 'blur(6px)',
         pointerEvents: 'none'
       }}>
-        <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#ef4444', animation: 'pulse 1.5s infinite' }} />
+        <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#10b981', animation: 'pulse 2s infinite' }} />
         <span style={{
           fontFamily: 'var(--font-mono, monospace)',
-          fontSize: '0.68rem',
+          fontSize: '0.66rem',
           fontWeight: 700,
-          color: '#f87171',
+          color: '#38bdf8',
           letterSpacing: '0.04em'
         }}>
-          SYNTHETIC DATA — DEMO ENVIRONMENT
+          TACTICAL GRID · ONLINE
         </span>
       </div>
 
@@ -829,21 +891,21 @@ export default function InvestigationMap() {
         flexWrap: 'wrap'
       }}>
         {/* Search Bar */}
-        <div style={{ position: 'relative', minWidth: '240px' }}>
+        <div style={{ position: 'relative', width: '180px' }}>
           <div style={{
             display: 'flex',
             alignItems: 'center',
             backgroundColor: '#101419',
             border: '1px solid var(--border-default)',
             borderRadius: '6px',
-            padding: '5px 10px',
+            padding: '5px 8px',
             gap: '6px',
             backdropFilter: 'blur(6px)'
           }}>
-            <Search size={14} color="var(--accent)" />
+            <Search size={13} color="var(--accent)" />
             <input
               type="text"
-              placeholder="Search CCTV, Person, Vehicle..."
+              placeholder="Search CCTV..."
               value={searchQuery}
               onChange={(e) => {
                 setSearchQuery(e.target.value);
@@ -854,7 +916,7 @@ export default function InvestigationMap() {
                 background: 'transparent',
                 border: 'none',
                 color: '#fff',
-                fontSize: '0.74rem',
+                fontSize: '0.72rem',
                 outline: 'none',
                 width: '100%'
               }}
@@ -881,20 +943,20 @@ export default function InvestigationMap() {
               backgroundColor: '#101419',
               border: '1px solid var(--border-default)',
               borderRadius: '6px',
-              maxHeight: '220px',
+              maxHeight: '200px',
               overflowY: 'auto',
-              boxShadow: '0 8px 24px rgba(0,0,0,0.6)',
-              zIndex: 30
+              zIndex: 20,
+              boxShadow: '0 4px 12px rgba(0,0,0,0.5)'
             }}>
               {searchResults.map(item => (
                 <button
                   key={item.id}
                   type="button"
-                  onClick={() => handleSearchResultClick(item)}
+                  onClick={() => handleSearchSelect(item)}
                   style={{
                     width: '100%',
-                    padding: '8px 10px',
                     textAlign: 'left',
+                    padding: '6px 10px',
                     backgroundColor: 'transparent',
                     border: 'none',
                     borderBottom: '1px solid var(--border-subtle)',
@@ -931,20 +993,20 @@ export default function InvestigationMap() {
             backgroundColor: '#101419',
             border: '1px solid var(--border-default)',
             borderRadius: '6px',
-            padding: '6px 10px',
+            padding: '5px 8px',
             color: 'var(--text-secondary)',
             cursor: 'pointer',
             display: 'flex',
             alignItems: 'center',
-            gap: '6px',
-            fontSize: '0.70rem',
+            gap: '5px',
+            fontSize: '0.68rem',
             backdropFilter: 'blur(6px)'
           }}
           title="Reset map view to all cameras"
           aria-label="Reset Map View"
         >
-          <RotateCcw size={12} />
-          <span>Reset View</span>
+          <RotateCcw size={11} />
+          <span>Reset</span>
         </button>
 
         {/* Coverage Area Toggle */}
@@ -955,51 +1017,115 @@ export default function InvestigationMap() {
             backgroundColor: showCoverage ? 'var(--accent-dim)' : '#101419',
             border: showCoverage ? '1px solid var(--accent)' : '1px solid var(--border-default)',
             borderRadius: '6px',
-            padding: '6px 10px',
+            padding: '5px 8px',
             color: showCoverage ? 'var(--accent)' : 'var(--text-muted)',
             cursor: 'pointer',
             display: 'flex',
             alignItems: 'center',
-            gap: '6px',
-            fontSize: '0.70rem',
+            gap: '5px',
+            fontSize: '0.68rem',
             backdropFilter: 'blur(6px)'
           }}
           title="Toggle Simulated Camera Coverage Polygon"
           aria-pressed={showCoverage}
         >
-          <Eye size={12} />
-          <span>Coverage Area</span>
+          <Eye size={11} />
+          <span>Coverage</span>
         </button>
 
-        {/* Real Map vs Vector Radar Mode Toggle */}
-        <button
-          type="button"
-          onClick={() => setUseVectorFallback(!useVectorFallback)}
-          style={{
-            backgroundColor: !useVectorFallback ? 'rgba(56, 189, 248, 0.2)' : '#101419',
-            border: !useVectorFallback ? '1px solid #38bdf8' : '1px solid var(--border-default)',
-            borderRadius: '6px',
-            padding: '6px 10px',
-            color: !useVectorFallback ? '#38bdf8' : 'var(--text-muted)',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '6px',
-            fontSize: '0.70rem',
-            fontWeight: 600,
-            backdropFilter: 'blur(6px)'
-          }}
-          title="Toggle between Original Geographic Map and Tactical Radar Grid"
-        >
-          <Layers size={12} />
-          <span>{!useVectorFallback ? 'Original Real Map 🌍' : 'Vector Radar Grid'}</span>
-        </button>
+        {/* Basemap Style Switcher (Zero Watermarks / Unwatermarked Full Prototype) */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '3px', backgroundColor: '#0B0F17', padding: '2px 3px', borderRadius: '6px', border: '1px solid var(--border-default)' }}>
+          <button
+            type="button"
+            onClick={() => handleBasemapChange('tactical-dark')}
+            style={{
+              backgroundColor: !useVectorFallback && basemapMode === 'tactical-dark' ? '#38bdf8' : 'transparent',
+              color: !useVectorFallback && basemapMode === 'tactical-dark' ? '#000' : 'var(--text-secondary)',
+              border: 'none',
+              borderRadius: '4px',
+              padding: '4px 7px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              fontSize: '0.66rem',
+              fontWeight: 700
+            }}
+            title="Tactical Dark Basemap (Obsidian Grid - Zero Watermark)"
+          >
+            <span>🗺️ Dark</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => handleBasemapChange('satellite')}
+            style={{
+              backgroundColor: !useVectorFallback && basemapMode === 'satellite' ? '#38bdf8' : 'transparent',
+              color: !useVectorFallback && basemapMode === 'satellite' ? '#000' : 'var(--text-secondary)',
+              border: 'none',
+              borderRadius: '4px',
+              padding: '4px 7px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              fontSize: '0.66rem',
+              fontWeight: 700
+            }}
+            title="Satellite Reconnaissance (High-Resolution Aerial Orthophoto)"
+          >
+            <span>🛰️ Satellite</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => handleBasemapChange('osm-street')}
+            style={{
+              backgroundColor: !useVectorFallback && basemapMode === 'osm-street' ? '#38bdf8' : 'transparent',
+              color: !useVectorFallback && basemapMode === 'osm-street' ? '#000' : 'var(--text-secondary)',
+              border: 'none',
+              borderRadius: '4px',
+              padding: '4px 7px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              fontSize: '0.66rem',
+              fontWeight: 700
+            }}
+            title="Original Street Map (OpenStreetMap Infrastructure - Zero Watermark)"
+          >
+            <span>🌍 Real Map</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setUseVectorFallback(!useVectorFallback)}
+            style={{
+              backgroundColor: useVectorFallback ? 'rgba(56, 189, 248, 0.25)' : 'transparent',
+              color: useVectorFallback ? '#38bdf8' : 'var(--text-muted)',
+              border: 'none',
+              borderRadius: '4px',
+              padding: '4px 7px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              fontSize: '0.66rem',
+              fontWeight: 600
+            }}
+            title="Toggle Tactical Vector Radar Grid"
+          >
+            <Layers size={10} />
+            <span>Radar</span>
+          </button>
+        </div>
       </div>
 
       {/* Interactive Camera Quick-Select Ribbon */}
       <div style={{
         position: 'absolute',
-        top: '56px',
+        top: '52px',
         left: '14px',
         right: '14px',
         zIndex: 10,
