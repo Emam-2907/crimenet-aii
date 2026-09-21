@@ -15,6 +15,13 @@ Validates:
 12. Security headers and explicit CORS origins
 """
 
+import sys
+from pathlib import Path
+
+# Add project root and backend to path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+sys.path.insert(0, str(Path(__file__).parent.parent / "backend"))
+
 from fastapi.testclient import TestClient
 from backend.main import app
 from backend.config import SECRET_KEY, ALGORITHM, DEMO_ACCOUNTS

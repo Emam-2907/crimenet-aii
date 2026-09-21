@@ -8,37 +8,85 @@ export default function GlobalSearchModal({ isOpen, onClose }) {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState({ cases: [], evidence: [], entities: [], total_matches: 0 });
   const [loading, setLoading] = useState(false);
+  const [searchState, setSearchState] = useState('idle'); // 'idle' | 'loading' | 'success' | 'empty' | 'offline' | 'unauthorized' | 'error'
+  const [errorMessage, setErrorMessage] = useState('');
   const inputRef = useRef(null);
+  const seqIdRef = useRef(0);
+  const abortControllerRef = useRef(null);
 
   useEffect(() => {
     if (isOpen) {
       setTimeout(() => inputRef.current?.focus(), 50);
     } else {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
       setQuery('');
       setResults({ cases: [], evidence: [], entities: [], total_matches: 0 });
+      setSearchState('idle');
+      setErrorMessage('');
     }
   }, [isOpen]);
 
-  // Handle search query
+  // Handle search query with race cancellation & sequence ID
   useEffect(() => {
-    if (!query.trim()) {
+    const trimmed = query.trim();
+    if (!trimmed) {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
       setResults({ cases: [], evidence: [], entities: [], total_matches: 0 });
+      setLoading(false);
+      setSearchState('idle');
+      setErrorMessage('');
       return;
     }
 
-    const timer = setTimeout(async () => {
-      setLoading(true);
-      try {
-        const data = await api.globalSearch(query);
-        setResults(data);
-      } catch (e) {
-        console.warn('Search query error', e);
-      } finally {
-        setLoading(false);
-      }
-    }, 200);
+    const currentSeq = ++seqIdRef.current;
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
 
-    return () => clearTimeout(timer);
+    setLoading(true);
+    setSearchState('loading');
+    setErrorMessage('');
+
+    const timer = setTimeout(async () => {
+      try {
+        const data = await api.globalSearch(trimmed, { signal: controller.signal });
+        if (currentSeq !== seqIdRef.current) return;
+        setResults(data);
+        if (data.total_matches === 0) {
+          setSearchState('empty');
+        } else {
+          setSearchState('success');
+        }
+      } catch (e) {
+        if (e.name === 'AbortError' || currentSeq !== seqIdRef.current) return;
+        console.warn('Search query error', e);
+        if (e.status === 401 || e.status === 403) {
+          setSearchState('unauthorized');
+          setErrorMessage(e.message || 'Access denied. Clearance insufficient or session expired.');
+        } else if (e.isOffline || !navigator.onLine || e.message?.toLowerCase().includes('failed to fetch')) {
+          setSearchState('offline');
+          setErrorMessage('Intelligence registry offline or backend unreachable.');
+        } else {
+          setSearchState('error');
+          setErrorMessage(e.message || 'Error executing search query.');
+        }
+      } finally {
+        if (currentSeq === seqIdRef.current) {
+          setLoading(false);
+        }
+      }
+    }, 180);
+
+    return () => {
+      clearTimeout(timer);
+      controller.abort();
+    };
   }, [query]);
 
   // Global keydown listener for Esc
@@ -133,6 +181,21 @@ export default function GlobalSearchModal({ isOpen, onClose }) {
           {!query.trim() ? (
             <div style={{ padding: '24px', textAlign: 'center', color: 'var(--text-secondary)', fontSize: '0.80rem' }}>
               Type a suspect name (e.g. <em>Voronin</em>), plate number (<em>8B9-CYP</em>), case ID (<em>CR-2026-0142</em>), or evidence file.
+            </div>
+          ) : searchState === 'offline' ? (
+            <div style={{ padding: '28px', textAlign: 'center', color: 'var(--critical)', fontSize: '0.82rem' }}>
+              <div style={{ marginBottom: '6px', fontWeight: 600 }}>📡 REGISTRY UNREACHABLE (OFFLINE)</div>
+              <span style={{ color: 'var(--text-muted)', fontSize: '0.76rem' }}>{errorMessage}</span>
+            </div>
+          ) : searchState === 'unauthorized' ? (
+            <div style={{ padding: '28px', textAlign: 'center', color: '#f59e0b', fontSize: '0.82rem' }}>
+              <div style={{ marginBottom: '6px', fontWeight: 600 }}>🔒 ACCESS RESTRICTED</div>
+              <span style={{ color: 'var(--text-muted)', fontSize: '0.76rem' }}>{errorMessage}</span>
+            </div>
+          ) : searchState === 'error' ? (
+            <div style={{ padding: '28px', textAlign: 'center', color: 'var(--critical)', fontSize: '0.82rem' }}>
+              <div style={{ marginBottom: '6px', fontWeight: 600 }}>⚠️ QUERY ERROR</div>
+              <span style={{ color: 'var(--text-muted)', fontSize: '0.76rem' }}>{errorMessage}</span>
             </div>
           ) : results.total_matches === 0 && !loading ? (
             <div style={{ padding: '30px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.82rem' }}>

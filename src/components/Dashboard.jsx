@@ -65,11 +65,16 @@ export default function Dashboard({ currentUser, onSwitchPersona }) {
     return () => clearInterval(id);
   }, []);
 
+  const [allEvidenceCount, setAllEvidenceCount] = useState(0);
+
   useEffect(() => {
     const fetchRecentEvidence = async () => {
       try {
         const ev = await api.getEvidence();
-        setRecentEvidence(ev.slice(0, 5));
+        if (Array.isArray(ev)) {
+          setRecentEvidence(ev.slice(0, 5));
+          setAllEvidenceCount(ev.length);
+        }
       } catch (e) {
         console.warn('Failed to load dashboard evidence', e);
       }
@@ -77,11 +82,12 @@ export default function Dashboard({ currentUser, onSwitchPersona }) {
     fetchRecentEvidence();
   }, []);
 
-  // Compute operational stats
+  // Compute operational stats from active user cases and loaded evidence
   const activeCasesCount = cases.filter(c => c.status === 'Active' || c.status === 'Critical').length;
   const criticalCasesCount = cases.filter(c => c.priority === 'Critical').length;
-  const totalEvidenceCount = cases.reduce((acc, c) => acc + (c.evidence_count || 0), 0) || 9;
-  const totalEntitiesCount = cases.reduce((acc, c) => acc + (c.entity_count || 0), 0) || 17;
+  const caseEvidenceSum = cases.reduce((acc, c) => acc + (c.evidence_count || (Array.isArray(c.evidence) ? c.evidence.length : 0)), 0);
+  const totalEvidenceCount = allEvidenceCount > 0 ? allEvidenceCount : caseEvidenceSum;
+  const totalEntitiesCount = cases.reduce((acc, c) => acc + (c.entity_count || (Array.isArray(c.entities) ? c.entities.length : 0)), 0);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>

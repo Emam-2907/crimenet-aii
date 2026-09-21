@@ -4,8 +4,8 @@ import { soundFx } from '../utils/audio.js';
 import { Shield, Lock, UserCheck, X, Key, CheckCircle2 } from 'lucide-react';
 
 export default function AuthModal({ onClose, onLoginSuccess }) {
-  const [email, setEmail] = useState('agent.vance@crimenet.gov');
-  const [password, setPassword] = useState('Crimenet2026!');
+  const [email, setEmail] = useState('analyst.vance@crimenet.demo');
+  const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
@@ -27,10 +27,20 @@ export default function AuthModal({ onClose, onLoginSuccess }) {
     }
   };
 
-  const handleDemoQuickLogin = () => {
-    setEmail('agent.vance@crimenet.gov');
-    setPassword('Crimenet2026!');
-    handleLogin();
+  const handleDemoQuickLogin = async () => {
+    setIsLoading(true);
+    setErrorMsg('');
+    soundFx.playTacticalClick();
+    try {
+      const res = await api.demoLogin(email || 'analyst.vance@crimenet.demo');
+      soundFx.playSuccessChime();
+      onLoginSuccess(res.user);
+      onClose();
+    } catch (err) {
+      setErrorMsg('Demo sign-in failed.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (

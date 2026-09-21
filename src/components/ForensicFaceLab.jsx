@@ -140,6 +140,10 @@ export default function ForensicFaceLab({ caseId: propCaseId }) {
       }
     } catch (err) {
       console.warn('Face analysis notice:', err);
+      setFeedback({
+        type: 'error',
+        message: err.message || 'Face analysis failed. Check network connectivity and case authorization.'
+      });
     } finally {
       setAnalyzing(false);
     }
@@ -213,13 +217,15 @@ export default function ForensicFaceLab({ caseId: propCaseId }) {
         });
       }
     } catch (err) {
-      console.warn('Verification API note:', err);
-      // Ensure UI remains consistent
+      console.error('Verification API error:', err);
+      setVerificationMap(prev => {
+        const next = { ...prev };
+        delete next[match.match_id];
+        return next;
+      });
       setFeedback({
-        type: isVerify ? 'success' : 'info',
-        message: isVerify
-          ? `Verified ${match.display_name || match.name}. Linked to case knowledge graph.`
-          : `Match rejected. Logged to case audit trail.`
+        type: 'error',
+        message: err.message || 'Verification update failed. Clearance insufficient or server error.'
       });
     } finally {
       setActionLoading(false);

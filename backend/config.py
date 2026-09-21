@@ -22,7 +22,7 @@ SECRET_KEY = os.getenv("CRIMENET_SECRET_KEY")
 if not SECRET_KEY:
     if CRIMENET_ENV == "production":
         raise RuntimeError("FATAL: CRIMENET_SECRET_KEY must be set in production.")
-    SECRET_KEY = "crimenet-dev-classified-jwt-secret-2026-omega"
+    SECRET_KEY = "crimenet-dev-classified-jwt-secret-2026-omega-secure-key-32b"
 
 ALGORITHM = "HS256"
 # Short-lived token: 30 minutes
@@ -74,7 +74,7 @@ if CRIMENET_ENV == "demo":
             "clearance": "TS/SCI-ORCON",
             "badge_id": "CN-ALPHA-0941",
             "station": "Metro Tactical Counter-Syndicate Command",
-            "allowed_cases": ["CR-204", "CASE-2026-OP-SOVEREIGN", "CASE-2026-CR-8821"]
+            "allowed_cases": ["CR-204", "CASE #CR-2026-0142", "CASE #CR-2026-0089"]
         },
         "investigator.chen@crimenet.demo": {
             "email": "investigator.chen@crimenet.demo",
@@ -84,7 +84,7 @@ if CRIMENET_ENV == "demo":
             "clearance": "SECRET",
             "badge_id": "CN-INV-5512",
             "station": "Major Case Investigation Unit",
-            "allowed_cases": ["CR-204", "CASE-2026-CR-8821"]
+            "allowed_cases": ["CR-204"]
         },
         "supervisor.wright@crimenet.demo": {
             "email": "supervisor.wright@crimenet.demo",
@@ -107,6 +107,22 @@ if CRIMENET_ENV == "demo":
             "allowed_cases": ["*"]
         }
     }
+
+def get_demo_profiles() -> List[Dict[str, Any]]:
+    """Returns safe, unprivileged public metadata for demo persona quick-selection."""
+    if CRIMENET_ENV != "demo":
+        return []
+    profiles = []
+    for email, acc in DEMO_ACCOUNTS.items():
+        profiles.append({
+            "email": acc["email"],
+            "full_name": acc["full_name"],
+            "role": acc["role"],
+            "clearance": acc["clearance"],
+            "badge_id": acc["badge_id"],
+            "station": acc["station"]
+        })
+    return profiles
 
 # Neo4j Graph Database Configuration
 NEO4J_URI = os.getenv("NEO4J_URI", "bolt://127.0.0.1:7687")

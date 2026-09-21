@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { api } from '../services/api.js';
 import { useCIRA } from '../context/CIRAContext.jsx';
 import Dashboard          from './Dashboard.jsx';
 import CasesList          from './CasesList.jsx';
@@ -82,9 +83,29 @@ function LiveClock() {
 }
 
 // ── Settings Sub-panel ────────────────────────────────────────────────────────
-function SettingsPanel() {
+function SettingsPanel({ currentUser }) {
   const [geminiKey, setGeminiKey] = useState(localStorage.getItem('crimenet_gemini_key') || '');
   const [saved, setSaved] = useState(false);
+  const [settingsData, setSettingsData] = useState(null);
+  const [settingsError, setSettingsError] = useState(null);
+
+  const isInvestigator = currentUser?.role === 'INVESTIGATOR' || currentUser?.clearance === 'SECRET';
+
+  useEffect(() => {
+    let isMounted = true;
+    api.getSettings()
+      .then(data => {
+        if (isMounted) {
+          setSettingsData(data);
+        }
+      })
+      .catch(err => {
+        if (isMounted) {
+          setSettingsError(err.message || 'Access restricted.');
+        }
+      });
+    return () => { isMounted = false; };
+  }, []);
 
   const handleSave = (e) => {
     e.preventDefault();
@@ -96,6 +117,43 @@ function SettingsPanel() {
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
   };
+
+  if (isInvestigator || settingsError) {
+    return (
+      <div style={{ maxWidth: '640px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+        <div style={{
+          background: 'rgba(239, 68, 68, 0.08)',
+          border: '1px solid rgba(239, 68, 68, 0.3)',
+          borderRadius: '10px',
+          padding: '24px'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
+            <span style={{ fontSize: '1.2rem', color: 'var(--red-light)' }}>⚠️</span>
+            <h3 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--red-light)', margin: 0 }}>
+              403 FORBIDDEN · ACCESS RESTRICTED
+            </h3>
+          </div>
+          <p style={{ fontSize: '0.84rem', color: 'var(--t-secondary)', lineHeight: 1.5, margin: 0 }}>
+            System configuration and administrative telemetry require <strong>CASE_SUPERVISOR</strong> or <strong>SYSTEM_ADMIN</strong> clearance.
+          </p>
+          <div style={{
+            marginTop: '16px',
+            padding: '10px 14px',
+            background: 'var(--ink-2)',
+            borderRadius: '6px',
+            border: '1px solid var(--b-soft)',
+            fontFamily: 'var(--f-mono)',
+            fontSize: '0.74rem',
+            color: 'var(--t-muted)'
+          }}>
+            USER: {currentUser?.email || currentUser?.user_id} · CLEARANCE: {currentUser?.clearance || 'SECRET'} · ROLE: {currentUser?.role || 'INVESTIGATOR'}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const backendHost = window.location.origin;
 
   return (
     <div style={{ maxWidth: '640px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
@@ -150,10 +208,11 @@ function SettingsPanel() {
           Environment Telemetry & Security
         </h4>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '0.76rem', color: 'var(--t-secondary)' }}>
-          <div>Clearance Standard: <strong style={{ color: '#fff', fontFamily: 'var(--f-mono)' }}>TS/SCI-ORCON</strong></div>
-          <div>Jurisdictional Authority: <strong style={{ color: '#fff' }}>Federal Inter-Agency Counter-Syndicate Taskforce</strong></div>
-          <div>Local Backend Link: <strong style={{ color: 'var(--green-light)', fontFamily: 'var(--f-mono)' }}>http://localhost:8000 (FastAPI 2.5.0)</strong></div>
-          <div>Frontend Host: <strong style={{ color: 'var(--blue-light)', fontFamily: 'var(--f-mono)' }}>http://localhost:3000 (React / Vite)</strong></div>
+          <div>Clearance Standard: <strong style={{ color: '#fff', fontFamily: 'var(--f-mono)' }}>{settingsData?.clearance_standard || 'TS//SCI-ORCON'}</strong></div>
+          <div>Jurisdictional Authority: <strong style={{ color: '#fff' }}>{settingsData?.jurisdiction || 'Federal Inter-Agency Counter-Syndicate Taskforce'}</strong></div>
+          <div>Station Node: <strong style={{ color: 'var(--green-light)', fontFamily: 'var(--f-mono)' }}>{settingsData?.station_node || 'ALPHA-01'}</strong></div>
+          <div>Telemetry Status: <strong style={{ color: 'var(--blue-light)', fontFamily: 'var(--f-mono)' }}>Audit: {settingsData?.telemetry?.audit_logging || 'MANDATORY'} · Retention: {settingsData?.telemetry?.data_retention_days || 365}d</strong></div>
+          <div>Active Host: <strong style={{ color: 'var(--t-dim)', fontFamily: 'var(--f-mono)' }}>{backendHost}</strong></div>
         </div>
       </div>
     </div>
@@ -161,7 +220,7 @@ function SettingsPanel() {
 }
 
 // ── Main Workstation ──────────────────────────────────────────────────────────
-export default function InvestigationWorkstation({ currentUser, onLogout }) {
+export default function InvestigationWorkstation({ currentUser, onLogout, onSwitchPersona }) {
   const {
     activePage,
     navigate,
@@ -191,6 +250,12 @@ export default function InvestigationWorkstation({ currentUser, onLogout }) {
   }, [setIsSearchOpen]);
 
   const fullscreen = activePage === 'graph' || activePage === 'faceid' || activePage === 'cr204';
+
+  const isInvestigator = currentUser?.role === 'INVESTIGATOR' || currentUser?.clearance === 'SECRET';
+  const visiblePrimaryNav = PRIMARY_NAV.filter(item => {
+    if (item.id === 'settings' && isInvestigator) return false;
+    return true;
+  });
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden', background: 'var(--ink)', fontFamily: 'var(--f-body)' }}>
@@ -287,7 +352,7 @@ export default function InvestigationWorkstation({ currentUser, onLogout }) {
 
         {/* Primary Navigation List */}
         <nav style={{ flex: 1, padding: '10px 8px', display: 'flex', flexDirection: 'column', gap: '3px', overflowY: 'auto' }}>
-          {PRIMARY_NAV.map(item => {
+          {visiblePrimaryNav.map(item => {
             const isActive = activePage === item.id;
             return (
               <button
@@ -624,7 +689,13 @@ export default function InvestigationWorkstation({ currentUser, onLogout }) {
                 </span>
               </div>
               <button
-                onClick={onLogout}
+                onClick={() => {
+                  if (onSwitchPersona) {
+                    onSwitchPersona();
+                  } else {
+                    onLogout();
+                  }
+                }}
                 title="Switch persona or return to Login Portal"
                 style={{
                   marginLeft: '4px',
@@ -663,7 +734,7 @@ export default function InvestigationWorkstation({ currentUser, onLogout }) {
           padding: fullscreen || activePage === 'chat' ? '0' : '22px 24px',
           background: 'var(--ink)'
         }}>
-          {activePage === 'dashboard'  && <Dashboard currentUser={currentUser} onSwitchPersona={onLogout} />}
+          {activePage === 'dashboard'  && <Dashboard currentUser={currentUser} onSwitchPersona={onSwitchPersona || onLogout} />}
           {activePage === 'cr204'      && <CR204InvestigationView />}
           {activePage === 'cases'      && <CasesList />}
           {activePage === 'workspace'  && <CaseWorkspace />}
@@ -674,7 +745,7 @@ export default function InvestigationWorkstation({ currentUser, onLogout }) {
           {activePage === 'analytics'  && <AnalyticsPanel />}
           {activePage === 'resolution' && <EntityResolution />}
           {activePage === 'leads'      && <ExplainableLeads />}
-          {activePage === 'settings'   && <SettingsPanel />}
+          {activePage === 'settings'   && <SettingsPanel currentUser={currentUser} />}
         </main>
       </div>
       </div>

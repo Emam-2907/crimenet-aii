@@ -1,6 +1,9 @@
 {
   "framework": "vite",
-  "alias": ["crimenet-ai-emam-2907.vercel.app"],
+  "alias": [
+    "crimenet-ai-2-emam-2907.vercel.app",
+    "crimenet-ai-emam-2907.vercel.app"
+  ],
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "headers": [

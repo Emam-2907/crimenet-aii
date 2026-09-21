@@ -1,59 +1,68 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { AuthProvider, useAuth } from './context/AuthContext.jsx';
 import { CIRAProvider } from './context/CIRAContext.jsx';
 import { InvestigationProvider } from './context/InvestigationContext.jsx';
 import LoginPage from './components/LoginPage.jsx';
 import InvestigationWorkstation from './components/InvestigationWorkstation.jsx';
-import { api } from './services/api.js';
 
-export default function App() {
-  const [stage, setStage] = useState(() => {
-    if (typeof localStorage !== 'undefined') {
-      const explicitLogout = localStorage.getItem('crimenet_explicit_logout');
-      const savedUser = localStorage.getItem('crimenet_user');
-      if (savedUser && explicitLogout !== 'true') return 'workstation';
-    }
-    return 'login'; // Show Login Page by default
-  });
+function AppContent() {
+  const { currentUser, isAuthenticated, isSessionLoading, logout, demoLogin } = useAuth();
 
-  const [currentUser, setCurrentUser] = useState(() => {
-    if (typeof localStorage !== 'undefined') {
-      try {
-        const saved = localStorage.getItem('crimenet_user');
-        const explicitLogout = localStorage.getItem('crimenet_explicit_logout');
-        if (saved && explicitLogout !== 'true') return JSON.parse(saved);
-      } catch (e) {}
-    }
-    return null;
-  });
+  if (isSessionLoading) {
+    return (
+      <div style={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        height: '100vh',
+        width: '100vw',
+        background: '#04070c',
+        color: '#94a3b8',
+        fontFamily: 'monospace'
+      }}>
+        <div style={{
+          width: '32px',
+          height: '32px',
+          border: '2px solid rgba(56, 189, 248, 0.2)',
+          borderTopColor: '#38bdf8',
+          borderRadius: '50%',
+          animation: 'spin 0.8s linear infinite',
+          marginBottom: '16px'
+        }} />
+        <span style={{ fontSize: '0.8rem', letterSpacing: '0.08em' }}>
+          VERIFYING TACTICAL SESSION & CLEARANCE...
+        </span>
+        <style>{`
+          @keyframes spin {
+            to { transform: rotate(360deg); }
+          }
+        `}</style>
+      </div>
+    );
+  }
 
-  const handleLoginSuccess = (user) => {
-    if (typeof localStorage !== 'undefined') {
-      localStorage.removeItem('crimenet_explicit_logout');
-      localStorage.setItem('crimenet_user', JSON.stringify(user));
-    }
-    setCurrentUser(user);
-    setStage('workstation');
-  };
-
-  const handleLogout = () => {
-    if (typeof localStorage !== 'undefined') {
-      localStorage.setItem('crimenet_explicit_logout', 'true');
-      localStorage.removeItem('crimenet_user');
-    }
-    api.logout();
-    setCurrentUser(null);
-    setStage('login');
-  };
-
-  if (stage === 'workstation' && currentUser) {
+  if (isAuthenticated && currentUser) {
     return (
       <InvestigationProvider>
         <CIRAProvider>
-          <InvestigationWorkstation currentUser={currentUser} onLogout={handleLogout} />
+          <InvestigationWorkstation
+            currentUser={currentUser}
+            onLogout={logout}
+            onSwitchPersona={demoLogin}
+          />
         </CIRAProvider>
       </InvestigationProvider>
     );
   }
 
-  return <LoginPage onLoginSuccess={handleLoginSuccess} />;
+  return <LoginPage />;
+}
+
+export default function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
+  );
 }

@@ -50,6 +50,17 @@ ROLE_HIERARCHY = {
     "INVESTIGATOR": 1
 }
 
+# Clearance Hierarchy
+CLEARANCE_HIERARCHY = {
+    "TS/SCI-ORCON": 4,
+    "TS//SCI-ORCON": 4,
+    "TS//SCI": 3,
+    "TS/SCI": 3,
+    "SECRET": 2,
+    "CONFIDENTIAL": 1,
+    "UNCLASSIFIED": 0
+}
+
 def check_rate_limit(key: str) -> None:
     now = time.time()
     # Remove timestamps older than window
@@ -74,9 +85,9 @@ def create_access_token(user_data: dict) -> tuple[str, str, datetime]:
     expire = datetime.now(timezone.utc) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     to_encode = {
         "jti": jti,
-        "sub": user_data["email"],
-        "name": user_data["full_name"],
-        "role": user_data["role"],
+        "sub": user_data.get("email", user_data.get("sub", "user")),
+        "name": user_data.get("full_name", user_data.get("name", "User")),
+        "role": user_data.get("role", "ANALYST"),
         "clearance": user_data.get("clearance", "SECRET"),
         "badge_id": user_data.get("badge_id", "CN-0000"),
         "allowed_cases": user_data.get("allowed_cases", ["*"]),
@@ -241,14 +252,46 @@ def require_role(*allowed_roles: str):
         )
     return role_checker
 
+def require_clearance(min_clearance: str):
+    """
+    Clearance Level dependency.
+    Checks if current_user's clearance satisfies required minimum clearance.
+    """
+    async def clearance_checker(current_user: dict = Depends(get_current_user)) -> dict:
+        user_clearance = str(current_user.get("clearance", "UNCLASSIFIED")).strip()
+        user_level = CLEARANCE_HIERARCHY.get(user_clearance.upper(), 0)
+        min_level = CLEARANCE_HIERARCHY.get(min_clearance.strip().upper(), 2)
+
+        if user_level >= min_level:
+            return current_user
+
+        audit_service.log_event(
+            action="CLEARANCE_ACCESS_DENIED",
+            actor=current_user.get("email", "anonymous"),
+            resource="endpoint",
+            result="DENIED",
+            details={"user_clearance": user_clearance, "required_clearance": min_clearance}
+        )
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"Access denied: Required clearance level {min_clearance}. Your clearance: {user_clearance}."
+        )
+    return clearance_checker
+
 def verify_case_access(case_id: str, user: dict) -> bool:
     """
     Per-case access verification.
+    Checks user's allowed_cases and clearance level.
     """
     allowed_cases = user.get("allowed_cases", [])
     if "*" in allowed_cases:
         return True
     if case_id in allowed_cases:
+        return True
+
+    norm_target = str(case_id).replace("CASE #", "").strip().upper()
+    norm_allowed = [str(c).replace("CASE #", "").strip().upper() for c in allowed_cases]
+    if norm_target in norm_allowed or any(norm_target == a for a in norm_allowed):
         return True
     
     audit_service.log_event(
@@ -263,3 +306,4 @@ def verify_case_access(case_id: str, user: dict) -> bool:
         status_code=status.HTTP_403_FORBIDDEN,
         detail=f"Access denied: You do not have clearance for case dossier {case_id}."
     )
+

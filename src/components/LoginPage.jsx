@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '../services/api.js';
+import { useAuth } from '../context/AuthContext.jsx';
 import {
   Shield, Lock, User, Eye, EyeOff, CheckCircle2,
   AlertTriangle, Database, Share2, Server, ArrowRight,
@@ -7,6 +8,7 @@ import {
 } from 'lucide-react';
 
 export default function LoginPage({ onLoginSuccess }) {
+  const auth = useAuth ? useAuth() : null;
   const [userId, setUserId] = useState('');
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(true);
@@ -23,6 +25,12 @@ export default function LoginPage({ onLoginSuccess }) {
   });
   const [isCheckingSystem, setIsCheckingSystem] = useState(false);
   const [currentTimeUtc, setCurrentTimeUtc] = useState('');
+  const [quickProfiles, setQuickProfiles] = useState([
+    { name: 'Special Agent Vance', id: 'analyst.vance@crimenet.demo', email: 'analyst.vance@crimenet.demo', role: 'SENIOR_ANALYST', clearance: 'TS//SCI-TK-NOFORN' },
+    { name: 'Detective Chen', id: 'investigator.chen@crimenet.demo', email: 'investigator.chen@crimenet.demo', role: 'INVESTIGATOR', clearance: 'SECRET' },
+    { name: 'Inspector Wright', id: 'supervisor.wright@crimenet.demo', email: 'supervisor.wright@crimenet.demo', role: 'CASE_SUPERVISOR', clearance: 'TOP_SECRET' },
+    { name: 'Command Admin', id: 'admin@crimenet.demo', email: 'admin@crimenet.demo', role: 'SYSTEM_ADMIN', clearance: 'TS//SCI' }
+  ]);
 
   // Clock & system telemetry on mount
   useEffect(() => {
@@ -35,6 +43,21 @@ export default function LoginPage({ onLoginSuccess }) {
 
     fetchSystemStatus();
     const probeInterval = setInterval(fetchSystemStatus, 15000);
+
+    // Fetch demo profiles securely from backend
+    api.getDemoProfiles().then(res => {
+      if (res && res.profiles && res.profiles.length > 0) {
+        setQuickProfiles(res.profiles.map(p => ({
+          name: p.name,
+          id: p.email,
+          email: p.email,
+          role: p.role,
+          clearance: p.clearance
+        })));
+      }
+    }).catch(err => {
+      console.warn('Could not fetch dynamic demo profiles:', err);
+    });
 
     return () => {
       clearInterval(timeInterval);
@@ -83,6 +106,28 @@ export default function LoginPage({ onLoginSuccess }) {
     }
   };
 
+  const handleQuickLogin = async (profileEmail) => {
+    setErrorMsg('');
+    setIsLoading(true);
+    try {
+      let loggedUser;
+      if (auth && auth.demoLogin) {
+        loggedUser = await auth.demoLogin(profileEmail);
+      } else {
+        const res = await api.demoLogin(profileEmail);
+        loggedUser = res.user;
+      }
+      setAuthSuccess(true);
+      if (onLoginSuccess && loggedUser) {
+        setTimeout(() => onLoginSuccess(loggedUser), 600);
+      }
+    } catch (err) {
+      console.error('Quick demo login error:', err);
+      setErrorMsg(err.message || 'Demo authentication failed.');
+      setIsLoading(false);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!userId.trim()) {
@@ -98,26 +143,24 @@ export default function LoginPage({ onLoginSuccess }) {
     setIsLoading(true);
 
     try {
-      const data = await api.login(userId.trim(), password);
+      let loggedUser;
+      if (auth && auth.login) {
+        const res = await auth.login(userId.trim(), password);
+        loggedUser = res?.user || res;
+      } else {
+        const res = await api.login(userId.trim(), password);
+        loggedUser = res.user;
+      }
       setAuthSuccess(true);
-      setTimeout(() => {
-        if (onLoginSuccess) {
-          onLoginSuccess(data.user);
-        }
-      }, 600);
+      if (onLoginSuccess && loggedUser) {
+        setTimeout(() => onLoginSuccess(loggedUser), 600);
+      }
     } catch (err) {
       console.error('Login error:', err);
       setErrorMsg(err.message || 'Authentication failed. Please verify credentials.');
       setIsLoading(false);
     }
   };
-
-  const quickProfiles = [
-    { name: 'Special Agent Vance', id: 'analyst.vance@crimenet.demo', pass: 'Crimenet2026!' },
-    { name: 'Detective Chen', id: 'investigator.chen@crimenet.demo', pass: 'Investigator2026!' },
-    { name: 'Inspector Wright', id: 'supervisor.wright@crimenet.demo', pass: 'Supervisor2026!' },
-    { name: 'Command Admin', id: 'admin@crimenet.demo', pass: 'Admin2026!' }
-  ];
 
   return (
     <div style={{
@@ -395,19 +438,19 @@ export default function LoginPage({ onLoginSuccess }) {
               <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
                 {quickProfiles.map(p => (
                   <button
-                    key={p.id}
+                    key={p.email || p.id}
                     type="button"
+                    disabled={isLoading || authSuccess}
                     onClick={() => {
-                      setUserId(p.id);
-                      setPassword(p.pass);
-                      setErrorMsg('');
+                      setUserId(p.email || p.id);
+                      handleQuickLogin(p.email || p.id);
                     }}
                     style={{
-                      background: userId === p.id ? 'var(--accent)' : 'var(--bg-elevated)',
+                      background: userId === (p.email || p.id) ? 'var(--accent)' : 'var(--bg-elevated)',
                       border: '1px solid var(--border-default)',
                       borderRadius: '4px',
                       padding: '4px 8px',
-                      color: userId === p.id ? '#fff' : 'var(--text-secondary)',
+                      color: userId === (p.email || p.id) ? '#fff' : 'var(--text-secondary)',
                       fontSize: '0.70rem',
                       cursor: 'pointer',
                       transition: 'all 0.15s ease'

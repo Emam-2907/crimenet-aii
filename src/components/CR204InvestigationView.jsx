@@ -120,7 +120,7 @@ Use the command bar below or type a query to command CIRA.`,
   ];
 
   return (
-    <div className="cr204-investigation-view" role="region" aria-label="CR-204 Geographic CCTV Investigation Matrix" style={{
+    <main className="cr204-investigation-view" role="main" aria-label="CR-204 Geographic CCTV Investigation Matrix" style={{
       display: 'flex',
       flexDirection: 'column',
       gap: '16px',
@@ -130,6 +130,26 @@ Use the command bar below or type a query to command CIRA.`,
       width: '100%',
       minHeight: '100%'
     }}>
+
+      {/* Persistent CCTV Demo Feed Watermark with Screen-Reader Live Region */}
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: '6px 14px',
+        backgroundColor: 'rgba(239, 68, 68, 0.08)',
+        border: '1px solid rgba(239, 68, 68, 0.25)',
+        borderRadius: '6px',
+        fontSize: '0.72rem',
+        fontFamily: 'var(--font-mono)',
+        color: '#f87171'
+      }}>
+        <span style={{ fontWeight: 700 }}>DEMO FEED // TACTICAL SIMULATION // SYNTHETIC GEOGRAPHIC CCTV GRID</span>
+        <div aria-live="polite" aria-atomic="true">
+          <span>ACTIVE TELEMETRY: </span>
+          <strong style={{ color: '#fff' }}>{activeTimestamp || '14:15:00 UTC'}</strong>
+        </div>
+      </div>
 
       {/* ── Top Investigation Header ────────────────────────────────────── */}
       <header role="banner" style={{
@@ -182,12 +202,14 @@ Use the command bar below or type a query to command CIRA.`,
           {/* Owner Footage Intake Button */}
           <button
             type="button"
+            className="min-h-[44px] py-3"
             onClick={() => setIsFootageModalOpen(true)}
             style={{
               display: 'flex',
               alignItems: 'center',
               gap: '6px',
-              padding: '6px 14px',
+              padding: '10px 16px',
+              minHeight: '44px',
               backgroundColor: '#3F5F78',
               border: '1px solid #5B7C99',
               borderRadius: '6px',
@@ -339,9 +361,9 @@ Use the command bar below or type a query to command CIRA.`,
         </div>
 
         {/* Dynamic Camera Details Panel */}
-        <div style={{ height: '620px', minHeight: '560px', position: 'relative' }}>
+        <aside aria-label="Camera Details and Analysis" style={{ height: '620px', minHeight: '560px', position: 'relative' }}>
           <CameraDetailsPanel />
-        </div>
+        </aside>
       </section>
 
       {/* ── Secondary Synchronized Section: Timeline, Graph, CIRA ─────── */}
@@ -869,6 +891,6 @@ Use the command bar below or type a query to command CIRA.`,
         onInjectIntoCase={handleInjectFromOwner}
         defaultTarget="Viktor Voronin"
       />
-    </div>
+    </main>
   );
 }

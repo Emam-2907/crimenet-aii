@@ -22,95 +22,67 @@ export default function ExplainableLeads() {
   const [extractedData, setExtractedData] = useState(null);
   const [isSynthesizing, setIsSynthesizing] = useState(false);
   const [leadsData, setLeadsData] = useState(null);
+  const [validationError, setValidationError] = useState('');
+  const [apiError, setApiError] = useState('');
 
   const handleRunNLP = async () => {
+    const text = transcriptText?.trim();
+    if (!text || text.length < 5) {
+      setValidationError('Please provide a valid intercept transcript or evidentiary note (minimum 5 characters) for NLP extraction.');
+      if (soundFx.playAlertBeep) soundFx.playAlertBeep();
+      return;
+    }
+    setValidationError('');
+    setApiError('');
     setIsExtracting(true);
     soundFx.playScanSweep();
 
-    const res = await api.extractEntities(transcriptText, 'Custom Intercept');
-    if (res && res.entities) {
-      setExtractedData(res);
-    } else {
-      // Local robust NLP fallback extraction
-      setExtractedData({
-        confidence: 0.965,
-        entities: {
-          suspects: [
-            { name: 'Viktor Voronin', threat: 'CRITICAL' },
-            { name: 'Darius Vance', threat: 'HIGH' },
-            { name: 'Elena Rostov', threat: 'HIGH' },
-            { name: 'Marcus Kane', threat: 'MEDIUM' }
-          ],
-          locations: [
-            { name: 'Gate 4 (South Pier)' },
-            { name: 'Warehouse 14B' },
-            { name: 'Port Customs Depot' }
-          ],
-          vehicles: [
-            { name: 'Black Escalade (Plate: 8B9-CYP)' }
-          ],
-          financial: [
-            { name: '140 Tether Escrow (0x889...F1C)' }
-          ],
-          technical_signatures: [
-            { name: '868MHz RF Jammer' },
-            { name: 'Microwave Tap Relay' }
-          ]
-        }
-      });
+    try {
+      const res = await api.extractEntities(text, 'Custom Intercept');
+      if (res && res.entities) {
+        setExtractedData(res);
+        soundFx.playSuccessChime();
+      } else {
+        setApiError('NLP engine did not extract any entities from the provided transcript.');
+        if (soundFx.playAlertBeep) soundFx.playAlertBeep();
+      }
+    } catch (err) {
+      console.error('NLP entity extraction failed:', err);
+      setApiError(err.message || 'Entity extraction failed. Check backend connection and clearance.');
+      if (soundFx.playAlertBeep) soundFx.playAlertBeep();
+    } finally {
+      setIsExtracting(false);
     }
-
-    setIsExtracting(false);
-    soundFx.playSuccessChime();
   };
 
   const handleSynthesizeLeads = async () => {
+    const text = transcriptText?.trim();
+    if (!text || text.length < 5) {
+      setValidationError('Please provide a valid intercept transcript or evidentiary note (minimum 5 characters) for lead generation.');
+      if (soundFx.playAlertBeep) soundFx.playAlertBeep();
+      return;
+    }
+    setValidationError('');
+    setApiError('');
     setIsSynthesizing(true);
     soundFx.playScanSweep();
 
-    const res = await api.generateLeads(transcriptText, 'Custom Intercept');
-    if (res && res.leads) {
-      setLeadsData(res.leads);
-    } else {
-      // Local fallback leads
-      setLeadsData([
-        {
-          id: 'LEAD-AI-01',
-          title: 'Imminent High-Value Hardware Infiltration at Gate 4',
-          confidence: 0.962,
-          threat_severity: 'CRITICAL',
-          urgency: 'IMMEDIATE (Within 45 Minutes)',
-          primary_subject: 'Viktor Voronin / Darius Vance',
-          hypothesis: 'Darius Vance has been tasked to extract a smuggled avionics container using a black Escalade (plate 8B9-CYP) departing Gate 4 toward Warehouse 14B.',
-          rationale: 'Intercept transcript correlates directly with Sector 4 RF sensor spikes at 868MHz and matches Viktor Voronin\'s acoustic voiceprint. Cross-referencing CCTV Frame 04:18 establishes Voronin\'s physical presence at Pier Customs.',
-          evidence_links: ['EVID-CCTV-901', 'RF-868MHz-Burst', 'ALPR-Plate-8B9-CYP'],
-          suggested_actions: [
-            'Deploy Tactical Strike Unit 4 to establish rolling roadblock along Pier perimeter road.',
-            'Direct ALPR cameras to lock on plate 8B9-CYP at all outbound harbor gates.',
-            'Activate local signal jammers counter-measures on 868MHz band.'
-          ]
-        },
-        {
-          id: 'LEAD-AI-02',
-          title: 'Offshore Escrow Liquidation & Harbormaster Bribery',
-          confidence: 0.914,
-          threat_severity: 'HIGH',
-          urgency: 'NEXT 3 HOURS',
-          primary_subject: 'Elena Rostov (Valkyrie)',
-          hypothesis: 'A 140 USDT transaction routed through wallet 0x889...F1C is intended to compromise terminal surveillance and clear manifest inspection logs.',
-          rationale: 'GhostNet escrow wallet activity aligns with rail switcher SCADA anomaly detected in Incident INC-8890. Elena Rostov\'s known modus operandi involves escrow payoffs preceding armed extraction.',
-          evidence_links: ['Tether-Wallet-0x889', 'Incident-INC-8890', 'Customs-Bypass-Log'],
-          suggested_actions: [
-            'Issue emergency asset freeze request to exchange compliance desk.',
-            'Subpoena port customs duty logs for harbor master on shift at 04:30.',
-            'Interrogate Elena Rostov\'s known communication burner relays.'
-          ]
-        }
-      ]);
+    try {
+      const res = await api.generateLeads(text, 'Custom Intercept');
+      if (res && res.leads && res.leads.length > 0) {
+        setLeadsData(res.leads);
+        soundFx.playSuccessChime();
+      } else {
+        setApiError('Lead generation engine returned no corroborated hypotheses for this input.');
+        if (soundFx.playAlertBeep) soundFx.playAlertBeep();
+      }
+    } catch (err) {
+      console.error('Lead synthesis failed:', err);
+      setApiError(err.message || 'Failed to generate corroborated leads from backend.');
+      if (soundFx.playAlertBeep) soundFx.playAlertBeep();
+    } finally {
+      setIsSynthesizing(false);
     }
-
-    setIsSynthesizing(false);
-    soundFx.playSuccessChime();
   };
 
   return (
@@ -194,6 +166,41 @@ export default function ExplainableLeads() {
               }}
               placeholder="Paste raw interrogation notes, telephone wiretap transcripts, or undercover surveillance logs here..."
             />
+
+            {validationError && (
+              <div role="alert" style={{
+                marginTop: '8px',
+                padding: '8px 12px',
+                background: 'rgba(245, 158, 11, 0.12)',
+                border: '1px solid rgba(245, 158, 11, 0.3)',
+                borderRadius: '6px',
+                color: '#fbbf24',
+                fontSize: '0.76rem',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px'
+              }}>
+                <AlertTriangle size={14} style={{ flexShrink: 0 }} />
+                <span>{validationError}</span>
+              </div>
+            )}
+
+            {apiError && (
+              <div role="alert" style={{
+                marginTop: '8px',
+                padding: '8px 12px',
+                background: 'var(--critical-dim)',
+                border: '1px solid var(--critical-border)',
+                color: 'var(--critical)',
+                fontSize: '0.76rem',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px'
+              }}>
+                <AlertTriangle size={14} style={{ flexShrink: 0 }} />
+                <span>{apiError}</span>
+              </div>
+            )}
           </div>
 
           <div style={{ display: 'flex', gap: '10px', marginTop: '14px' }}>

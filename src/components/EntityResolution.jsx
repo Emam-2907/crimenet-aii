@@ -72,37 +72,62 @@ export default function EntityResolution() {
   const [cases, setCases] = useState(RESOLUTION_CASES);
   const [activeCase, setActiveCase] = useState(RESOLUTION_CASES[0]);
   const [mergedMap, setMergedMap] = useState({});
+  const [mergeError, setMergeError] = useState(null);
+  const [isMerging, setIsMerging] = useState(false);
+
+  React.useEffect(() => {
+    let isMounted = true;
+    api.getEntityResolutionCases().then(res => {
+      if (isMounted && res && res.cases && res.cases.length > 0) {
+        setCases(res.cases);
+        setActiveCase(res.cases[0]);
+      }
+    }).catch(err => {
+      console.warn('Could not load live entity resolution cases:', err);
+    });
+    return () => { isMounted = false; };
+  }, []);
 
   const handleMerge = async (candidate) => {
     soundFx.playTacticalClick();
+    setMergeError(null);
+    setIsMerging(true);
 
-    // Call backend API
-    await api.mergeEntity(activeCase.id, activeCase.primaryId, candidate.aliasName, candidate.matchScore);
+    try {
+      // Call backend API
+      await api.mergeEntity(activeCase.id, activeCase.primaryId, candidate.aliasName, candidate.matchScore);
 
-    setMergedMap(prev => ({
-      ...prev,
-      [`${activeCase.id}-${candidate.aliasName}`]: true
-    }));
+      setMergedMap(prev => ({
+        ...prev,
+        [`${activeCase.id}-${candidate.aliasName}`]: true
+      }));
 
-    // Update local state
-    setCases(prev => prev.map(c => {
-      if (c.id === activeCase.id) {
-        return {
-          ...c,
-          currentAliases: [...c.currentAliases, candidate.aliasName],
-          status: 'RESOLVED_VERIFIED'
-        };
-      }
-      return c;
-    }));
+      // Update local state
+      setCases(prev => prev.map(c => {
+        if (c.id === activeCase.id) {
+          return {
+            ...c,
+            currentAliases: [...c.currentAliases, candidate.aliasName],
+            status: 'RESOLVED_VERIFIED'
+          };
+        }
+        return c;
+      }));
 
-    setActiveCase(prev => ({
-      ...prev,
-      currentAliases: [...prev.currentAliases, candidate.aliasName],
-      status: 'RESOLVED_VERIFIED'
-    }));
+      setActiveCase(prev => ({
+        ...prev,
+        currentAliases: [...prev.currentAliases, candidate.aliasName],
+        status: 'RESOLVED_VERIFIED'
+      }));
 
-    soundFx.playSuccessChime();
+      soundFx.playSuccessChime();
+    } catch (err) {
+      console.error('Merge entity error:', err);
+      setMergeError(err.message || 'Entity merge failed. Check case authorization.');
+      if (soundFx.playAlertBeep) soundFx.playAlertBeep();
+    } finally {
+      setIsMerging(false);
+    }
   };
 
   return (
@@ -154,10 +179,31 @@ export default function EntityResolution() {
             textAlign: 'center'
           }}>
             <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>CONFIDENCE AVG</div>
-            <div style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--success)' }}>91.6%</div>
+            <div style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--success)' }}>
+              {cases.length > 0
+                ? `${Math.round((cases.reduce((acc, c) => acc + (c.confidence || 0.9), 0) / cases.length) * 100)}%`
+                : '92%'}
+            </div>
           </div>
         </div>
       </div>
+
+      {mergeError && (
+        <div role="alert" style={{
+          padding: '10px 16px',
+          background: 'var(--critical-dim)',
+          border: '1px solid var(--critical-border)',
+          color: 'var(--critical)',
+          borderRadius: '6px',
+          fontSize: '0.80rem',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px'
+        }}>
+          <AlertCircle size={16} />
+          <span>{mergeError}</span>
+        </div>
+      )}
 
       {/* Main Resolution Workspace */}
       <div style={{

@@ -256,5 +256,35 @@ def global_search(
     q: str = Query(..., min_length=1, max_length=100),
     current_user: dict = Depends(get_current_user)
 ):
-    """Search across Cases, Evidence items, and Network Graph Entities."""
-    return db.search_all(q)
+    """Search across Cases, Evidence items, and Network Graph Entities with strict authorization filtering."""
+    raw = db.search_all(q)
+    allowed = current_user.get("allowed_cases", ["*"])
+    
+    if "*" in allowed:
+        return raw
+
+    norm_allowed = set(str(c).replace("CASE #", "").strip().upper() for c in allowed)
+    
+    filtered_cases = [
+        c for c in raw.get("cases", [])
+        if str(c.get("id", "")).replace("CASE #", "").strip().upper() in norm_allowed
+    ]
+    
+    filtered_evidence = []
+    for e in raw.get("evidence", []):
+        sub = str(e.get("subtitle", "")).replace("CASE #", "").strip().upper()
+        if any(norm_c in sub for norm_c in norm_allowed):
+            filtered_evidence.append(e)
+            
+    filtered_entities = [
+        ent for ent in raw.get("entities", [])
+        if not ent.get("case_id") or str(ent.get("case_id")).replace("CASE #", "").strip().upper() in norm_allowed
+    ]
+    
+    return {
+        "cases": filtered_cases,
+        "evidence": filtered_evidence,
+        "entities": filtered_entities,
+        "total_matches": len(filtered_cases) + len(filtered_evidence) + len(filtered_entities)
+    }
+
