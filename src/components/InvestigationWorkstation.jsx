@@ -14,6 +14,7 @@ import AnalyticsPanel     from './AnalyticsPanel.jsx';
 import CreateCaseModal    from './CreateCaseModal.jsx';
 import GlobalSearchModal  from './GlobalSearchModal.jsx';
 import CR204InvestigationView from './CR204InvestigationView.jsx';
+import CCTNSExportModal from './CCTNSExportModal.jsx';
 
 // ── Icons ─────────────────────────────────────────────────────────────────────
 const IC = {
@@ -37,15 +38,15 @@ const IC = {
 
 // ── Primary Navigation Hierarchy ──────────────────────
 const PRIMARY_NAV = [
-  { id: 'dashboard',  label: 'Dashboard',         icon: IC.dashboard },
-  { id: 'cr204',      label: 'CCTV Tactical Map', icon: IC.cr204, badge: 'LIVE' },
-  { id: 'cases',      label: 'Cases',             icon: IC.cases },
-  { id: 'evidence',   label: 'Evidence',          icon: IC.evidence },
-  { id: 'graph',      label: 'Graph Analysis',    icon: IC.graph },
-  { id: 'chat',       label: 'CIRA',              icon: IC.chat },
-  { id: 'faceid',     label: 'Face Intelligence', icon: IC.faceid },
-  { id: 'analytics',  label: 'Analytics',         icon: IC.analytics },
-  { id: 'settings',   label: 'Settings',          icon: IC.settings },
+  { id: 'dashboard',  label: 'Dashboard',              icon: IC.dashboard },
+  { id: 'cr204',      label: 'CCTV Tactical Map',      icon: IC.cr204, badge: 'DEMO' },
+  { id: 'cases',      label: 'Cases',                  icon: IC.cases },
+  { id: 'evidence',   label: 'Evidence',               icon: IC.evidence },
+  { id: 'graph',      label: 'Graph Analysis',         icon: IC.graph },
+  { id: 'chat',       label: 'CIRA',                   icon: IC.chat },
+  { id: 'faceid',     label: 'Visual Similarity Demo', icon: IC.faceid },
+  { id: 'analytics',  label: 'Analytics',              icon: IC.analytics },
+  { id: 'settings',   label: 'Settings',               icon: IC.settings },
 ];
 
 const SECONDARY_TOOLS = [
@@ -54,18 +55,18 @@ const SECONDARY_TOOLS = [
 ];
 
 const PAGE_TITLES = {
-  dashboard:  'Operational Dashboard & Command Summary',
-  cr204:      'CR-204 Geographic CCTV Surveillance & Map Investigation Matrix',
-  cases:      'Investigation Case Registry',
-  workspace:  'Dedicated Case Workspace',
-  evidence:   'Evidence Intelligence Repository',
-  graph:      'Criminal Relational Knowledge Graph',
-  chat:       'CIRA — AI Investigation Assistant',
-  faceid:     'Forensic Facial Intelligence Lab',
-  analytics:  'Network Centrality & Link Analysis',
-  resolution: 'Multi-Source Entity Disambiguation & Alias Merge',
-  leads:      'Intelligence Lead Extraction & Corroboration',
-  settings:   'Investigation System & Security Settings'
+  dashboard:  'Operational Dashboard & Simulation Summary',
+  cr204:      'CR-204 CCTV Tactical Facility Map (Simulation)',
+  cases:      'Investigation Case Registry (Fictional Records)',
+  workspace:  'Dedicated Case Workspace (Simulated)',
+  evidence:   'Evidence Intelligence Repository (Simulated Assets)',
+  graph:      'Criminal Relational Knowledge Graph (24 Entities · 28 Relations)',
+  chat:       'CIRA — AI Investigation Assistant (Synthetic RAG)',
+  faceid:     'Synthetic Visual Similarity Demo',
+  analytics:  'Network Centrality & Link Analysis (NetworkX)',
+  resolution: 'Multi-Source Entity Disambiguation (RapidFuzz)',
+  leads:      'Intelligence Lead Extraction & Corroboration (Regex-NER)',
+  settings:   'Simulation Settings & Configuration'
 };
 
 
@@ -236,6 +237,7 @@ export default function InvestigationWorkstation({ currentUser, onLogout, onSwit
   const [collapsed, setCollapsed] = useState(false);
   const [showCaseDropdown, setShowCaseDropdown] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
+  const [isCCTNSOpen, setIsCCTNSOpen] = useState(false);
 
   // Global Ctrl+K shortcut for Global Search
   useEffect(() => {
@@ -260,19 +262,43 @@ export default function InvestigationWorkstation({ currentUser, onLogout, onSwit
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden', background: 'var(--ink)', fontFamily: 'var(--f-body)' }}>
 
+      {/* ── Persistent Simulation Only Banner ── */}
+      <div style={{
+        backgroundColor: '#7f1d1d',
+        color: '#fef2f2',
+        fontSize: '0.68rem',
+        fontWeight: 700,
+        letterSpacing: '0.03em',
+        textAlign: 'center',
+        padding: '5px 12px',
+        borderBottom: '1px solid #991b1b',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: '10px',
+        zIndex: 1000,
+        fontFamily: 'var(--font-mono, monospace)',
+        flexShrink: 0
+      }}>
+        <span style={{ backgroundColor: '#ef4444', color: '#fff', fontSize: '0.58rem', padding: '1px 6px', borderRadius: '3px', fontWeight: 800 }}>DEMO ENVIRONMENT</span>
+        <span>SIMULATION ONLY — ALL PEOPLE, INCIDENTS, LOCATIONS, IDENTITIES, IMAGES, AND EVIDENCE ARE FICTIONAL. NO REAL INVESTIGATIVE OR LAW-ENFORCEMENT DATA IS USED.</span>
+      </div>
+
       {/* ── Top System Telemetry & Status Bar ─────────────────────────────── */}
       <div className="classification-bar" style={{ height: '28px', flexShrink: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--success)' }} />
           <span style={{ color: 'var(--text-primary)', fontWeight: 600, letterSpacing: '0.04em' }}>
-            CRIMENET COMMAND CENTER
+            CRIMENET AI · SIMULATOR
           </span>
           <span style={{ color: 'var(--border-default)' }}>|</span>
-          <span style={{ color: 'var(--text-secondary)' }}>CRIMINAL NETWORK ANALYSIS & INVESTIGATION</span>
+          <span style={{ color: 'var(--text-secondary)' }}>CRIMINAL NETWORK ANALYSIS DEMO ENVIRONMENT</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <span>STATUS: <strong style={{ color: 'var(--success)' }}>ONLINE</strong></span>
-          <span>CLEARANCE: <strong style={{ color: 'var(--accent-hover)' }}>{currentUser?.clearance || 'LEVEL-4 LEAD INVESTIGATOR'}</strong></span>
+          <span style={{ backgroundColor: 'rgba(56, 189, 248, 0.15)', border: '1px solid rgba(56, 189, 248, 0.4)', borderRadius: '4px', padding: '1px 8px', color: '#38bdf8', fontSize: '0.62rem', fontWeight: 700 }}>
+            DEMO ENVIRONMENT
+          </span>
+          <span>MODE: <strong style={{ color: 'var(--success)' }}>SIMULATION (NETWORKX / RAPIDFUZZ)</strong></span>
           <LiveClock />
         </div>
       </div>
@@ -522,6 +548,19 @@ export default function InvestigationWorkstation({ currentUser, onLogout, onSwit
             <h1 style={{ fontFamily: 'var(--f-display)', fontSize: '1.02rem', fontWeight: 700, color: '#fff' }}>
               {PAGE_TITLES[activePage] || activePage}
             </h1>
+            <span style={{
+              fontFamily: 'var(--font-mono, monospace)',
+              fontSize: '0.62rem',
+              fontWeight: 700,
+              padding: '2px 8px',
+              borderRadius: '4px',
+              backgroundColor: 'rgba(239, 68, 68, 0.15)',
+              color: '#f87171',
+              border: '1px solid rgba(239, 68, 68, 0.35)',
+              letterSpacing: '0.04em'
+            }}>
+              DEMO ENVIRONMENT
+            </span>
             {activePage === 'workspace' && activeCase && (
               <span style={{
                 fontFamily: 'var(--f-mono)', fontSize: '0.74rem',
@@ -533,7 +572,25 @@ export default function InvestigationWorkstation({ currentUser, onLogout, onSwit
           </div>
 
           {/* Center / Right: Global Search, Active Case Context, Notifications, User */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+
+            {/* CCTNS Gateway Interoperability Button */}
+            <button
+              onClick={() => setIsCCTNSOpen(true)}
+              style={{
+                display: 'flex', alignItems: 'center', gap: '6px',
+                padding: '5px 11px', background: 'rgba(56, 189, 248, 0.12)',
+                border: '1px solid rgba(56, 189, 248, 0.35)', borderRadius: '6px',
+                color: '#38bdf8', fontSize: '0.74rem', fontWeight: 600, cursor: 'pointer',
+                transition: 'var(--ease)'
+              }}
+              title="Indian CCTNS / NATGRID Interoperability Docket Exchange"
+            >
+              <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+              </svg>
+              <span>CCTNS Gateway</span>
+            </button>
 
             {/* Global Search Bar Trigger */}
             <button
@@ -543,7 +600,7 @@ export default function InvestigationWorkstation({ currentUser, onLogout, onSwit
                 padding: '5px 12px', background: 'var(--ink-2)',
                 border: '1px solid var(--b-soft)', borderRadius: '6px',
                 color: 'var(--t-muted)', fontSize: '0.76rem', cursor: 'pointer',
-                transition: 'var(--ease)', width: '220px'
+                transition: 'var(--ease)', width: '200px'
               }}
               onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--b-medium)'}
               onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--b-soft)'}
@@ -760,6 +817,11 @@ export default function InvestigationWorkstation({ currentUser, onLogout, onSwit
       <GlobalSearchModal
         isOpen={isSearchOpen}
         onClose={() => setIsSearchOpen(false)}
+      />
+
+      <CCTNSExportModal
+        isOpen={isCCTNSOpen}
+        onClose={() => setIsCCTNSOpen(false)}
       />
 
     </div>

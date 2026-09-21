@@ -47,34 +47,163 @@ def extract_entities_from_text(
     if len(text) < 5:
         raise HTTPException(status_code=422, detail="Input transcript must be at least 5 characters.")
 
-    case_name = request.case_name or request.caseName or "Intercept-Alpha-88"
+    case_name = request.case_name or request.caseName or "FIR-204/2026-NLP"
 
-    suspect_patterns = ["Viktor Voronin", "Viktor", "Voronin", "Darius", "Darius Vance", "Elena", "Elena Rostov", "Kane", "Marcus Kane"]
-    location_patterns = ["Gate 4", "Warehouse 14B", "South Pier", "Sector 4", "Harbor Terminal C", "Pier Customs"]
-    vehicle_patterns = ["black Escalade", "plate 8B9-CYP", "VIN: 7829-K", "SUV"]
-    crypto_patterns = ["0x889...F1C", "140 Tether", "offshore escrow", "Tether wallet"]
-    technical_patterns = ["868MHz", "signal jammers", "microwave tap", "cryptographic hardware"]
+    entities_found = {
+        "suspects": [],
+        "locations": [],
+        "vehicles": [],
+        "financial": [],
+        "technical_signatures": [],
+        "telecom": []
+    }
 
-    detected_suspects = list(set([s for s in suspect_patterns if re.search(r'\b' + re.escape(s) + r'\b', text, re.IGNORECASE)]))
-    detected_locations = list(set([l for l in location_patterns if re.search(r'\b' + re.escape(l) + r'\b', text, re.IGNORECASE)]))
-    detected_vehicles = list(set([v for v in vehicle_patterns if re.search(r'\b' + re.escape(v) + r'\b', text, re.IGNORECASE)]))
-    detected_financial = list(set([c for c in crypto_patterns if re.search(r'\b' + re.escape(c) + r'\b', text, re.IGNORECASE)]))
-    detected_technical = list(set([t for t in technical_patterns if re.search(r'\b' + re.escape(t) + r'\b', text, re.IGNORECASE)]))
+    seen_spans = set()
 
-    total_found = len(detected_suspects) + len(detected_locations) + len(detected_vehicles) + len(detected_financial)
-    confidence = min(0.65 + total_found * 0.06, 0.985)
+    # 1. Indian & International Vehicle License Plates
+    plate_pattern = re.compile(r'\b([A-Z]{2}[-\s]?[0-9]{1,2}[-\s]?[A-Z]{1,3}[-\s]?[0-9]{4}|[0-9][A-Z][0-9]-[A-Z]{3}|[A-Z]{2,3}-[0-9]{3,4}[A-Z]?)\b', re.IGNORECASE)
+    for m in plate_pattern.finditer(text):
+        val = m.group(1).strip().upper()
+        span_key = ("plate", m.start(), m.end())
+        if span_key not in seen_spans:
+            seen_spans.add(span_key)
+            entities_found["vehicles"].append({
+                "name": val,
+                "type": "LICENSE_PLATE",
+                "confidence": 0.96,
+                "span": [m.start(), m.end()],
+                "context": text[max(0, m.start()-20):min(len(text), m.end()+20)].strip()
+            })
+
+    # 1b. Vehicle models
+    veh_model_pattern = re.compile(r'\b(Scorpio|Innova|Fortuner|Escalade|Swift|Bolero|SUV|Truck|Freight Train|Tanker|Van)\b', re.IGNORECASE)
+    for m in veh_model_pattern.finditer(text):
+        val = m.group(1).strip()
+        span_key = ("veh_model", m.start(), m.end())
+        if span_key not in seen_spans:
+            seen_spans.add(span_key)
+            entities_found["vehicles"].append({
+                "name": val,
+                "type": "VEHICLE_MODEL",
+                "confidence": 0.88,
+                "span": [m.start(), m.end()],
+                "context": text[max(0, m.start()-20):min(len(text), m.end()+20)].strip()
+            })
+
+    # 2. Currency (INR, USD, Crypto)
+    currency_pattern = re.compile(r'(?:₹|Rs\.?|INR|\$)\s*[\d,]+(?:\.\d+)?\s*(?:Lakhs?|Crores?|Cr|L|k|Million|Tether|USDT)?\b', re.IGNORECASE)
+    for m in currency_pattern.finditer(text):
+        val = m.group(0).strip()
+        if len(val) >= 2 and any(c.isdigit() for c in val):
+            entities_found["financial"].append({
+                "name": val,
+                "type": "CURRENCY_AMOUNT",
+                "confidence": 0.94,
+                "span": [m.start(), m.end()],
+                "context": text[max(0, m.start()-20):min(len(text), m.end()+20)].strip()
+            })
+
+    # 2b. Escrow / Digital Wallets / IFSC Accounts
+    wallet_pattern = re.compile(r'\b(0x[a-fA-F0-9]{3,40}(?:\.\.\.[a-fA-F0-9]{3,10})?|[A-Z]{4}0[A-Z0-9]{6}|escrow\s+wallet|tumbler\s+node\s+\d+)\b', re.IGNORECASE)
+    for m in wallet_pattern.finditer(text):
+        val = m.group(1).strip()
+        entities_found["financial"].append({
+            "name": val,
+            "type": "ESCROW_ACCOUNT",
+            "confidence": 0.92,
+            "span": [m.start(), m.end()],
+            "context": text[max(0, m.start()-20):min(len(text), m.end()+20)].strip()
+        })
+
+    # 3. Telecom / Indian Phone Numbers
+    phone_pattern = re.compile(r'(?:\+91[-\s]?)?[6-9]\d{4}[-\s]?\d{5}\b|\b0\d{2,4}[-\s]?\d{6,8}\b')
+    for m in phone_pattern.finditer(text):
+        val = m.group(0).strip()
+        entities_found["telecom"].append({
+            "name": val,
+            "type": "PHONE_NUMBER",
+            "confidence": 0.95,
+            "span": [m.start(), m.end()],
+            "context": text[max(0, m.start()-20):min(len(text), m.end()+20)].strip()
+        })
+
+    # 4. Critical Locations & Logistics Infrastructure
+    loc_pattern = re.compile(r'\b(Gate\s+\d+[A-Za-z]?|Terminal\s+[A-Za-z0-9]+|Warehouse\s+[0-9A-Za-z]+|Sector\s+\d+|JNPT|Nhava Sheva|South Pier|Bandra(?:-Kurla)?(?:\s+Complex)?|BKC|Pier Customs|Customs Yard(?:\s+\d+[A-Za-z]?)?|Rail Siding|Arterial Road|Industrial Access Spur)\b', re.IGNORECASE)
+    for m in loc_pattern.finditer(text):
+        val = m.group(1).strip()
+        entities_found["locations"].append({
+            "name": val,
+            "type": "LOGISTICS_FACILITY",
+            "confidence": 0.92,
+            "span": [m.start(), m.end()],
+            "context": text[max(0, m.start()-20):min(len(text), m.end()+20)].strip()
+        })
+
+    # 5. Technical Frequencies & Signals
+    rf_pattern = re.compile(r'\b(\d{2,4}(?:\.\d+)?\s*(?:MHz|GHz|kHz)|signal jammers?|microwave tap|SCADA|cryptographic hardware)\b', re.IGNORECASE)
+    for m in rf_pattern.finditer(text):
+        val = m.group(1).strip()
+        entities_found["technical_signatures"].append({
+            "name": val,
+            "type": "SIGNAL_INTEL",
+            "confidence": 0.90,
+            "span": [m.start(), m.end()],
+            "context": text[max(0, m.start()-20):min(len(text), m.end()+20)].strip()
+        })
+
+    # 6. Suspect Names (Both seeded and arbitrary capitalized full proper names)
+    seed_suspects = [
+        "Viktor Voronin", "Elena Rostov", "Darius Vance", "Marcus Kane",
+        "Rajesh Sharma", "Vikram Malhotra", "Katya Orlova", "Tariq Al-Mansoor"
+    ]
+    for s in seed_suspects:
+        for m in re.finditer(r'\b' + re.escape(s) + r'\b', text, re.IGNORECASE):
+            entities_found["suspects"].append({
+                "name": s,
+                "type": "PERSON_OF_INTEREST",
+                "confidence": 0.97,
+                "threat": "HIGH",
+                "span": [m.start(), m.end()],
+                "context": text[max(0, m.start()-20):min(len(text), m.end()+20)].strip()
+            })
+
+    # Dynamic Capitalized Proper Nouns matching 2-3 words (excluding words already matched)
+    proper_noun_pattern = re.compile(r'\b([A-Z][a-z]+(?:\s+[A-Z][a-z]+){1,2})\b')
+    excluded_names = {"South Pier", "Gate Four", "Terminal C", "Customs Yard", "Rail Siding", "Metro Tactical", "Warehouse Bay", "Industrial Spur", "Listen Closely"}
+    for m in proper_noun_pattern.finditer(text):
+        name = m.group(1).strip()
+        if name not in excluded_names and not any(s["name"].lower() == name.lower() for s in entities_found["suspects"]):
+            # Check it doesn't collide with location patterns
+            if not any(loc["name"].lower() in name.lower() for loc in entities_found["locations"]):
+                entities_found["suspects"].append({
+                    "name": name,
+                    "type": "DYNAMIC_NAMED_ENTITY",
+                    "confidence": 0.84,
+                    "threat": "UNVERIFIED_LEAD",
+                    "span": [m.start(), m.end()],
+                    "context": text[max(0, m.start()-20):min(len(text), m.end()+20)].strip()
+                })
+
+    # Deduplicate each list by name
+    for k in entities_found:
+        unique = []
+        seen = set()
+        for item in entities_found[k]:
+            if item["name"].lower() not in seen:
+                seen.add(item["name"].lower())
+                unique.append(item)
+        entities_found[k] = unique
+
+    total_extracted = sum(len(v) for v in entities_found.values())
+    confidence = min(0.68 + total_extracted * 0.04, 0.985)
 
     return {
         "status": "ENTITIES_EXTRACTED",
         "case_name": case_name,
+        "total_extracted": total_extracted,
         "confidence": round(confidence, 3),
-        "entities": {
-            "suspects": [{"name": s, "type": "PERSON_OF_INTEREST", "threat": "HIGH"} for s in detected_suspects],
-            "locations": [{"name": l, "type": "CRITICAL_LOCATION"} for l in detected_locations],
-            "vehicles": [{"name": v, "type": "TRANSIT_ASSET"} for v in detected_vehicles],
-            "financial": [{"name": f, "type": "ILLICIT_ESCROW"} for f in detected_financial],
-            "technical_signatures": [{"name": t, "type": "SIGNAL_INTEL"} for t in detected_technical]
-        }
+        "entities": entities_found,
+        "engine": "CrimeNet Dynamic Hybrid Regex-NER Pipeline v4"
     }
 
 @router.post("/generate")

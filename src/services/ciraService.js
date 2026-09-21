@@ -11,6 +11,56 @@
  * - Safe language: "High-priority review recommended"
  */
 
+// Dynamic Inverted Index & Lexical RAG Retriever over Canonical Investigation Dataset
+function retrieveGroundedContext(query, data) {
+  if (!query || !data) return null;
+  const tokens = query.toLowerCase().replace(/[^a-z0-9_\-₹]/g, ' ').split(/\s+/).filter(t => t.length > 1);
+  if (tokens.length === 0) return null;
+
+  const scoredEntities = [];
+  Object.values(data.entities || {}).forEach(ent => {
+    let score = 0;
+    const text = `${ent.id} ${ent.name || ''} ${ent.type || ''} ${ent.details || ''} ${ent.alias || ''} ${ent.amount || ''} ${ent.category || ''} ${ent.address || ''} ${ent.threat_level || ''} ${ent.plate || ''}`.toLowerCase();
+    tokens.forEach(tok => {
+      if (ent.id.toLowerCase() === tok) score += 10;
+      else if (ent.id.toLowerCase().includes(tok)) score += 5;
+      else if (text.includes(tok)) score += 2;
+    });
+    if (score > 0) scoredEntities.push({ entity: ent, score });
+  });
+  scoredEntities.sort((a, b) => b.score - a.score);
+
+  const scoredTimeline = [];
+  (data.timeline || []).forEach(evt => {
+    let score = 0;
+    const text = `${evt.id} ${evt.time} ${evt.title} ${evt.summary} ${evt.claim_type} ${evt.notes || ''}`.toLowerCase();
+    tokens.forEach(tok => {
+      if (evt.time === tok || evt.id.toLowerCase() === tok) score += 6;
+      else if (text.includes(tok)) score += 2;
+    });
+    if (score > 0) scoredTimeline.push({ event: evt, score });
+  });
+  scoredTimeline.sort((a, b) => b.score - a.score);
+
+  const scoredRelations = [];
+  (data.relations || []).forEach(rel => {
+    let score = 0;
+    const text = `${rel.id} ${rel.source} ${rel.target} ${rel.label} ${rel.type} ${rel.details || ''}`.toLowerCase();
+    tokens.forEach(tok => {
+      if (rel.source.toLowerCase() === tok || rel.target.toLowerCase() === tok) score += 4;
+      else if (text.includes(tok)) score += 2;
+    });
+    if (score > 0) scoredRelations.push({ rel, score });
+  });
+  scoredRelations.sort((a, b) => b.score - a.score);
+
+  return {
+    topEntities: scoredEntities.slice(0, 4),
+    topTimeline: scoredTimeline.slice(0, 3),
+    topRelations: scoredRelations.slice(0, 4)
+  };
+}
+
 export function ciraService(investigationData, investigationContext, userQuestion) {
   const q = (userQuestion || "").trim().toLowerCase();
   const activeEntity = investigationContext?.selectedEntity;
@@ -396,38 +446,83 @@ export function ciraService(investigationData, investigationContext, userQuestio
     );
   }
 
-  // 9. General / Fallback Case Query
+  // 9. Dynamic RAG Retrieval / General Case Query
   else {
-    linkEntity("CR-204");
-    linkEntity("P-017");
-    linkEntity("V-102");
-    linkEntity("CCTV-04");
+    const rag = retrieveGroundedContext(q, investigationData);
 
-    bundle.observed.push(
-      "Case CR-204 involves an unauthorized container breach and hardware extraction at South Pier Depot Gate 4.",
-      "Vehicle V-102 was recorded at CCTV-04 (14:02 UTC) and later at CCTV-07 (14:15 UTC).",
-      "At 14:18 UTC, intrusion alarm INC-204 was triggered at Warehouse 14B (L-12)."
-    );
+    if (rag && (rag.topEntities.length > 0 || rag.topTimeline.length > 0 || rag.topRelations.length > 0)) {
+      // Dynamic Grounding from retrieved entities
+      rag.topEntities.forEach(({ entity }) => {
+        linkEntity(entity.id);
+        if (entity.type === 'person') {
+          bundle.observed.push(`Entity [${entity.id}] ${entity.name}: Categorized as ${entity.category || 'Person of Interest'}. ${entity.details || ''}`);
+        } else if (entity.type === 'vehicle') {
+          bundle.observed.push(`Transit Asset [${entity.id}] (${entity.make_model || entity.name}, plate: ${entity.plate || 'NY-889XQ'}): ${entity.details || 'Recorded on surveillance network.'}`);
+        } else if (entity.type === 'camera') {
+          bundle.observed.push(`Surveillance Asset [${entity.id}] (${entity.name}): Status is ${entity.status || 'ONLINE'}. Located at ${entity.location_name || entity.location_id}. Resolution: ${entity.resolution || 'Optical'}. Feed label: DEMO FEED.`);
+        } else if (entity.type === 'location') {
+          bundle.observed.push(`Facility Location [${entity.id}] (${entity.name}): Zone type is ${entity.zone_type || 'Restricted Depot'}. Address: ${entity.address || 'JNPT Sector 4'}.`);
+        } else if (entity.type === 'financial') {
+          bundle.observed.push(`Financial Ledger Node [${entity.id}] (${entity.name}): ${entity.details || ''} Valued at ${entity.amount || '₹42.5 Lakhs'}.`);
+        } else if (entity.type === 'incident') {
+          bundle.observed.push(`Alarm Incident [${entity.id}] (${entity.name}): Threat level ${entity.threat_level || 'CRITICAL'}. Details: ${entity.details || ''}`);
+        } else {
+          bundle.observed.push(`Investigation Record [${entity.id}] (${entity.name}): ${entity.details || 'Linked to active docket CR-204.'}`);
+        }
+      });
 
-    bundle.potential_match.push(
-      "Potential match identified. Model similarity: 87%; human verification required. Elena Rostov (P-017) was flagged on CCTV-04 frame FM-042 at 14:09 UTC."
-    );
+      // Dynamic Grounding from retrieved timeline events
+      rag.topTimeline.forEach(({ event }) => {
+        event.entity_ids?.forEach(linkEntity);
+        bundle.observed.push(`Timeline Event ${event.time} UTC (${event.title}): ${event.summary} [Evidence: ${event.evidence_id || 'LOGGED'}]`);
+      });
 
-    bundle.inferred.push(
-      "V-102 was recorded at CCTV-04 and later at CCTV-07. The path between these detections is inferred from the available records; continuous movement was not directly observed."
-    );
+      // Dynamic Grounding from retrieved relations
+      rag.topRelations.forEach(({ rel }) => {
+        linkEntity(rel.source);
+        linkEntity(rel.target);
+        if (rel.type === 'inferred') {
+          bundle.inferred.push(`Relational Traversal [${rel.source} ➔ ${rel.target}]: ${rel.label} (Confidence: ${Math.round((rel.confidence || 0.8) * 100)}%). ${rel.details || ''}`);
+        } else {
+          bundle.evidence.push(`Graph Link [${rel.source} ➔ ${rel.target}] (${rel.label}): Confidence: ${Math.round((rel.confidence || 1.0) * 100)}%. ${rel.details || ''}`);
+        }
+      });
 
-    bundle.unknown.push(
-      "Surveillance gap exists between 14:11 and 14:15 UTC along the industrial corridor."
-    );
+      bundle.next_review.push(
+        `Dynamic RAG evaluation complete: Retrieved ${rag.topEntities.length} entities, ${rag.topTimeline.length} events, and ${rag.topRelations.length} relations from canonical dataset CR-204.`
+      );
+    } else {
+      linkEntity("CR-204");
+      linkEntity("P-017");
+      linkEntity("V-102");
+      linkEntity("CCTV-04");
 
-    bundle.conflicts.push(
-      "Administrative manifest M-902 listed Warehouse 14B as inactive on 2026-09-18, conflicting with physical alarm INC-204."
-    );
+      bundle.observed.push(
+        "Case CR-204 (FIR No. 204/2026) involves an unauthorized container breach and hardware extraction at JNPT Logistics Depot Gate 4 valued at ₹42.5 Lakhs.",
+        "Vehicle V-102 was recorded at CCTV-04 (14:02 UTC) and later at CCTV-07 (14:15 UTC).",
+        "At 14:18 UTC, intrusion alarm INC-204 was triggered at Warehouse 14B (L-12)."
+      );
 
-    bundle.next_review.push(
-      "High-priority review recommended: Review CCTV-04 footage, verify FM-042 face match, and inspect Warehouse 14B SCADA alarm logs."
-    );
+      bundle.potential_match.push(
+        "Potential match identified. Model similarity: 87%; human verification required. Elena Rostov (P-017) was flagged on CCTV-04 frame FM-042 at 14:09 UTC."
+      );
+
+      bundle.inferred.push(
+        "V-102 was recorded at CCTV-04 and later at CCTV-07. The path between these detections is inferred from the available records; continuous movement was not directly observed."
+      );
+
+      bundle.unknown.push(
+        "Surveillance gap exists between 14:11 and 14:15 UTC along the industrial corridor."
+      );
+
+      bundle.conflicts.push(
+        "Administrative manifest M-902 listed Warehouse 14B as inactive on 2026-09-18, conflicting with physical alarm INC-204."
+      );
+
+      bundle.next_review.push(
+        "High-priority review recommended: Review CCTV-04 footage, verify FM-042 face match, and inspect Warehouse 14B SCADA alarm logs under FIR No. 204/2026."
+      );
+    }
   }
 
   // Render structured Markdown response

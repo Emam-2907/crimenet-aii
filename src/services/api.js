@@ -590,6 +590,13 @@ export const api = {
     return await request('/entity-resolution/cases');
   },
 
+  fuzzyMatch: async (queryName, candidateName = null, threshold = 0.60) => {
+    return await request('/entity-resolution/fuzzy-match', {
+      method: 'POST',
+      body: { query_name: queryName, candidate_name: candidateName, threshold }
+    });
+  },
+
   mergeEntity: async (caseId, primaryId, aliasName, matchScore) => {
     return await request('/entity-resolution/merge', {
       method: 'POST',

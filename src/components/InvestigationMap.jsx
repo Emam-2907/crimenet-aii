@@ -82,7 +82,7 @@ export default function InvestigationMap() {
 
   const [searchQuery, setSearchQuery] = useState('');
   const [showSearchResults, setShowSearchResults] = useState(false);
-  const [useVectorFallback, setUseVectorFallback] = useState(false);
+  const [useVectorFallback, setUseVectorFallback] = useState(true);
   const [activeLayers, setActiveLayers] = useState({
     cameras: true,
     locations: true,
@@ -680,9 +680,9 @@ export default function InvestigationMap() {
             <circle cx="475" cy="300" r="250" fill="none" stroke="rgba(91, 124, 153, 0.08)" strokeWidth="1" strokeDasharray="4,4" />
 
             {/* Tactical Sector Headers */}
-            <text x="36" y="44" fill="#6B7280" fontFamily="monospace" fontSize="11" fontWeight="700">SECTOR 4 // SOUTH PIER LOGISTICS MATRIX</text>
-            <text x="36" y="60" fill="#4B5563" fontFamily="monospace" fontSize="9">RADAR MODE: TACTICAL VECTOR PROJECTION</text>
-            <text x="760" y="44" fill="#6B7280" fontFamily="monospace" fontSize="10">40°42'52"N  74°00'16"W</text>
+            <text x="36" y="44" fill="#6B7280" fontFamily="monospace" fontSize="11" fontWeight="700">SECTOR 4 // JNPT NHAVA SHEVA LOGISTICS MATRIX</text>
+            <text x="36" y="60" fill="#4B5563" fontFamily="monospace" fontSize="9">RADAR MODE: SYNTHETIC TACTICAL FACILITY MAP (SIMULATION)</text>
+            <text x="730" y="44" fill="#6B7280" fontFamily="monospace" fontSize="10">18°56'58"N  72°57'12"E (JNPT)</text>
 
             {/* Inferred Route Lines */}
             {activeLayers.vehicleRoute && (

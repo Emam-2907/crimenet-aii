@@ -34,33 +34,23 @@ export default function CR204CytoscapeGraph({ onFocusMap, height = '360px' }) {
     const nodes = [];
     const edges = [];
 
-    // Entity configuration
+    // Entity visual configuration
     const entityVisuals = {
-      case: { shape: 'diamond', bg: '#3F5F78', border: '#5B7C99', size: 54, label: 'CASE' },
-      person: { shape: 'ellipse', bg: '#9B3D45', border: '#C04A52', size: 50, label: 'PERSON' },
-      face_match: { shape: 'diamond', bg: '#B58A45', border: '#D1A256', size: 44, label: 'BIOMETRIC' },
-      camera: { shape: 'round-rectangle', bg: '#171D24', border: '#5B7C99', size: 42, label: 'CCTV' },
-      location: { shape: 'ellipse', bg: '#2A333D', border: '#5B7C99', size: 44, label: 'LOC' },
-      vehicle: { shape: 'round-rectangle', bg: '#B58A45', border: '#D1A256', size: 46, label: 'VEHICLE' },
-      incident: { shape: 'octagon', bg: '#C04A52', border: '#E6E9ED', size: 50, label: 'INCIDENT' }
+      case: { shape: 'diamond', bg: '#1E3A5F', border: '#38BDF8', size: 54, label: 'CASE' },
+      person: { shape: 'ellipse', bg: '#5C1D24', border: '#F87171', size: 50, label: 'PERSON' },
+      face_match: { shape: 'diamond', bg: '#4D3800', border: '#FBBF24', size: 44, label: 'BIOMETRIC' },
+      camera: { shape: 'round-rectangle', bg: '#132B20', border: '#34D399', size: 42, label: 'CCTV' },
+      location: { shape: 'ellipse', bg: '#2A333D', border: '#94A3B8', size: 44, label: 'LOC' },
+      vehicle: { shape: 'round-rectangle', bg: '#422006', border: '#FB923C', size: 46, label: 'VEHICLE' },
+      incident: { shape: 'octagon', bg: '#4C0519', border: '#F43F5E', size: 50, label: 'INCIDENT' },
+      financial: { shape: 'hexagon', bg: '#064E3B', border: '#34D399', size: 44, label: 'FINANCIAL' },
+      evidence: { shape: 'tag', bg: '#0F172A', border: '#38BDF8', size: 44, label: 'EVIDENCE' },
+      telemetry: { shape: 'round-rectangle', bg: '#1E1B4B', border: '#818CF8', size: 44, label: 'TELEMETRY' },
+      organization: { shape: 'rectangle', bg: '#4A044E', border: '#F472B6', size: 50, label: 'ORGANIZATION' }
     };
 
-    // Filter to primary investigation entities to maintain high signal
-    const relevantEntityIds = new Set([
-      'CR-204', 'P-017', 'FM-042', 'CCTV-04', 'CCTV-07', 'CCTV-11',
-      'L-08', 'L-10', 'L-12', 'V-102', 'INC-204', 'PERSON-001',
-      'CCTV-PVT-01', 'FM-045'
-    ]);
-
-    // Also include any active selected entity if not present
-    if (selectedEntityId) relevantEntityIds.add(selectedEntityId);
-
-    // Build nodes
-    Object.values(investigationData.entities).forEach(e => {
-      if (!relevantEntityIds.has(e.id) && e.type === 'camera' && !['CCTV-01', 'CCTV-02', 'CCTV-04', 'CCTV-07', 'CCTV-11', 'CCTV-PVT-01'].includes(e.id)) {
-        return; // Keep graph clean and focused on crime corridor
-      }
-
+    // Render all canonical investigation entities
+    Object.values(investigationData.entities || {}).forEach(e => {
       const vis = entityVisuals[e.type] || { shape: 'round-rectangle', bg: '#171D24', border: '#2A333D', size: 40, label: 'ENT' };
       const isSelected = selectedEntityId === e.id;
 
@@ -98,19 +88,6 @@ export default function CR204CytoscapeGraph({ onFocusMap, height = '360px' }) {
       }
     });
 
-    // Connect CCTV-PVT-01 if injected
-    if (nodeIds.has('CCTV-PVT-01')) {
-      if (nodeIds.has('FM-045')) {
-        edges.push({ data: { id: 'REL-PVT-FM45', source: 'CCTV-PVT-01', target: 'FM-045', label: 'Captured Frame 14:12' } });
-      }
-      if (nodeIds.has('PERSON-001') && nodeIds.has('FM-045')) {
-        edges.push({ data: { id: 'REL-FM45-P001', source: 'FM-045', target: 'PERSON-001', label: 'Biometric 96.4% Match' } });
-      }
-      if (nodeIds.has('V-102')) {
-        edges.push({ data: { id: 'REL-PVT-V102', source: 'CCTV-PVT-01', target: 'V-102', label: 'Escort Sighting 14:12' } });
-      }
-    }
-
     return { nodes, edges };
   }, [investigationData, selectedEntityId]);
 
@@ -125,8 +102,8 @@ export default function CR204CytoscapeGraph({ onFocusMap, height = '360px' }) {
         concentric: (node) => {
           const type = node.data('type');
           if (type === 'case') return 100;
-          if (type === 'person' || type === 'incident') return 80;
-          if (type === 'camera' || type === 'vehicle') return 60;
+          if (type === 'person' || type === 'organization' || type === 'incident') return 80;
+          if (type === 'camera' || type === 'vehicle' || type === 'financial' || type === 'face_match') return 60;
           return 40;
         },
         levelWidth: () => 20,

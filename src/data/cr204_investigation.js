@@ -15,14 +15,14 @@
 
 export const cr204InvestigationData = {
   case_id: "CR-204",
-  title: "CR-204: South Pier High-Value Cargo Theft & Syndicate Infiltration",
+  title: "CR-204: JNPT Nhava Sheva Terminal Infiltration & Container Breach (FIR No. 204/2026)",
   classification: "RESTRICTED // SYNTHETIC CASE DEMO",
   case_type: "Organized Syndicate Cargo Theft",
   status: "ACTIVE_INVESTIGATION",
   priority: "High",
   lead_investigator: "Special Agent Marcus Vance",
   created_at: "2026-09-18T13:45:00Z",
-  description: "Investigation into unauthorized container breach and hardware extraction at South Pier Logistics Depot Gate 4. Involves vehicle V-102 and person of interest P-017.",
+  description: "Synthetic investigation into container breach and hardware extraction at JNPT Logistics Depot Gate 4 under FIR No. 204/2026 (IPC 379/420/120B, IT Act 66D). Valued at ₹42.5 Lakhs. Involves vehicle V-102 and person of interest P-017.",
 
   // 1. Entities Registry (including full CCTV-01..12 camera network)
   entities: {
@@ -471,100 +471,302 @@ export const cr204InvestigationData = {
       lng: -74.0010,
       latitude: 40.7180,
       longitude: -74.0010
+    },
+    "WALLET-SIM-889": {
+      id: "WALLET-SIM-889",
+      type: "financial",
+      name: "Synthetic Escrow Node: WALLET-SIM-889",
+      category: "Financial Ledger",
+      threat_level: "HIGH",
+      status: "FROZEN_RECORD",
+      details: "Simulated escrow disbursement ledger node: WALLET-SIM-889. Linked to ₹42.5 Lakhs payoff trail under IT Act 66D.",
+      amount: "₹42.5 Lakhs",
+      currency: "INR"
+    },
+    "EVID-CCTV-04": {
+      id: "EVID-CCTV-04",
+      type: "evidence",
+      name: "Synthetic Evidence: EVID-CCTV-04 (Frame Extraction)",
+      category: "Visual Evidence",
+      threat_level: "EVIDENCE",
+      status: "LOGGED",
+      details: "Surveillance visual frame extracted from CCTV-04 at 14:09:12 UTC. Reference asset for biometric candidate evaluation.",
+      timestamp: "2026-09-18T14:09:12Z"
+    },
+    "TEL-017": {
+      id: "TEL-017",
+      type: "telemetry",
+      name: "Synthetic Telemetry Relay: RF-SIM-921",
+      category: "Telecom Intercept",
+      threat_level: "MEDIUM",
+      status: "LOGGED",
+      details: "Simulated cellular tower handshake (+91-9820112233) logged at JNPT Sector 4 tower during transit window.",
+      phone_number: "+91-9820112233"
+    },
+    "ORG-SIM-GHOST": {
+      id: "ORG-SIM-GHOST",
+      type: "organization",
+      name: "Simulated Syndicate Group: GhostNet Logistics",
+      category: "Syndicate Entity",
+      threat_level: "CRITICAL",
+      status: "UNDER_MONITORING",
+      details: "Fictional logistics syndicate cluster coordinating unauthorized container breaches across western corridor."
     }
   },
 
   // 2. Relations (Graph Edges)
   relations: [
     {
-      id: "REL-CR204-P017",
-      type: "TARGET_OF_INTEREST",
+      id: "rel-cr204-1",
       source: "CR-204",
       target: "P-017",
-      label: "Subject of Interest",
-      provenance: "Intercept Wiretap #8821",
-      certainty: "INFERENCE",
-      details: "Voiceprint and transcript references connect Elena Rostov to shipment coordination."
+      label: "PRIMARY_SUSPECT",
+      type: "association",
+      confidence: 0.85,
+      details: "Suspect in active investigation docket CR-204 under FIR No. 204/2026."
     },
     {
-      id: "REL-P017-FM042",
-      type: "BIOMETRIC_CANDIDATE",
+      id: "rel-cr204-2",
+      source: "CR-204",
+      target: "V-102",
+      label: "FLAGGED_TRANSPORT",
+      type: "vehicle",
+      confidence: 0.92,
+      details: "Vehicle V-102 tagged leaving Gate 4 perimeter with suspected extracted cargo."
+    },
+    {
+      id: "rel-cr204-3",
+      source: "CR-204",
+      target: "INC-204",
+      label: "PRIMARY_INCIDENT",
+      type: "incident",
+      confidence: 1.0,
+      details: "Core physical breach triggering investigation docket FIR No. 204/2026."
+    },
+    {
+      id: "rel-cr204-4",
+      source: "CR-204",
+      target: "EVID-CCTV-04",
+      label: "DOCKET_EVIDENCE",
+      type: "evidence",
+      confidence: 1.0,
+      details: "Primary surveillance visual extraction logged into evidence registry."
+    },
+    {
+      id: "rel-cr204-5",
+      source: "CR-204",
+      target: "ORG-SIM-GHOST",
+      label: "INVESTIGATED_SYNDICATE",
+      type: "association",
+      confidence: 0.88,
+      details: "Syndicate cluster orchestrating high-value cargo breach across maritime corridor."
+    },
+    {
+      id: "rel-cr204-6",
       source: "P-017",
       target: "FM-042",
-      label: "Potential Biometric Match (87%)",
-      provenance: "ArcFace-ResNet50 Model v2.4",
-      certainty: "POTENTIAL_MATCH_87%",
-      details: "87% cosine similarity to gallery mugshot. Human verification required."
+      label: "BIOMETRIC_CANDIDATE",
+      type: "biometric",
+      confidence: 0.87,
+      details: "Synthetic visual candidate match identified. Model similarity: 87%; human verification required."
     },
     {
-      id: "REL-FM042-CCTV04",
-      type: "CAPTURED_BY",
+      id: "rel-cr204-7",
+      source: "P-017",
+      target: "ORG-SIM-GHOST",
+      label: "AFFILIATED_OPERATIVE",
+      type: "association",
+      confidence: 0.82,
+      details: "Encrypted communication links connect operative to GhostNet coordination hub."
+    },
+    {
+      id: "rel-cr204-8",
+      source: "P-017",
+      target: "WALLET-SIM-889",
+      label: "ESCROW_COUNTERPARTY",
+      type: "financial",
+      confidence: 0.91,
+      details: "Disbursement of ₹42.5 Lakhs escrow settlement traced to digital wallet WALLET-SIM-889."
+    },
+    {
+      id: "rel-cr204-9",
+      source: "P-017",
+      target: "TEL-017",
+      label: "TELEMETRY_HANDSHAKE",
+      type: "telemetry",
+      confidence: 0.79,
+      details: "Radio frequency cell tower handshake recorded coincident with Gate 4 arrival."
+    },
+    {
+      id: "rel-cr204-10",
       source: "FM-042",
       target: "CCTV-04",
-      label: "Captured on Frame 14:09",
-      provenance: "CCTV-04 Sensor Recording",
-      certainty: "OBSERVATION",
-      details: "Frame capture at 14:09:12 UTC at Gate 4 pedestrian turnstile."
+      label: "CAPTURED_BY",
+      type: "evidence",
+      confidence: 0.95,
+      details: "Biometric face frame extracted from CCTV-04 footage at 14:09 UTC."
     },
     {
-      id: "REL-CCTV04-L08",
-      type: "INSTALLED_AT",
+      id: "rel-cr204-11",
+      source: "FM-042",
+      target: "EVID-CCTV-04",
+      label: "EXTRACTION_SOURCE",
+      type: "evidence",
+      confidence: 0.98,
+      details: "Source file reference for biometric candidate evaluation."
+    },
+    {
+      id: "rel-cr204-12",
       source: "CCTV-04",
       target: "L-08",
-      label: "Installed at Gate 4",
-      provenance: "Port Infrastructure GIS",
-      certainty: "CONFIRMED_FACT",
-      details: "Fixed mount on Gate 4 gantry post."
+      label: "LOCATED_AT",
+      type: "location",
+      confidence: 1.0,
+      details: "Physical camera asset mounted on Gate 4 gantry post."
     },
     {
-      id: "REL-L08-V102",
-      type: "VEHICLE_DETECTION",
+      id: "rel-cr204-13",
+      source: "V-102",
+      target: "CCTV-04",
+      label: "RECORDED_BY",
+      type: "vehicle",
+      confidence: 0.96,
+      details: "Direct optical observation of V-102 entering Gate 4 depot at 14:02 UTC."
+    },
+    {
+      id: "rel-cr204-14",
       source: "L-08",
       target: "V-102",
-      label: "Vehicle Detected 14:02",
-      provenance: "ALPR Camera Log",
-      certainty: "OBSERVATION",
-      details: "Plate NY-889XQ recorded entering Gate 4 at 14:02 UTC."
+      label: "TRANSIT_PASS",
+      type: "transit",
+      confidence: 0.94,
+      details: "Vehicle passed security barrier at Gate 4 at 14:02 UTC."
     },
     {
-      id: "REL-V102-CCTV07",
-      type: "DETECTED_AT",
+      id: "rel-cr204-15",
+      source: "V-102",
+      target: "L-10",
+      label: "INFERRED_CORRIDOR",
+      type: "inferred",
+      confidence: 0.84,
+      details: "Transit along Pier Corridor East inferred based on timing and roadway topography."
+    },
+    {
+      id: "rel-cr204-16",
+      source: "L-10",
+      target: "CCTV-07",
+      label: "MONITORED_BY",
+      type: "location",
+      confidence: 1.0,
+      details: "CCTV-07 covers the central eastbound lane of Pier Corridor East."
+    },
+    {
+      id: "rel-cr204-17",
       source: "V-102",
       target: "CCTV-07",
-      label: "Detected at 14:15",
-      provenance: "CCTV-07 ALPR Relay",
-      certainty: "OBSERVATION",
-      details: "Plate NY-889XQ recorded eastbound at Corridor East at 14:15 UTC."
+      label: "RECORDED_BY",
+      type: "vehicle",
+      confidence: 0.94,
+      details: "Direct optical observation of V-102 travelling eastbound at 14:15 UTC."
     },
     {
-      id: "REL-CCTV07-CCTV11",
-      type: "INFERRED_TRANSIT",
-      source: "CCTV-07",
+      id: "rel-cr204-18",
+      source: "V-102",
       target: "CCTV-11",
-      label: "Inferred Transit Corridor",
-      provenance: "Spatial Road Network Model",
-      certainty: "INFERENCE",
-      details: "V-102 was recorded at CCTV-04 and later at CCTV-07. The path between these detections is inferred from the available records; continuous movement was not directly observed."
+      label: "INFERRED_TRAJECTORY",
+      type: "inferred",
+      confidence: 0.68,
+      details: "V-102 was recorded at CCTV-04 and later at CCTV-07. The path to CCTV-11 is an inferred demo trajectory."
     },
     {
-      id: "REL-CCTV11-INC204",
-      type: "VICINITY_MONITORING",
+      id: "rel-cr204-19",
+      source: "CCTV-11",
+      target: "L-12",
+      label: "PERIMETER_SURVEILLANCE",
+      type: "location",
+      confidence: 1.0,
+      details: "CCTV-11 monitors the access spur leading directly into Warehouse 14B."
+    },
+    {
+      id: "rel-cr204-20",
       source: "CCTV-11",
       target: "INC-204",
-      label: "Monitoring Facility Perimeter",
-      provenance: "Port Dispatch CAD",
-      certainty: "OBSERVATION",
-      details: "CCTV-11 monitors the perimeter of Warehouse 14B where INC-204 occurred."
+      label: "ALARM_PROXIMITY",
+      type: "association",
+      confidence: 0.88,
+      details: "Camera CCTV-11 field of view covers the exterior door associated with breach alarm INC-204."
     },
     {
-      id: "REL-INC204-L12",
-      type: "OCCURRED_AT",
+      id: "rel-cr204-21",
       source: "INC-204",
       target: "L-12",
-      label: "Breach at Warehouse 14B",
-      provenance: "Officer Incident Report",
-      certainty: "CONFIRMED_FACT",
-      details: "Physical breach occurred at Warehouse 14B North Cargo Bay."
+      label: "OCCURRED_AT",
+      type: "location",
+      confidence: 1.0,
+      details: "Perimeter breach alarm tripped at Warehouse 14B North Cargo Bay at 14:18 UTC."
+    },
+    {
+      id: "rel-cr204-22",
+      source: "CCTV-12",
+      target: "L-12",
+      label: "FACILITY_GATE_MONITOR",
+      type: "location",
+      confidence: 1.0,
+      details: "Perimeter gate surveillance covering northern boundary of Warehouse 14B."
+    },
+    {
+      id: "rel-cr204-23",
+      source: "CCTV-01",
+      target: "L-08",
+      label: "NORTH_GATE_INGRESS",
+      type: "location",
+      confidence: 0.9,
+      details: "Entry gantry monitor linking north perimeter traffic toward Sector 4 logistics depot."
+    },
+    {
+      id: "rel-cr204-24",
+      source: "CCTV-02",
+      target: "L-08",
+      label: "YARD_FEEDER_LINK",
+      type: "location",
+      confidence: 0.85,
+      details: "Sector 1 container yard camera feeding traffic toward Gate 4."
+    },
+    {
+      id: "rel-cr204-25",
+      source: "CCTV-03",
+      target: "L-08",
+      label: "WEST_PERIMETER_LINK",
+      type: "location",
+      confidence: 0.8,
+      details: "West fence line camera adjacent to Gate 4 logistics perimeter."
+    },
+    {
+      id: "rel-cr204-26",
+      source: "CCTV-06",
+      target: "L-10",
+      label: "CUSTOMS_YARD_FEEDER",
+      type: "location",
+      confidence: 0.86,
+      details: "Customs inspection yard relay adjacent to Pier Corridor East arterial."
+    },
+    {
+      id: "rel-cr204-27",
+      source: "CCTV-09",
+      target: "L-10",
+      label: "FUELING_DEPOT_JUNCTION",
+      type: "location",
+      confidence: 0.84,
+      details: "Fueling depot camera monitoring vehicles turning onto Pier Corridor East."
+    },
+    {
+      id: "rel-cr204-28",
+      source: "CCTV-10",
+      target: "L-12",
+      label: "RAIL_SPUR_INTERCHANGE",
+      type: "location",
+      confidence: 0.87,
+      details: "Rail interchange camera monitoring cargo spur adjacent to Warehouse 14B."
     }
   ],
 

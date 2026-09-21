@@ -18,7 +18,7 @@ const PRESET_FEEDS = [
     expectedTarget: 'Viktor Voronin',
     defaultMatch: {
       match_id: 'MATCH-VORONIN-01',
-      display_name: 'Viktor Voronin',
+      display_name: 'Simulated Candidate A: Viktor Voronin',
       name: 'Viktor Voronin',
       alias: 'The Architect / Cypher-9',
       threat_level: 'CRITICAL',
@@ -44,7 +44,7 @@ const PRESET_FEEDS = [
     expectedTarget: 'Elena Rostov',
     defaultMatch: {
       match_id: 'MATCH-ROSTOV-02',
-      display_name: 'Elena Rostov',
+      display_name: 'Simulated Candidate B: Elena Rostov (Alias: Valkyrie)',
       name: 'Elena Rostov',
       alias: 'Valkyrie / CipherQueen',
       threat_level: 'HIGH',
@@ -70,7 +70,7 @@ const PRESET_FEEDS = [
     expectedTarget: 'Darius Vance',
     defaultMatch: {
       match_id: 'MATCH-VANCE-03',
-      display_name: 'Darius Vance',
+      display_name: 'Simulated Candidate C: Darius Vance',
       name: 'Darius Vance',
       alias: 'Ironclad / Heavy-D',
       threat_level: 'HIGH',
@@ -264,21 +264,23 @@ export default function ForensicFaceLab({ caseId: propCaseId }) {
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <Camera size={18} style={{ color: 'var(--accent)' }} />
             <h2 style={{ fontSize: '1rem', fontWeight: 600, margin: 0 }}>
-              Face Intelligence & Matching
+              Synthetic Visual Similarity Demo
             </h2>
             <span style={{
               fontSize: '0.7rem',
-              background: 'var(--bg-elevated)',
+              background: 'rgba(56, 189, 248, 0.15)',
               padding: '2px 8px',
               borderRadius: '4px',
-              border: '1px solid var(--border-default)',
-              color: 'var(--text-secondary)'
+              border: '1px solid rgba(56, 189, 248, 0.35)',
+              color: '#38bdf8',
+              fontFamily: 'var(--font-mono, monospace)',
+              fontWeight: 700
             }}>
-              {effectiveCaseId}
+              SIMULATED ALGORITHM
             </span>
           </div>
           <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', margin: '4px 0 0 0' }}>
-            Match surveillance captures against docket target records with mandatory investigator sign-off.
+            Visual similarity demonstrates algorithmic comparison between synthetic demo images. Outputs are similarity scores, not positive biometric identifications.
           </p>
         </div>
 
@@ -334,7 +336,25 @@ export default function ForensicFaceLab({ caseId: propCaseId }) {
         </div>
       </div>
 
-      {/* ── 2. Feedback Alert ──────────────────────────────────────────────── */}
+      {/* ── 2. Simulation Disclaimer Banner ── */}
+      <div style={{
+        padding: '10px 14px',
+        backgroundColor: 'rgba(239, 68, 68, 0.1)',
+        border: '1px solid rgba(239, 68, 68, 0.3)',
+        borderRadius: '6px',
+        fontSize: '0.74rem',
+        color: '#fca5a5',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '10px'
+      }}>
+        <AlertTriangle size={16} color="#f87171" style={{ flexShrink: 0 }} />
+        <span>
+          <strong>SIMULATION ONLY:</strong> Visual similarity demonstrates algorithmic comparison between synthetic demo images. Outputs are similarity scores, not positive biometric identifications.
+        </span>
+      </div>
+
+      {/* ── 3. Feedback Alert ──────────────────────────────────────────────── */}
       {feedback && (
         <div style={{
           padding: '10px 14px',
@@ -697,7 +717,7 @@ export default function ForensicFaceLab({ caseId: propCaseId }) {
                         />
                       </div>
 
-                      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '8px' }}>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: '8px' }}>
                         <button
                           onClick={() => handleVerify(candidateMatch, true)}
                           disabled={actionLoading}
@@ -706,19 +726,19 @@ export default function ForensicFaceLab({ caseId: propCaseId }) {
                             alignItems: 'center',
                             justifyContent: 'center',
                             gap: '6px',
-                            padding: '9px 14px',
+                            padding: '9px 12px',
                             borderRadius: '6px',
-                            background: 'var(--accent)',
+                            background: '#238636',
                             color: '#fff',
                             border: 'none',
-                            fontSize: '0.8rem',
+                            fontSize: '0.76rem',
                             fontWeight: 600,
                             cursor: 'pointer',
                             opacity: actionLoading ? 0.6 : 1
                           }}
                         >
-                          <Check size={16} />
-                          Verify & Link to Graph
+                          <Check size={15} />
+                          Mark for simulated review
                         </button>
 
                         <button
@@ -729,18 +749,19 @@ export default function ForensicFaceLab({ caseId: propCaseId }) {
                             alignItems: 'center',
                             justifyContent: 'center',
                             gap: '6px',
-                            padding: '9px 14px',
+                            padding: '9px 12px',
                             borderRadius: '6px',
-                            background: 'transparent',
-                            color: 'var(--critical)',
-                            border: '1px solid var(--critical-border)',
-                            fontSize: '0.8rem',
+                            background: '#21262d',
+                            color: '#f87171',
+                            border: '1px solid #30363d',
+                            fontSize: '0.76rem',
+                            fontWeight: 600,
                             cursor: 'pointer',
                             opacity: actionLoading ? 0.6 : 1
                           }}
                         >
-                          <X size={16} />
-                          Reject
+                          <X size={15} />
+                          Dismiss candidate
                         </button>
                       </div>
                     </>

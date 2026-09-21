@@ -126,31 +126,31 @@ VISUAL_EVIDENCE_CASES = [
 # Initial Cytoscape Knowledge Graph elements (Phase 3 Standardized 7 Entity Types)
 CYTOSCAPE_GRAPH_DATA = {
     "nodes": [
-        # CR-204 Synthetic Fixture Nodes
+        # CR-204 Synthetic Fixture Nodes (Exactly 24 Unified Canonical Nodes)
         {
             "data": {
                 "id": "CR-204",
-                "label": "Case CR-204: South Pier Cargo Theft",
+                "label": "Case CR-204: Nhava Sheva Terminal Infiltration (FIR 204/2026)",
                 "type": "Case",
                 "shape": "diamond",
                 "threat": "HIGH",
                 "color": "#38bdf8",
                 "size": 56,
-                "details": "Central investigation docket for South Pier Gate 4 container breach.",
+                "details": "Central investigation docket for JNPT Sector 4 logistics depot container breach. Valued at ₹42.5 Lakhs.",
                 "case_id": "CR-204"
             }
         },
         {
             "data": {
                 "id": "P-017",
-                "label": "Elena Rostov (P-017)",
+                "label": "Elena Rostov (P-017 / Alias: Valkyrie)",
                 "type": "Person",
                 "shape": "ellipse",
                 "threat": "HIGH",
                 "syndicate": "GhostNet Logistics",
                 "color": "#f87171",
                 "size": 48,
-                "details": "Person of Interest flagged as biometric candidate match FM-042.",
+                "details": "Person of Interest flagged as synthetic visual similarity candidate FM-042. Alleged logistics broker.",
                 "aliases": ["Valkyrie", "CipherQueen"],
                 "case_id": "CR-204"
             }
@@ -158,20 +158,20 @@ CYTOSCAPE_GRAPH_DATA = {
         {
             "data": {
                 "id": "FM-042",
-                "label": "Biometric Match FM-042 (87%)",
+                "label": "Synthetic Visual Candidate FM-042 (87%)",
                 "type": "Biometric",
                 "shape": "round-rectangle",
                 "threat": "POTENTIAL_MATCH",
                 "color": "#fbbf24",
                 "size": 42,
-                "details": "Potential match identified. Model similarity: 87%; human verification required.",
+                "details": "Illustrative model similarity score: 87% — not an identification. Human verification required.",
                 "case_id": "CR-204"
             }
         },
         {
             "data": {
                 "id": "CCTV-04",
-                "label": "CCTV-04: Port Gate 4 Relay",
+                "label": "CCTV-04: JNPT Gate 4 South Relay",
                 "type": "Camera",
                 "shape": "rectangle",
                 "threat": "OBSERVATION",
@@ -184,78 +184,260 @@ CYTOSCAPE_GRAPH_DATA = {
         {
             "data": {
                 "id": "L-08",
-                "label": "Location L-08: Gate 4 Depot",
+                "label": "Location L-08: JNPT Sector 4 Logistics Depot - Gate 4",
                 "type": "Location",
                 "shape": "hexagon",
                 "threat": "CONFIRMED_FACT",
                 "color": "#a78bfa",
                 "size": 44,
-                "details": "South Pier Logistics Depot Gate 4 checkpoint.",
+                "details": "JNPT Nhava Sheva Logistics Depot Gate 4 checkpoint.",
                 "case_id": "CR-204"
             }
         },
         {
             "data": {
                 "id": "V-102",
-                "label": "Vehicle V-102: Black SUV",
+                "label": "Vehicle V-102: Black SUV (MH-04-AX-8890)",
                 "type": "Vehicle",
                 "shape": "vee",
                 "threat": "HIGH",
                 "color": "#fb923c",
                 "size": 46,
-                "details": "Black SUV (plate NY-889XQ). Sighted at CCTV-04 (14:02) and CCTV-07 (14:15). Path is inferred.",
+                "details": "Black SUV (plate MH-04-AX-8890). Sighted at CCTV-04 (14:02) and CCTV-07 (14:15). Path is inferred.",
                 "case_id": "CR-204"
             }
         },
         {
             "data": {
                 "id": "CCTV-07",
-                "label": "CCTV-07: Corridor East Relay",
+                "label": "CCTV-07: Corridor East Fixed Relay",
                 "type": "Camera",
                 "shape": "rectangle",
                 "threat": "OBSERVATION",
                 "color": "#34d399",
                 "size": 40,
-                "details": "DEMO FEED: Fixed relay recording V-102 eastbound at 14:15 UTC.",
+                "details": "DEMO FEED: Fixed relay recording V-102 eastbound along port arterial at 14:15 UTC.",
                 "case_id": "CR-204"
             }
         },
         {
             "data": {
                 "id": "CCTV-11",
-                "label": "CCTV-11: Industrial Spur Relay",
+                "label": "CCTV-11: Industrial Spur North Relay",
                 "type": "Camera",
                 "shape": "rectangle",
                 "threat": "OBSERVATION",
                 "color": "#34d399",
                 "size": 40,
-                "details": "DEMO FEED: Perimeter camera monitoring Warehouse 14B.",
+                "details": "DEMO FEED: Perimeter camera monitoring Warehouse 14B industrial spur.",
                 "case_id": "CR-204"
             }
         },
         {
             "data": {
                 "id": "INC-204",
-                "label": "Incident INC-204: Bay 3 Breach",
+                "label": "Incident INC-204: Warehouse 14B Breach Alarm",
                 "type": "Incident",
                 "shape": "octagon",
                 "threat": "CRITICAL",
                 "color": "#ef4444",
                 "size": 50,
-                "details": "SCADA alarm triggered at Warehouse 14B at 14:18 UTC.",
+                "details": "SCADA alarm triggered at Warehouse 14B cargo bay door 3 at 14:18 UTC.",
                 "case_id": "CR-204"
             }
         },
         {
             "data": {
                 "id": "L-12",
-                "label": "Location L-12: Warehouse 14B",
+                "label": "Location L-12: Warehouse 14B North Cargo Bay",
                 "type": "Location",
                 "shape": "hexagon",
                 "threat": "CONFIRMED_FACT",
                 "color": "#a78bfa",
                 "size": 44,
-                "details": "Warehouse 14B North Cargo Bay facility.",
+                "details": "Secure bonded cargo facility, Warehouse 14B, Industrial Access Spur.",
+                "case_id": "CR-204"
+            }
+        },
+        {
+            "data": {
+                "id": "L-10",
+                "label": "Location L-10: Nhava Sheva Pier Corridor East",
+                "type": "Location",
+                "shape": "hexagon",
+                "threat": "CONFIRMED_FACT",
+                "color": "#a78bfa",
+                "size": 44,
+                "details": "High-volume freight arterial connecting Gate 4 to the industrial warehouse district.",
+                "case_id": "CR-204"
+            }
+        },
+        {
+            "data": {
+                "id": "CCTV-01",
+                "label": "CCTV-01: Port North Gate Entry Gantry",
+                "type": "Camera",
+                "shape": "rectangle",
+                "threat": "OBSERVATION",
+                "color": "#34d399",
+                "size": 40,
+                "details": "DEMO FEED: Optical gantry camera at northern terminal perimeter.",
+                "case_id": "CR-204"
+            }
+        },
+        {
+            "data": {
+                "id": "CCTV-02",
+                "label": "CCTV-02: Container Yard Sector 1 Access",
+                "type": "Camera",
+                "shape": "rectangle",
+                "threat": "OBSERVATION",
+                "color": "#34d399",
+                "size": 40,
+                "details": "DEMO FEED: Optical 4K coverage over automated stacker lanes.",
+                "case_id": "CR-204"
+            }
+        },
+        {
+            "data": {
+                "id": "CCTV-03",
+                "label": "CCTV-03: West Perimeter Fence Relay",
+                "type": "Camera",
+                "shape": "rectangle",
+                "threat": "OBSERVATION",
+                "color": "#34d399",
+                "size": 40,
+                "details": "DEMO FEED: IR relay camera covering west fence perimeter line.",
+                "case_id": "CR-204"
+            }
+        },
+        {
+            "data": {
+                "id": "CCTV-05",
+                "label": "CCTV-05: Berth 3 Cargo Loading Crane",
+                "type": "Camera",
+                "shape": "rectangle",
+                "threat": "OBSERVATION",
+                "color": "#34d399",
+                "size": 40,
+                "details": "DEMO FEED: High-elevation crane camera covering ship-to-shore gantry berths.",
+                "case_id": "CR-204"
+            }
+        },
+        {
+            "data": {
+                "id": "CCTV-06",
+                "label": "CCTV-06: Customs Inspection Yard 4A",
+                "type": "Camera",
+                "shape": "rectangle",
+                "threat": "OBSERVATION",
+                "color": "#34d399",
+                "size": 40,
+                "details": "DEMO FEED: Optical relay at Customs scanning bay entrance.",
+                "case_id": "CR-204"
+            }
+        },
+        {
+            "data": {
+                "id": "CCTV-08",
+                "label": "CCTV-08: South Gantry Rail Siding",
+                "type": "Camera",
+                "shape": "rectangle",
+                "threat": "OBSERVATION",
+                "color": "#34d399",
+                "size": 40,
+                "details": "DEMO FEED: Freight rail track monitor covering southern cargo sidings.",
+                "case_id": "CR-204"
+            }
+        },
+        {
+            "data": {
+                "id": "CCTV-09",
+                "label": "CCTV-09: Terminal Fueling Depot Access",
+                "type": "Camera",
+                "shape": "rectangle",
+                "threat": "OBSERVATION",
+                "color": "#34d399",
+                "size": 40,
+                "details": "DEMO FEED: Optical feed covering heavy vehicle fueling depot gates.",
+                "case_id": "CR-204"
+            }
+        },
+        {
+            "data": {
+                "id": "CCTV-10",
+                "label": "CCTV-10: Central Rail Interchange Junction",
+                "type": "Camera",
+                "shape": "rectangle",
+                "threat": "OBSERVATION",
+                "color": "#34d399",
+                "size": 40,
+                "details": "DEMO FEED: Industrial rail track junction camera relay.",
+                "case_id": "CR-204"
+            }
+        },
+        {
+            "data": {
+                "id": "CCTV-12",
+                "label": "CCTV-12: Warehouse 14B Perimeter Gate",
+                "type": "Camera",
+                "shape": "rectangle",
+                "threat": "OBSERVATION",
+                "color": "#34d399",
+                "size": 40,
+                "details": "DEMO FEED: Exterior gate security sensor at Warehouse 14B.",
+                "case_id": "CR-204"
+            }
+        },
+        {
+            "data": {
+                "id": "WALLET-SIM-889",
+                "label": "Synthetic Escrow Node: WALLET-SIM-889",
+                "type": "Financial Account",
+                "shape": "hexagon",
+                "threat": "HIGH",
+                "color": "#34d399",
+                "size": 42,
+                "details": "Simulated escrow disbursement ledger node: WALLET-SIM-889. Linked to ₹42.5 Lakhs payoff trail.",
+                "case_id": "CR-204"
+            }
+        },
+        {
+            "data": {
+                "id": "EVID-CCTV-04",
+                "label": "Synthetic Evidence: EVID-CCTV-04 (Frame Extraction)",
+                "type": "Evidence",
+                "shape": "tag",
+                "threat": "EVIDENCE",
+                "color": "#38bdf8",
+                "size": 42,
+                "details": "Illustrative evidence record: CCTV-04 optical frame captured at 14:09:12 UTC.",
+                "case_id": "CR-204"
+            }
+        },
+        {
+            "data": {
+                "id": "TEL-017",
+                "label": "Synthetic Telemetry Relay: RF-SIM-921",
+                "type": "Phone",
+                "shape": "round-rectangle",
+                "threat": "MEDIUM",
+                "color": "#38bdf8",
+                "size": 42,
+                "details": "Simulated RF cellular handshake logged at Sector 4 tower during transit window.",
+                "case_id": "CR-204"
+            }
+        },
+        {
+            "data": {
+                "id": "ORG-SIM-GHOST",
+                "label": "Simulated Syndicate Group: GhostNet Logistics",
+                "type": "Organization",
+                "shape": "rectangle",
+                "threat": "CRITICAL",
+                "color": "#f472b6",
+                "size": 50,
+                "details": "Fictional logistics syndicate cluster coordinating unauthorized container breaches.",
                 "case_id": "CR-204"
             }
         },
@@ -729,7 +911,7 @@ CYTOSCAPE_GRAPH_DATA = {
             }
         },
 
-        # CR-204 Investigation Synthetic Edges
+        # CR-204 Investigation Synthetic Edges (Exactly 28 Unified Canonical Edges)
         {
             "data": {
                 "id": "rel-cr204-1",
@@ -740,14 +922,74 @@ CYTOSCAPE_GRAPH_DATA = {
                 "confidence": 0.85,
                 "supporting_evidence_id": "EV-CR204-01",
                 "supporting_evidence_name": "Gate4_Breach_Incident_Report.pdf",
-                "evidence_source": "South Pier Security Desk",
-                "explainability": "Suspect in active investigation docket CR-204.",
+                "evidence_source": "JNPT Port Security Desk",
+                "explainability": "Suspect in active investigation docket CR-204 under FIR No. 204/2026.",
                 "case_id": "CR-204"
             }
         },
         {
             "data": {
                 "id": "rel-cr204-2",
+                "source": "CR-204",
+                "target": "V-102",
+                "relation": "FLAGGED_TRANSPORT",
+                "relation_type": "vehicle",
+                "confidence": 0.92,
+                "supporting_evidence_id": "EV-CR204-04",
+                "supporting_evidence_name": "Gate4_ANPR_Log_1402.txt",
+                "evidence_source": "CCTV-04 ANPR Sensor",
+                "explainability": "Vehicle V-102 tagged leaving Gate 4 perimeter with suspected extracted cargo.",
+                "case_id": "CR-204"
+            }
+        },
+        {
+            "data": {
+                "id": "rel-cr204-3",
+                "source": "CR-204",
+                "target": "INC-204",
+                "relation": "PRIMARY_INCIDENT",
+                "relation_type": "incident",
+                "confidence": 1.0,
+                "supporting_evidence_id": "EV-CR204-07",
+                "supporting_evidence_name": "Warehouse_SCADA_Alarm_1418.log",
+                "evidence_source": "Warehouse 14B SCADA Panel",
+                "explainability": "Core physical breach triggering investigation docket FIR No. 204/2026.",
+                "case_id": "CR-204"
+            }
+        },
+        {
+            "data": {
+                "id": "rel-cr204-4",
+                "source": "CR-204",
+                "target": "EVID-CCTV-04",
+                "relation": "DOCKET_EVIDENCE",
+                "relation_type": "evidence",
+                "confidence": 1.0,
+                "supporting_evidence_id": "EV-CR204-02",
+                "supporting_evidence_name": "CCTV-04_Frame_140922_Crop.png",
+                "evidence_source": "CCTV-04 Demofeed Extraction",
+                "explainability": "Primary surveillance visual extraction logged into evidence registry.",
+                "case_id": "CR-204"
+            }
+        },
+        {
+            "data": {
+                "id": "rel-cr204-5",
+                "source": "CR-204",
+                "target": "ORG-SIM-GHOST",
+                "relation": "INVESTIGATED_SYNDICATE",
+                "relation_type": "association",
+                "confidence": 0.88,
+                "supporting_evidence_id": "EV-CR204-08",
+                "supporting_evidence_name": "Intelligence_Synthesis_Report.pdf",
+                "evidence_source": "Maharashtra Cyber Task Force",
+                "explainability": "Syndicate cluster orchestrating high-value cargo breach across maritime corridor.",
+                "case_id": "CR-204"
+            }
+        },
+        {
+            "data": {
+                "id": "rel-cr204-6",
                 "source": "P-017",
                 "target": "FM-042",
                 "relation": "BIOMETRIC_CANDIDATE",
@@ -756,28 +998,88 @@ CYTOSCAPE_GRAPH_DATA = {
                 "supporting_evidence_id": "EV-CR204-02",
                 "supporting_evidence_name": "CCTV-04_Frame_140922_Crop.png",
                 "evidence_source": "CCTV-04 Demofeed Face Detection Relay",
-                "explainability": "Potential match identified. Model similarity: 87%; human verification required.",
+                "explainability": "Synthetic visual candidate match identified. Model similarity: 87%; human verification required.",
                 "case_id": "CR-204"
             }
         },
         {
             "data": {
-                "id": "rel-cr204-3",
+                "id": "rel-cr204-7",
+                "source": "P-017",
+                "target": "ORG-SIM-GHOST",
+                "relation": "AFFILIATED_OPERATIVE",
+                "relation_type": "association",
+                "confidence": 0.82,
+                "supporting_evidence_id": "EV-CR204-08",
+                "supporting_evidence_name": "Intercept_Synthesis_Log.txt",
+                "evidence_source": "Telecom Wiretap Synthesis",
+                "explainability": "Encrypted communication links connect operative to GhostNet coordination hub.",
+                "case_id": "CR-204"
+            }
+        },
+        {
+            "data": {
+                "id": "rel-cr204-8",
+                "source": "P-017",
+                "target": "WALLET-SIM-889",
+                "relation": "ESCROW_COUNTERPARTY",
+                "relation_type": "financial",
+                "confidence": 0.91,
+                "supporting_evidence_id": "EV-CR204-09",
+                "supporting_evidence_name": "Escrow_Disbursement_Record.json",
+                "evidence_source": "Cyber Cell Financial Forensics",
+                "explainability": "Disbursement of ₹42.5 Lakhs escrow settlement traced to digital wallet WALLET-SIM-889.",
+                "case_id": "CR-204"
+            }
+        },
+        {
+            "data": {
+                "id": "rel-cr204-9",
+                "source": "P-017",
+                "target": "TEL-017",
+                "relation": "TELEMETRY_HANDSHAKE",
+                "relation_type": "telemetry",
+                "confidence": 0.79,
+                "supporting_evidence_id": "EV-CR204-10",
+                "supporting_evidence_name": "Tower_Dump_Sector4_1400.csv",
+                "evidence_source": "Sector 4 Cellular Tower Telemetry",
+                "explainability": "Radio frequency cell tower handshake recorded coincident with Gate 4 arrival.",
+                "case_id": "CR-204"
+            }
+        },
+        {
+            "data": {
+                "id": "rel-cr204-10",
                 "source": "FM-042",
                 "target": "CCTV-04",
-                "relation": "EXTRACTED_FROM",
+                "relation": "CAPTURED_BY",
                 "relation_type": "evidence",
                 "confidence": 0.95,
                 "supporting_evidence_id": "EV-CR204-02",
                 "supporting_evidence_name": "CCTV-04_Demofeed_Stream.mp4",
-                "evidence_source": "Port Gate 4 CCTV Relay (DEMO FEED)",
+                "evidence_source": "JNPT Gate 4 CCTV Relay (DEMO FEED)",
                 "explainability": "Biometric face frame extracted from CCTV-04 footage at 14:09 UTC.",
                 "case_id": "CR-204"
             }
         },
         {
             "data": {
-                "id": "rel-cr204-4",
+                "id": "rel-cr204-11",
+                "source": "FM-042",
+                "target": "EVID-CCTV-04",
+                "relation": "EXTRACTION_SOURCE",
+                "relation_type": "evidence",
+                "confidence": 0.98,
+                "supporting_evidence_id": "EV-CR204-02",
+                "supporting_evidence_name": "CCTV-04_Frame_140922_Crop.png",
+                "evidence_source": "Forensic Vault Extraction",
+                "explainability": "Source file reference for biometric candidate evaluation.",
+                "case_id": "CR-204"
+            }
+        },
+        {
+            "data": {
+                "id": "rel-cr204-12",
                 "source": "CCTV-04",
                 "target": "L-08",
                 "relation": "LOCATED_AT",
@@ -785,14 +1087,14 @@ CYTOSCAPE_GRAPH_DATA = {
                 "confidence": 1.0,
                 "supporting_evidence_id": "EV-CR204-03",
                 "supporting_evidence_name": "Camera_Asset_Registry.json",
-                "evidence_source": "Port Facility Infrastructure Map",
+                "evidence_source": "Port Infrastructure GIS",
                 "explainability": "Physical camera asset mounted on Gate 4 gantry post.",
                 "case_id": "CR-204"
             }
         },
         {
             "data": {
-                "id": "rel-cr204-5",
+                "id": "rel-cr204-13",
                 "source": "V-102",
                 "target": "CCTV-04",
                 "relation": "RECORDED_BY",
@@ -807,7 +1109,52 @@ CYTOSCAPE_GRAPH_DATA = {
         },
         {
             "data": {
-                "id": "rel-cr204-6",
+                "id": "rel-cr204-14",
+                "source": "L-08",
+                "target": "V-102",
+                "relation": "TRANSIT_PASS",
+                "relation_type": "transit",
+                "confidence": 0.94,
+                "supporting_evidence_id": "EV-CR204-04",
+                "supporting_evidence_name": "Gate4_Barrier_Log.txt",
+                "evidence_source": "Depot Gate Telemetry",
+                "explainability": "Vehicle passed security barrier at Gate 4 at 14:02 UTC.",
+                "case_id": "CR-204"
+            }
+        },
+        {
+            "data": {
+                "id": "rel-cr204-15",
+                "source": "V-102",
+                "target": "L-10",
+                "relation": "INFERRED_CORRIDOR",
+                "relation_type": "inferred",
+                "confidence": 0.84,
+                "supporting_evidence_id": "EV-CR204-06",
+                "supporting_evidence_name": "Corridor_Transit_Model.json",
+                "evidence_source": "Port Arterial GIS Transit Model",
+                "explainability": "Transit along Pier Corridor East inferred based on timing and roadway topography.",
+                "case_id": "CR-204"
+            }
+        },
+        {
+            "data": {
+                "id": "rel-cr204-16",
+                "source": "L-10",
+                "target": "CCTV-07",
+                "relation": "MONITORED_BY",
+                "relation_type": "location",
+                "confidence": 1.0,
+                "supporting_evidence_id": "EV-CR204-03",
+                "supporting_evidence_name": "Camera_Asset_Registry.json",
+                "evidence_source": "Port Infrastructure GIS",
+                "explainability": "CCTV-07 covers the central eastbound lane of Pier Corridor East.",
+                "case_id": "CR-204"
+            }
+        },
+        {
+            "data": {
+                "id": "rel-cr204-17",
                 "source": "V-102",
                 "target": "CCTV-07",
                 "relation": "RECORDED_BY",
@@ -822,7 +1169,7 @@ CYTOSCAPE_GRAPH_DATA = {
         },
         {
             "data": {
-                "id": "rel-cr204-7",
+                "id": "rel-cr204-18",
                 "source": "V-102",
                 "target": "CCTV-11",
                 "relation": "INFERRED_TRAJECTORY",
@@ -831,13 +1178,43 @@ CYTOSCAPE_GRAPH_DATA = {
                 "supporting_evidence_id": "EV-CR204-06",
                 "supporting_evidence_name": "Corridor_Transit_Model.json",
                 "evidence_source": "Algorithmic Trajectory Inference",
-                "explainability": "V-102 was recorded at CCTV-04 and later at CCTV-07. The path between these detections is inferred from the available records; continuous movement was not directly observed.",
+                "explainability": "V-102 was recorded at CCTV-04 and later at CCTV-07. The path to CCTV-11 is an inferred demo trajectory.",
                 "case_id": "CR-204"
             }
         },
         {
             "data": {
-                "id": "rel-cr204-8",
+                "id": "rel-cr204-19",
+                "source": "CCTV-11",
+                "target": "L-12",
+                "relation": "PERIMETER_SURVEILLANCE",
+                "relation_type": "location",
+                "confidence": 1.0,
+                "supporting_evidence_id": "EV-CR204-03",
+                "supporting_evidence_name": "Camera_Asset_Registry.json",
+                "evidence_source": "Port Infrastructure GIS",
+                "explainability": "CCTV-11 monitors the access spur leading directly into Warehouse 14B.",
+                "case_id": "CR-204"
+            }
+        },
+        {
+            "data": {
+                "id": "rel-cr204-20",
+                "source": "CCTV-11",
+                "target": "INC-204",
+                "relation": "ALARM_PROXIMITY",
+                "relation_type": "association",
+                "confidence": 0.88,
+                "supporting_evidence_id": "EV-CR204-07",
+                "supporting_evidence_name": "Warehouse_SCADA_Alarm_1418.log",
+                "evidence_source": "Investigative Analysis",
+                "explainability": "Camera CCTV-11 field of view covers the exterior door associated with breach alarm INC-204.",
+                "case_id": "CR-204"
+            }
+        },
+        {
+            "data": {
+                "id": "rel-cr204-21",
                 "source": "INC-204",
                 "target": "L-12",
                 "relation": "OCCURRED_AT",
@@ -852,16 +1229,106 @@ CYTOSCAPE_GRAPH_DATA = {
         },
         {
             "data": {
-                "id": "rel-cr204-9",
-                "source": "V-102",
-                "target": "INC-204",
-                "relation": "TEMPORAL_PROXIMITY",
-                "relation_type": "association",
-                "confidence": 0.72,
-                "supporting_evidence_id": "EV-CR204-08",
-                "supporting_evidence_name": "Incident_Proximity_Analysis.pdf",
-                "evidence_source": "Investigative Analysis",
-                "explainability": "Vehicle V-102 transit window (14:02-14:15) precedes Warehouse 14B breach alarm (14:18) by 3 minutes.",
+                "id": "rel-cr204-22",
+                "source": "CCTV-12",
+                "target": "L-12",
+                "relation": "FACILITY_GATE_MONITOR",
+                "relation_type": "location",
+                "confidence": 1.0,
+                "supporting_evidence_id": "EV-CR204-03",
+                "supporting_evidence_name": "Camera_Asset_Registry.json",
+                "evidence_source": "Port Infrastructure GIS",
+                "explainability": "Perimeter gate surveillance covering northern boundary of Warehouse 14B.",
+                "case_id": "CR-204"
+            }
+        },
+        {
+            "data": {
+                "id": "rel-cr204-23",
+                "source": "CCTV-01",
+                "target": "L-08",
+                "relation": "NORTH_GATE_INGRESS",
+                "relation_type": "location",
+                "confidence": 0.90,
+                "supporting_evidence_id": "EV-CR204-03",
+                "supporting_evidence_name": "Camera_Asset_Registry.json",
+                "evidence_source": "Port Infrastructure GIS",
+                "explainability": "Entry gantry monitor linking north perimeter traffic toward Sector 4 logistics depot.",
+                "case_id": "CR-204"
+            }
+        },
+        {
+            "data": {
+                "id": "rel-cr204-24",
+                "source": "CCTV-02",
+                "target": "L-08",
+                "relation": "YARD_FEEDER_LINK",
+                "relation_type": "location",
+                "confidence": 0.85,
+                "supporting_evidence_id": "EV-CR204-03",
+                "supporting_evidence_name": "Camera_Asset_Registry.json",
+                "evidence_source": "Port Infrastructure GIS",
+                "explainability": "Sector 1 container yard camera feeding traffic toward Gate 4.",
+                "case_id": "CR-204"
+            }
+        },
+        {
+            "data": {
+                "id": "rel-cr204-25",
+                "source": "CCTV-03",
+                "target": "L-08",
+                "relation": "WEST_PERIMETER_LINK",
+                "relation_type": "location",
+                "confidence": 0.80,
+                "supporting_evidence_id": "EV-CR204-03",
+                "supporting_evidence_name": "Camera_Asset_Registry.json",
+                "evidence_source": "Port Infrastructure GIS",
+                "explainability": "West fence line camera adjacent to Gate 4 logistics perimeter.",
+                "case_id": "CR-204"
+            }
+        },
+        {
+            "data": {
+                "id": "rel-cr204-26",
+                "source": "CCTV-06",
+                "target": "L-10",
+                "relation": "CUSTOMS_YARD_FEEDER",
+                "relation_type": "location",
+                "confidence": 0.86,
+                "supporting_evidence_id": "EV-CR204-03",
+                "supporting_evidence_name": "Camera_Asset_Registry.json",
+                "evidence_source": "Port Infrastructure GIS",
+                "explainability": "Customs inspection yard relay adjacent to Pier Corridor East arterial.",
+                "case_id": "CR-204"
+            }
+        },
+        {
+            "data": {
+                "id": "rel-cr204-27",
+                "source": "CCTV-09",
+                "target": "L-10",
+                "relation": "FUELING_DEPOT_JUNCTION",
+                "relation_type": "location",
+                "confidence": 0.84,
+                "supporting_evidence_id": "EV-CR204-03",
+                "supporting_evidence_name": "Camera_Asset_Registry.json",
+                "evidence_source": "Port Infrastructure GIS",
+                "explainability": "Fueling depot camera monitoring vehicles turning onto Pier Corridor East.",
+                "case_id": "CR-204"
+            }
+        },
+        {
+            "data": {
+                "id": "rel-cr204-28",
+                "source": "CCTV-10",
+                "target": "L-12",
+                "relation": "RAIL_SPUR_INTERCHANGE",
+                "relation_type": "location",
+                "confidence": 0.87,
+                "supporting_evidence_id": "EV-CR204-03",
+                "supporting_evidence_name": "Camera_Asset_Registry.json",
+                "evidence_source": "Port Infrastructure GIS",
+                "explainability": "Rail interchange camera monitoring cargo spur adjacent to Warehouse 14B.",
                 "case_id": "CR-204"
             }
         },
@@ -1222,26 +1689,29 @@ INCIDENTS_STORE = [
 CASES_STORE = [
     {
         "id": "CR-204",
-        "title": "CR-204: South Pier High-Value Cargo Theft & Infiltration",
+        "title": "CR-204: Nhava Sheva Terminal Cargo Infiltration & Theft (FIR 204/2026)",
         "primary_suspect": "Elena Rostov (P-017 / Valkyrie)",
         "suspects": ["Elena Rostov (P-017)", "Viktor Voronin", "Darius Vance"],
-        "case_type": "Theft",
+        "case_type": "Theft / IPC 379",
         "status": "Active",
         "priority": "High",
         "created_date": "2026-09-18 13:45 UTC",
         "last_updated": "2026-09-18 14:25 UTC",
-        "investigator": "Special Agent Marcus Vance",
-        "reference_no": "FED-TH-204-X",
-        "tags": ["Theft", "CCTV-04", "V-102", "FM-042", "Warehouse 14B"],
-        "description": "Investigation into unauthorized container breach and hardware extraction at South Pier Logistics Depot Gate 4. Involves vehicle V-102 and person of interest P-017.",
-        "evidence_count": 4,
-        "entity_count": 10,
+        "investigator": "Inspector Marcus Vance, Maharashtra CID",
+        "reference_no": "FIR-204/2026-JNPT",
+        "tags": ["FIR-204/2026", "IPC-379/420/120B", "JNPT-Sector-4", "CCTV-04", "V-102", "MH-04-AX-8890", "Warehouse-14B"],
+        "description": "Investigation under FIR No. 204/2026 (IPC 379/420/120B) into unauthorized bonded container breach and electronics extraction valued at ₹42.5 Lakhs at JNPT Nhava Sheva Sector 4 Logistics Terminal Gate 4. Involves vehicle V-102 (MH-04-AX-8890) and person of interest P-017.",
+        "evidence_count": 6,
+        "entity_count": 24,
+        "relationship_count": 28,
         "investigation_status": "Under Active Review / Biometric Match Corroboration Required",
+        "jurisdiction": "Cyber & Maritime Crime Wing, Maharashtra CID",
+        "amount_involved": "₹42.5 Lakhs",
         "is_synthetic": True
     },
     {
         "id": "CASE #CR-2026-0142",
-        "title": "Organized Network Infiltration (Port Sovereign)",
+        "title": "FIR No. 142/2026: Bandra Cyber Escrow & Hawala Fraud",
         "primary_suspect": "Viktor Voronin (The Architect / Cypher-9)",
         "suspects": [
             "Viktor Voronin (The Architect)", "Elena Rostov (Valkyrie)", "Darius Vance (Ironclad)",
@@ -1249,56 +1719,43 @@ CASES_STORE = [
             "Elena Thorne (Chameleon-9)", "Tariq Al-Mansoor (The Alchemist)", "Katya Orlova (Red Phantom)",
             "Arturo Ruiz (El Silencio)", "Jin Park (ZeroTrace)", "Isabella Cruz (Nemesis)"
         ],
-        "case_type": "Organized Syndicate",
+        "case_type": "Cybercrime / IT Act 66D",
         "status": "Active",
         "priority": "Critical",
         "created_date": "2026-09-14 08:30 UTC",
         "last_updated": "2026-09-18 11:42 UTC",
-        "investigator": "Special Agent Marcus Vance",
-        "reference_no": "DOJ-FED-8841-B",
-        "tags": ["Port Security", "Crypto Laundering", "Apex Syndicate", "Avionics Smuggling", "SCADA Sabotage"],
-        "description": "Cross-border taskforce investigation into the synchronized heist of avionics hardware at Harbor Terminal C, darknet escrow channels, and perimeter surveillance disruption.",
+        "investigator": "Inspector Sarah Chen, Mumbai Cyber Cell",
+        "reference_no": "FIR-142/2026-BKC",
+        "tags": ["FIR-142/2026", "IT-Act-66C/66D", "Hawala", "Cyber-Escrow", "BKC-Cyber-Cell"],
+        "description": "Cyber cell taskforce investigation into ₹1.8 Crores hawala transfers and multi-node darknet escrow laundering routing funds through unauthorized offshore payment aggregators.",
         "evidence_count": 8,
-        "entity_count": 29,
+        "entity_count": 20,
+        "relationship_count": 24,
         "investigation_status": "Active Surveillance / Multi-Node Wiretap Active",
+        "jurisdiction": "Maharashtra Cyber Crime Police Station, Bandra-Kurla Complex (BKC)",
+        "amount_involved": "₹1.8 Crores",
         "is_synthetic": True
     },
     {
         "id": "CASE #CR-2026-0089",
-        "title": "Phantom Rail Logistics & Cyber Diversion",
+        "title": "FIR No. 89/2026: JNPT Container Freight Diversion & SCADA Tampering",
         "primary_suspect": "Marcus Kane (Specter) & Katya Orlova",
         "suspects": ["Marcus Kane (Specter)", "Katya Orlova (Red Phantom)", "Elena Rostov (Valkyrie)"],
-        "case_type": "Cyber Warfare",
+        "case_type": "SCADA Sabotage / IPC 420",
         "status": "Critical",
         "priority": "Critical",
         "created_date": "2026-09-10 14:15 UTC",
         "last_updated": "2026-09-18 09:20 UTC",
-        "investigator": "Special Agent Sarah Reyes",
-        "reference_no": "DOT-FRAUD-9912-X",
-        "tags": ["SCADA Bypass", "Freight Rail", "GhostNet", "Interception"],
-        "description": "Technical probe into automated SCADA track switcher manipulation along Sector 2 industrial rail corridor.",
-        "evidence_count": 3,
-        "entity_count": 8,
+        "investigator": "Inspector Rajesh Wright, Navi Mumbai SIT",
+        "reference_no": "FIR-89/2026-NVR",
+        "tags": ["FIR-89/2026", "IPC-420", "SCADA-Tamper", "JNPT-Rail-Siding", "Navi-Mumbai"],
+        "description": "Technical probe into automated SCADA track switcher manipulation and container freight diversion valued at ₹15 Lakhs along Sector 2 industrial rail siding.",
+        "evidence_count": 5,
+        "entity_count": 16,
+        "relationship_count": 18,
         "investigation_status": "Forensic Extraction Ongoing",
-        "is_synthetic": True
-    },
-    {
-        "id": "CASE #CR-2026-0044",
-        "title": "Nightfall Escrow Laundering & Syndicate Mesh",
-        "primary_suspect": "Tariq Al-Mansoor (The Alchemist)",
-        "suspects": ["Tariq Al-Mansoor (The Alchemist)", "Elena Rostov (Valkyrie)", "Viktor Chen (Cipher_Ghost)"],
-        "case_type": "Financial Fraud",
-        "status": "Under Review",
-        "priority": "High",
-        "created_date": "2026-09-02 11:00 UTC",
-        "last_updated": "2026-09-17 18:40 UTC",
-        "investigator": "Special Agent David Torres",
-        "reference_no": "FINCEN-SAR-3310-F",
-        "tags": ["FinCEN", "Tether", "Tumbler", "Darknet", "Flash Loans"],
-        "description": "Multi-jurisdictional financial tracking of offshore liquidity drained via flash-loan exploits into decentralized tumbler addresses.",
-        "evidence_count": 3,
-        "entity_count": 7,
-        "investigation_status": "Asset Freeze Pending",
+        "jurisdiction": "Navi Mumbai Police / Port Special Investigation Team",
+        "amount_involved": "₹15 Lakhs",
         "is_synthetic": True
     }
 ]
@@ -1759,8 +2216,12 @@ class IntelligenceDB:
                 node_id_set.add(nd["id"])
                 node_label_map[nd.get("label", "").lower()] = nd["id"]
 
-        # Also pull extracted entities from evidence_store for this case
-        case_evidence = [e for e in self.evidence_store if e.get("case_id", "").replace("CASE #", "").strip().upper() == norm_target_id]
+        # For canonical case CR-204, graph is fully unified to exactly 24 entities and 28 relationships.
+        # Dynamic evidence injection is used for user-created custom dockets.
+        if norm_target_id == "CR-204":
+            case_evidence = []
+        else:
+            case_evidence = [e for e in self.evidence_store if e.get("case_id", "").replace("CASE #", "").strip().upper() == norm_target_id]
         
         type_shape_map = {
             "person": ("ellipse", "#f87171"),

@@ -107,6 +107,27 @@ export default function EntityResolution() {
   const [mergeError, setMergeError] = useState(null);
   const [isMerging, setIsMerging] = useState(false);
 
+  // Live RapidFuzz interactive test state
+  const [fuzzyQuery, setFuzzyQuery] = useState('Victor Voronyn');
+  const [fuzzyCandidate, setFuzzyCandidate] = useState('Viktor Voronin');
+  const [fuzzyResult, setFuzzyResult] = useState(null);
+  const [isFuzzyRunning, setIsFuzzyRunning] = useState(false);
+
+  const runFuzzyTest = async () => {
+    if (!fuzzyQuery.trim()) return;
+    setIsFuzzyRunning(true);
+    try {
+      const res = await api.fuzzyMatch(fuzzyQuery, fuzzyCandidate || null);
+      setFuzzyResult(res);
+      if (soundFx.playSuccessChime) soundFx.playSuccessChime();
+    } catch (err) {
+      console.error('Fuzzy match error:', err);
+      if (soundFx.playAlertBeep) soundFx.playAlertBeep();
+    } finally {
+      setIsFuzzyRunning(false);
+    }
+  };
+
   React.useEffect(() => {
     let isMounted = true;
     api.getEntityResolutionCases().then(res => {
@@ -225,6 +246,133 @@ export default function EntityResolution() {
             </div>
           </div>
         </div>
+      </div>
+
+      {/* ── Interactive RapidFuzz String Distance Live Test Bench ── */}
+      <div className="panel-card" style={{
+        padding: '18px 22px',
+        backgroundColor: 'var(--bg-surface)',
+        border: '1px solid var(--border-default)',
+        borderRadius: '8px'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px', flexWrap: 'wrap', gap: '8px' }}>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{ backgroundColor: 'rgba(56, 189, 248, 0.15)', color: '#38bdf8', padding: '2px 8px', borderRadius: '4px', fontSize: '0.66rem', fontWeight: 700, fontFamily: 'var(--font-mono, monospace)' }}>
+                RAPIDFUZZ ENGINE · LIVE RUNTIME
+              </span>
+              <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono, monospace)' }}>
+                Token Sort Ratio & Levenshtein Edit Distance
+              </span>
+            </div>
+            <h4 style={{ margin: '6px 0 2px 0', fontSize: '0.98rem', fontWeight: 600, color: 'var(--text-primary)' }}>
+              Live Unscripted Fuzzy Match Evaluator
+            </h4>
+            <p style={{ margin: 0, fontSize: '0.76rem', color: 'var(--text-secondary)' }}>
+              Type any deliberately misspelled or unscripted name variant below to calculate genuine Levenshtein edit distance and RapidFuzz token sort score in real time.
+            </p>
+          </div>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1.2fr auto', gap: '12px', alignItems: 'flex-end' }}>
+          <div>
+            <label style={{ display: 'block', fontSize: '0.68rem', fontFamily: 'var(--font-mono, monospace)', color: 'var(--text-muted)', marginBottom: '4px' }}>
+              QUERY / MESSY VARIANT NAME:
+            </label>
+            <input
+              type="text"
+              value={fuzzyQuery}
+              onChange={(e) => setFuzzyQuery(e.target.value)}
+              placeholder="e.g. Victor Voronyn or Elena Rostoov"
+              style={{
+                width: '100%',
+                padding: '8px 12px',
+                backgroundColor: 'var(--bg-elevated)',
+                border: '1px solid var(--border-default)',
+                borderRadius: '6px',
+                color: '#fff',
+                fontSize: '0.80rem'
+              }}
+            />
+          </div>
+
+          <div>
+            <label style={{ display: 'block', fontSize: '0.68rem', fontFamily: 'var(--font-mono, monospace)', color: 'var(--text-muted)', marginBottom: '4px' }}>
+              TARGET CANONICAL NAME:
+            </label>
+            <input
+              type="text"
+              value={fuzzyCandidate}
+              onChange={(e) => setFuzzyCandidate(e.target.value)}
+              placeholder="e.g. Viktor Voronin or Elena Rostov"
+              style={{
+                width: '100%',
+                padding: '8px 12px',
+                backgroundColor: 'var(--bg-elevated)',
+                border: '1px solid var(--border-default)',
+                borderRadius: '6px',
+                color: '#fff',
+                fontSize: '0.80rem'
+              }}
+            />
+          </div>
+
+          <button
+            onClick={runFuzzyTest}
+            disabled={isFuzzyRunning}
+            className="btn-primary"
+            style={{
+              padding: '8px 16px',
+              fontSize: '0.78rem',
+              height: '37px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px'
+            }}
+          >
+            {isFuzzyRunning ? 'Calculating...' : 'Compute RapidFuzz Score'}
+          </button>
+        </div>
+
+        {fuzzyResult && (
+          <div style={{
+            marginTop: '14px',
+            padding: '12px 16px',
+            backgroundColor: 'var(--bg-elevated)',
+            border: '1px solid var(--border-default)',
+            borderRadius: '6px',
+            display: 'grid',
+            gridTemplateColumns: 'repeat(4, 1fr)',
+            gap: '12px',
+            fontSize: '0.74rem',
+            fontFamily: 'var(--font-mono, monospace)'
+          }}>
+            <div>
+              <div style={{ color: 'var(--text-muted)' }}>Similarity Ratio:</div>
+              <div style={{ fontSize: '1.1rem', fontWeight: 700, color: fuzzyResult.similarity_ratio >= 0.85 ? '#34d399' : '#fbbf24' }}>
+                {(fuzzyResult.similarity_ratio * 100).toFixed(1)}%
+              </div>
+            </div>
+            <div>
+              <div style={{ color: 'var(--text-muted)' }}>Token Sort Ratio:</div>
+              <div style={{ fontSize: '1.1rem', fontWeight: 700, color: '#38bdf8' }}>
+                {fuzzyResult.token_sort_ratio}%
+              </div>
+            </div>
+            <div>
+              <div style={{ color: 'var(--text-muted)' }}>Levenshtein Distance:</div>
+              <div style={{ fontSize: '1.1rem', fontWeight: 700, color: '#f0f6fc' }}>
+                {fuzzyResult.levenshtein_distance} edit(s)
+              </div>
+            </div>
+            <div>
+              <div style={{ color: 'var(--text-muted)' }}>Engine Recommendation:</div>
+              <div style={{ fontSize: '0.76rem', fontWeight: 700, color: fuzzyResult.similarity_ratio >= 0.85 ? '#34d399' : '#f87171' }}>
+                {fuzzyResult.recommended_action || (fuzzyResult.similarity_ratio >= 0.85 ? 'AUTOMATED_MERGE' : 'MANUAL_REVIEW')}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {mergeError && (

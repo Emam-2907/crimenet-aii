@@ -14,6 +14,11 @@ from datetime import datetime
 from backend.config import NEO4J_URI, NEO4J_USERNAME, NEO4J_PASSWORD, NEO4J_DATABASE
 from backend.database import db as local_db
 
+try:
+    import networkx as nx
+except ImportError:
+    nx = None
+
 logger = logging.getLogger("crimenet.neo4j")
 
 # Type to visual shape & color mapping (7 standard entity types)
@@ -555,35 +560,87 @@ class Neo4jService:
         """
         connected, _ = self.verify_connectivity()
         if not connected:
-            # Fallback to local calculations
+            # Fallback / Local NetworkX Analytics Engine
             graph = local_db.get_case_graph(case_id)
             nodes = graph.get("nodes", [])
             edges = graph.get("edges", [])
-
-            degrees = {n["data"]["id"]: 0 for n in nodes}
-            for e in edges:
-                s, t = e["data"]["source"], e["data"]["target"]
-                if s in degrees: degrees[s] += 1
-                if t in degrees: degrees[t] += 1
 
             type_breakdown = {}
             for n in nodes:
                 t = n["data"].get("type", "Other")
                 type_breakdown[t] = type_breakdown.get(t, 0) + 1
 
+            if nx is not None and len(nodes) > 0:
+                G = nx.Graph()
+                for n in nodes:
+                    G.add_node(n["data"]["id"], **n["data"])
+                for e in edges:
+                    G.add_edge(e["data"]["source"], e["data"]["target"], **e["data"])
+
+                deg_dict = dict(G.degree())
+                betweenness = nx.betweenness_centrality(G) if len(G) > 2 else {nid: 0.0 for nid in G}
+                closeness = nx.closeness_centrality(G) if len(G) > 2 else {nid: 0.0 for nid in G}
+                try:
+                    pagerank = nx.pagerank(G, alpha=0.85)
+                except Exception:
+                    pagerank = {nid: 1.0 / max(len(G), 1) for nid in G}
+
+                try:
+                    comm_sets = list(nx.community.greedy_modularity_communities(G))
+                    communities = [list(c) for c in comm_sets]
+                except Exception:
+                    communities = []
+
+                density = round(nx.density(G), 3)
+
+                most_connected = []
+                for n in nodes:
+                    nid = n["data"]["id"]
+                    most_connected.append({
+                        "id": nid,
+                        "name": n["data"].get("label"),
+                        "type": n["data"].get("type"),
+                        "connection_count": deg_dict.get(nid, 0),
+                        "betweenness": round(betweenness.get(nid, 0.0), 4),
+                        "closeness": round(closeness.get(nid, 0.0), 4),
+                        "pagerank": round(pagerank.get(nid, 0.0), 4),
+                        "threat": n["data"].get("threat", "HIGH")
+                    })
+                most_connected.sort(key=lambda x: (x["connection_count"], x["pagerank"]), reverse=True)
+
+                return {
+                    "case_id": case_id,
+                    "total_entities": len(nodes),
+                    "total_relationships": len(edges),
+                    "entity_breakdown": type_breakdown,
+                    "most_connected_entities": most_connected[:8],
+                    "network_density": density,
+                    "communities_count": len(communities),
+                    "communities": communities,
+                    "analytics_engine": "NetworkX In-Memory Topology Engine"
+                }
+
+            # Fallback simple degree counter if nx not present
+            degrees = {n["data"]["id"]: 0 for n in nodes}
+            for e in edges:
+                s, t = e["data"]["source"], e["data"]["target"]
+                if s in degrees: degrees[s] += 1
+                if t in degrees: degrees[t] += 1
+
             most_connected = []
             for n in nodes:
                 nid = n["data"]["id"]
-                deg = degrees.get(nid, 0)
                 most_connected.append({
                     "id": nid,
                     "name": n["data"].get("label"),
                     "type": n["data"].get("type"),
-                    "connection_count": deg,
+                    "connection_count": degrees.get(nid, 0),
+                    "betweenness": 0.0,
+                    "closeness": 0.0,
+                    "pagerank": 0.0,
                     "threat": n["data"].get("threat", "HIGH")
                 })
             most_connected.sort(key=lambda x: x["connection_count"], reverse=True)
-
             n_count = len(nodes)
             density = round(len(edges) / (n_count * (n_count - 1) / 2), 3) if n_count > 1 else 0
 
@@ -594,6 +651,8 @@ class Neo4jService:
                 "entity_breakdown": type_breakdown,
                 "most_connected_entities": most_connected[:8],
                 "network_density": density,
+                "communities_count": 1,
+                "communities": [],
                 "analytics_engine": "Local Analytical Engine"
             }
 
