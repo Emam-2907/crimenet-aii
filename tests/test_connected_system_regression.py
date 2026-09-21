@@ -177,6 +177,82 @@ def test_truthful_health_and_audit_sanitization():
         assert s not in audit_text
     print("  [PASS] Truthful health reporting and audit log sanitization confirmed")
 
+def test_flexible_identifier_logins():
+    """Verify login works via Badge ID, Full Name, short alias, and standard demo password."""
+    # 1. Badge ID
+    res = client.post("/api/auth/login", json={"user_id": "CN-ALPHA-0941", "password": "demo123"})
+    assert res.status_code == 200, f"Failed badge ID login: {res.text}"
+    assert res.json()["user"]["email"] == "analyst.vance@crimenet.demo"
+    
+    # 2. Full Name
+    res2 = client.post("/api/auth/login", json={"user_id": "Marcus Vance", "password": "demo123"})
+    assert res2.status_code == 200, f"Failed full name login: {res2.text}"
+    assert res2.json()["user"]["email"] == "analyst.vance@crimenet.demo"
+    
+    # 3. Short alias
+    res3 = client.post("/api/auth/login", json={"user_id": "chen", "password": "demo123"})
+    assert res3.status_code == 200, f"Failed short alias login: {res3.text}"
+    assert res3.json()["user"]["email"] == "investigator.chen@crimenet.demo"
+    
+    # 4. Demo login endpoint with badge ID
+    res4 = client.post("/api/auth/demo-login", json={"email": "CN-INV-5512"})
+    assert res4.status_code == 200, f"Failed demo login with badge: {res4.text}"
+    assert res4.json()["user"]["email"] == "investigator.chen@crimenet.demo"
+    print("  [PASS] Flexible identifier login (Badge ID, Full Name, Short Alias) confirmed")
+
+def test_case_entities_relationships_and_graph():
+    """Verify case detail returns complete set of entities and relationships matching graph topology."""
+    login_res = client.post("/api/auth/login", json={"user_id": "analyst.vance@crimenet.demo", "password": "demo123"})
+    token = login_res.json()["access_token"]
+    headers = {"Authorization": f"Bearer {token}"}
+    
+    # Case detail
+    case_res = client.get("/api/cases/CR-204", headers=headers)
+    assert case_res.status_code == 200
+    case_data = case_res.json()
+    assert len(case_data.get("entities", [])) >= 15, f"Expected at least 15 entities, got {len(case_data.get('entities', []))}"
+    assert len(case_data.get("relationships", [])) >= 27, f"Expected at least 27 relationships, got {len(case_data.get('relationships', []))}"
+    
+    # Explicit entities endpoint
+    ent_res = client.get("/api/cases/CR-204/entities", headers=headers)
+    assert ent_res.status_code == 200
+    assert ent_res.json()["total"] >= 15
+    
+    # Explicit relationships endpoint
+    rel_res = client.get("/api/cases/CR-204/relationships", headers=headers)
+    assert rel_res.status_code == 200
+    assert rel_res.json()["total"] >= 27
+    
+    # Graph analytics endpoint
+    analytics_res = client.get("/api/cases/CR-204/graph/analytics", headers=headers)
+    assert analytics_res.status_code == 200
+    assert analytics_res.json().get("total_entities", 0) >= 15
+    
+    # Graph path endpoint
+    path_res = client.post("/api/cases/CR-204/graph/path", json={"source_id": "suspect-1", "target_id": "suspect-2", "max_hops": 5}, headers=headers)
+    assert path_res.status_code == 200
+    print("  [PASS] Case CR-204 complete entities (15+), relationships (27+), and graph analytics verified")
+
+def test_entity_resolution_merge_in_demo_mode():
+    """Verify entity resolution merge works without 503 error in demo mode."""
+    login_res = client.post("/api/auth/login", json={"user_id": "analyst.vance@crimenet.demo", "password": "demo123"})
+    token = login_res.json()["access_token"]
+    headers = {"Authorization": f"Bearer {token}"}
+    
+    cases_res = client.get("/api/entity-resolution/cases", headers=headers)
+    assert cases_res.status_code == 200
+    assert len(cases_res.json().get("cases", [])) > 0
+    
+    merge_res = client.post("/api/entity-resolution/merge", json={
+        "case_id": "CR-204",
+        "primary_id": "suspect-1",
+        "alias_name": "Cypher-9 Test Alias",
+        "match_score": 0.95
+    }, headers=headers)
+    assert merge_res.status_code == 200, f"Expected 200, got {merge_res.status_code}: {merge_res.text}"
+    assert merge_res.json()["success"] is True
+    print("  [PASS] Entity resolution merge verified operational in demo mode (no 503)")
+
 if __name__ == "__main__":
     print("======================================================================")
     print("CRIMENET AI - CONNECTED SYSTEM REGRESSION TEST SUITE")
@@ -184,10 +260,13 @@ if __name__ == "__main__":
     setup_function()
     test_demo_profiles_endpoint_exposes_no_passwords()
     test_demo_login_and_session_validation()
+    test_flexible_identifier_logins()
     test_detective_chen_clearance_and_case_isolation()
     test_supervisor_and_admin_elevated_access()
     test_nlp_leads_empty_input_validation()
     test_search_adversarial_queries()
+    test_case_entities_relationships_and_graph()
+    test_entity_resolution_merge_in_demo_mode()
     test_truthful_health_and_audit_sanitization()
     print("======================================================================")
     print("ALL CONNECTED SYSTEM REGRESSION TESTS PASSED SUCCESSFULLY!")

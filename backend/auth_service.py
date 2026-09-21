@@ -109,10 +109,23 @@ def authenticate_user(identifier: str, password: str, client_ip: str = "127.0.0.
     # In DEMO environment, check DEMO_ACCOUNTS
     user = None
     if CRIMENET_ENV == "demo":
-        # Allow email matching or prefix matching for demo convenience (e.g. 'agent.vance' or 'analyst.vance@crimenet.demo')
+        # Allow email, prefix, badge ID, full name, or last name matching for investigator convenience
         for email, account in DEMO_ACCOUNTS.items():
-            prefix = email.split("@")[0]
-            if ident_lower == email.lower() or ident_lower == prefix.lower():
+            prefix = email.split("@")[0].lower()
+            badge = account.get("badge_id", "").lower()
+            full_name = account.get("full_name", "").lower()
+            prefix_parts = prefix.split(".")
+            
+            candidates = {email.lower(), prefix, badge}
+            candidates.update(prefix_parts)
+            
+            if (
+                ident_lower in candidates
+                or ident_lower == full_name
+                or ident_lower in full_name
+                or full_name in ident_lower
+                or any(part in ident_lower for part in prefix_parts if len(part) >= 3)
+            ):
                 user = account
                 break
 
@@ -128,10 +141,12 @@ def authenticate_user(identifier: str, password: str, client_ip: str = "127.0.0.
         )
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=generic_error)
 
-    # Verify password against PBKDF2 hash (also allow standard demo123 in demo environment)
+    # Verify password against PBKDF2 hash (also allow standard demo passwords in demo environment)
     password_valid = verify_password(user["password_hash"], password)
-    if not password_valid and CRIMENET_ENV == "demo" and password.strip() in ["demo123", "Crimenet2026!"]:
-        password_valid = True
+    if not password_valid and CRIMENET_ENV == "demo":
+        acceptable_demo_passes = {"demo123", "Crimenet2026!", "Investigator2026!", "Supervisor2026!", "Admin2026!", "demo", "admin", "password"}
+        if password.strip() in acceptable_demo_passes:
+            password_valid = True
 
     if not password_valid:
         record_failed_attempt(rate_limit_key)

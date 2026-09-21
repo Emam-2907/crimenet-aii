@@ -48,11 +48,12 @@ export default function LoginPage({ onLoginSuccess }) {
     api.getDemoProfiles().then(res => {
       if (res && res.profiles && res.profiles.length > 0) {
         setQuickProfiles(res.profiles.map(p => ({
-          name: p.name,
+          name: p.full_name || p.name || p.email,
           id: p.email,
           email: p.email,
           role: p.role,
-          clearance: p.clearance
+          clearance: p.clearance,
+          badge_id: p.badge_id
         })));
       }
     }).catch(err => {
@@ -109,6 +110,8 @@ export default function LoginPage({ onLoginSuccess }) {
   const handleQuickLogin = async (profileEmail) => {
     setErrorMsg('');
     setIsLoading(true);
+    setUserId(profileEmail);
+    setPassword('demo123');
     try {
       let loggedUser;
       if (auth && auth.demoLogin) {
@@ -119,7 +122,7 @@ export default function LoginPage({ onLoginSuccess }) {
       }
       setAuthSuccess(true);
       if (onLoginSuccess && loggedUser) {
-        setTimeout(() => onLoginSuccess(loggedUser), 600);
+        setTimeout(() => onLoginSuccess(loggedUser), 500);
       }
     } catch (err) {
       console.error('Quick demo login error:', err);
@@ -131,12 +134,14 @@ export default function LoginPage({ onLoginSuccess }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!userId.trim()) {
-      setErrorMsg('Please enter your User ID or Agent ID.');
+      setErrorMsg('Please enter your User ID, Badge ID, or Email.');
       return;
     }
+    
+    // In demo environment, default empty password to standard demo123
+    const effectivePassword = password || 'demo123';
     if (!password) {
-      setErrorMsg('Please enter your security access password.');
-      return;
+      setPassword('demo123');
     }
 
     setErrorMsg('');
@@ -145,15 +150,15 @@ export default function LoginPage({ onLoginSuccess }) {
     try {
       let loggedUser;
       if (auth && auth.login) {
-        const res = await auth.login(userId.trim(), password);
+        const res = await auth.login(userId.trim(), effectivePassword);
         loggedUser = res?.user || res;
       } else {
-        const res = await api.login(userId.trim(), password);
+        const res = await api.login(userId.trim(), effectivePassword);
         loggedUser = res.user;
       }
       setAuthSuccess(true);
       if (onLoginSuccess && loggedUser) {
-        setTimeout(() => onLoginSuccess(loggedUser), 600);
+        setTimeout(() => onLoginSuccess(loggedUser), 500);
       }
     } catch (err) {
       console.error('Login error:', err);
@@ -432,8 +437,13 @@ export default function LoginPage({ onLoginSuccess }) {
 
             {/* Quick Profile Autofill Helpers */}
             <div style={{ marginBottom: '18px' }}>
-              <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)', marginBottom: '6px' }}>
-                QUICK SIGN-IN PROFILE:
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                <span style={{ fontSize: '0.68rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>
+                  QUICK SIGN-IN PERSONA:
+                </span>
+                <span style={{ fontSize: '0.64rem', color: 'var(--accent-hover)', fontFamily: 'var(--font-mono)' }}>
+                  Click to Auto-Sign In
+                </span>
               </div>
               <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
                 {quickProfiles.map(p => (
@@ -445,20 +455,52 @@ export default function LoginPage({ onLoginSuccess }) {
                       setUserId(p.email || p.id);
                       handleQuickLogin(p.email || p.id);
                     }}
+                    title={`${p.name} · ${p.role} · ${p.badge_id || ''}`}
                     style={{
                       background: userId === (p.email || p.id) ? 'var(--accent)' : 'var(--bg-elevated)',
                       border: '1px solid var(--border-default)',
                       borderRadius: '4px',
-                      padding: '4px 8px',
-                      color: userId === (p.email || p.id) ? '#fff' : 'var(--text-secondary)',
-                      fontSize: '0.70rem',
+                      padding: '5px 10px',
+                      color: userId === (p.email || p.id) ? '#fff' : 'var(--text-primary)',
+                      fontSize: '0.72rem',
+                      fontWeight: 500,
                       cursor: 'pointer',
-                      transition: 'all 0.15s ease'
+                      transition: 'all 0.15s ease',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '5px'
                     }}
                   >
-                    {p.name}
+                    <span>{p.name}</span>
+                    {p.badge_id && (
+                      <span style={{
+                        fontSize: '0.60rem',
+                        fontFamily: 'var(--font-mono)',
+                        opacity: 0.75,
+                        background: 'rgba(0,0,0,0.2)',
+                        padding: '1px 4px',
+                        borderRadius: '2px'
+                      }}>
+                        {p.badge_id}
+                      </span>
+                    )}
                   </button>
                 ))}
+              </div>
+              <div style={{
+                marginTop: '8px',
+                padding: '6px 10px',
+                background: 'rgba(56, 189, 248, 0.08)',
+                border: '1px solid rgba(56, 189, 248, 0.2)',
+                borderRadius: '4px',
+                fontSize: '0.68rem',
+                color: 'var(--text-secondary)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between'
+              }}>
+                <span>Demo Password: <strong style={{ color: '#38bdf8', fontFamily: 'var(--font-mono)' }}>demo123</strong></span>
+                <span style={{ fontSize: '0.64rem', color: 'var(--text-muted)' }}>Any persona or badge ID</span>
               </div>
             </div>
 

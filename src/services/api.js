@@ -8,7 +8,7 @@
 
 import { getApiBaseUrl, ENV_CONFIG } from '../config/env.js';
 
-let inMemoryToken = null;
+let inMemoryToken = (typeof sessionStorage !== 'undefined' && sessionStorage.getItem('crimenet_token')) || null;
 
 export class ApiError extends Error {
   constructor(message, status = 0, detail = null) {
@@ -110,6 +110,13 @@ export const api = {
   // ── Token Management ───────────────────────────────────────────────────────
   setToken: (token) => {
     inMemoryToken = token;
+    if (typeof sessionStorage !== 'undefined') {
+      if (token) {
+        sessionStorage.setItem('crimenet_token', token);
+      } else {
+        sessionStorage.removeItem('crimenet_token');
+      }
+    }
   },
 
   getToken: () => inMemoryToken,
@@ -244,6 +251,20 @@ export const api = {
     });
   },
 
+  uploadEvidence: async (caseId, evidenceData) => {
+    return await api.uploadCaseEvidence(caseId, evidenceData);
+  },
+
+  getCaseEntities: async (caseId) => {
+    const data = await request(`/cases/${encodeURIComponent(caseId)}/entities`);
+    return data.entities || [];
+  },
+
+  getCaseRelationships: async (caseId) => {
+    const data = await request(`/cases/${encodeURIComponent(caseId)}/relationships`);
+    return data.relationships || [];
+  },
+
   // ── Evidence Repository ────────────────────────────────────────────────────
   getEvidence: async (caseId = null, category = null, search = null) => {
     const params = new URLSearchParams();
@@ -257,6 +278,10 @@ export const api = {
 
   getEvidenceDetail: async (evidenceId) => {
     return await request(`/evidence/${encodeURIComponent(evidenceId)}`);
+  },
+
+  getEvidenceById: async (evidenceId) => {
+    return await api.getEvidenceDetail(evidenceId);
   },
 
   processEvidence: async (evidenceId) => {
@@ -296,15 +321,30 @@ export const api = {
     return await request(`/graph/shortest-path?source_id=${encodeURIComponent(sourceId)}&target_id=${encodeURIComponent(targetId)}&case_id=${encodeURIComponent(caseId)}`);
   },
 
-  getGraphAnalytics: async (caseId = 'CR-204') => {
+  findCasePath: async (caseId, sourceId, targetId, maxHops = 5) => {
+    return await request(`/cases/${encodeURIComponent(caseId)}/graph/path`, {
+      method: 'POST',
+      body: { source_id: sourceId, target_id: targetId, max_hops: maxHops }
+    });
+  },
+
+  getCaseAnalytics: async (caseId = 'CR-204') => {
     return await request(`/cases/${encodeURIComponent(caseId)}/graph/analytics`);
   },
 
-  expandNode: async (nodeId, caseId = 'CR-204') => {
+  getGraphAnalytics: async (caseId = 'CR-204') => {
+    return await api.getCaseAnalytics(caseId);
+  },
+
+  expandCaseNode: async (caseId, entityId) => {
     return await request(`/cases/${encodeURIComponent(caseId)}/graph/expand`, {
       method: 'POST',
-      body: { entity_id: nodeId }
+      body: { entity_id: entityId }
     });
+  },
+
+  expandNode: async (nodeId, caseId = 'CR-204') => {
+    return await api.expandCaseNode(caseId, nodeId);
   },
 
   getEntityDetail: async (entityId, caseId = null) => {
@@ -332,6 +372,13 @@ export const api = {
     });
   },
 
+  sendCiraChatMessage: async (caseId, payload) => {
+    return await request(`/cases/${encodeURIComponent(caseId)}/cira/chat`, {
+      method: 'POST',
+      body: payload
+    });
+  },
+
   ciraChat: async (caseId, message, conversationId = null, activeEntityId = null) => {
     return await request(`/cases/${encodeURIComponent(caseId)}/cira/chat`, {
       method: 'POST',
@@ -352,20 +399,54 @@ export const api = {
     return await request('/cira/config');
   },
 
+  saveCiraConfig: async (config) => {
+    return await request('/cira/config', {
+      method: 'POST',
+      body: config
+    });
+  },
+
+  testCiraConnection: async (payload) => {
+    return await request('/cira/test-connection', {
+      method: 'POST',
+      body: payload
+    });
+  },
+
+  getCiraCaseContext: async (caseId) => {
+    return await request(`/cases/${encodeURIComponent(caseId)}/cira/context`);
+  },
+
+  getCaseContext: async (caseId) => {
+    return await api.getCiraCaseContext(caseId);
+  },
+
+  getCiraConversations: async (caseId) => {
+    return await request(`/cases/${encodeURIComponent(caseId)}/cira/conversations`);
+  },
+
   getCaseConversations: async (caseId) => {
-    const data = await request(`/cases/${encodeURIComponent(caseId)}/cira/conversations`);
+    const data = await api.getCiraConversations(caseId);
     return data.conversations || [];
   },
 
-  createCaseConversation: async (caseId, title = null) => {
+  createCiraConversation: async (caseId, title = null) => {
     return await request(`/cases/${encodeURIComponent(caseId)}/cira/conversations`, {
       method: 'POST',
       body: { title }
     });
   },
 
-  getConversationDetail: async (caseId, convId) => {
+  createCaseConversation: async (caseId, title = null) => {
+    return await api.createCiraConversation(caseId, title);
+  },
+
+  getCiraConversation: async (caseId, convId) => {
     return await request(`/cases/${encodeURIComponent(caseId)}/cira/conversations/${encodeURIComponent(convId)}`);
+  },
+
+  getConversationDetail: async (caseId, convId) => {
+    return await api.getCiraConversation(caseId, convId);
   },
 
   renameConversation: async (caseId, convId, newTitle) => {
@@ -375,14 +456,14 @@ export const api = {
     });
   },
 
-  deleteConversation: async (caseId, convId) => {
+  deleteCiraConversation: async (caseId, convId) => {
     return await request(`/cases/${encodeURIComponent(caseId)}/cira/conversations/${encodeURIComponent(convId)}`, {
       method: 'DELETE'
     });
   },
 
-  getCaseContext: async (caseId) => {
-    return await request(`/cases/${encodeURIComponent(caseId)}/cira/context`);
+  deleteConversation: async (caseId, convId) => {
+    return await api.deleteCiraConversation(caseId, convId);
   },
 
   // ── Face Intelligence & Forensic Facial Matching ───────────────────────────

@@ -1813,12 +1813,18 @@ class IntelligenceDB:
         for c in self.cases:
             c_evidence = [e for e in self.evidence_store if e.get("case_id") == c["id"]]
             c["evidence_count"] = len(c_evidence)
-            entity_names = set()
+            
+            # Retrieve case graph nodes and edges for accurate entity counts
+            graph_data = self.get_case_graph(c["id"])
+            g_nodes = graph_data.get("nodes", [])
+            g_edges = graph_data.get("edges", [])
+            
+            entity_names = {n["data"].get("label", n["data"]["id"]) for n in g_nodes if "data" in n}
             for e in c_evidence:
                 for ent in e.get("entities", []):
                     entity_names.add(ent["name"])
-            if entity_names:
-                c["entity_count"] = len(entity_names)
+            c["entity_count"] = len(entity_names)
+            c["relationships_count"] = len(g_edges)
         return self.cases
 
     def get_case(self, case_id: str) -> Optional[Dict[str, Any]]:
@@ -1826,24 +1832,79 @@ class IntelligenceDB:
             if c["id"] == case_id or c["id"].replace("CASE #", "").strip() == case_id.replace("CASE #", "").strip():
                 case_evidence = [e for e in self.evidence_store if e.get("case_id") == c["id"]]
                 timeline = self.timelines.get(c["id"], [])
+                
+                # Retrieve full case graph nodes and edges
+                graph_data = self.get_case_graph(c["id"])
+                
                 entities = []
                 seen_entities = set()
+                
+                # Ingest all graph nodes
+                for node in graph_data.get("nodes", []):
+                    nd = node.get("data", {})
+                    label = nd.get("label", nd.get("id"))
+                    if label and label not in seen_entities:
+                        seen_entities.add(label)
+                        entities.append({
+                            "id": nd.get("id"),
+                            "name": label,
+                            "type": nd.get("type", "Entity"),
+                            "threat": nd.get("threat", "MEDIUM"),
+                            "confidence": nd.get("confidence", 0.95),
+                            "case_id": c["id"]
+                        })
+                
+                # Also merge any additional extracted entities from evidence_store
                 for e in case_evidence:
                     for ent in e.get("entities", []):
                         if ent["name"] not in seen_entities:
                             seen_entities.add(ent["name"])
-                            entities.append(ent)
+                            entities.append({
+                                "id": ent.get("id", f"ent-{len(entities)+1}"),
+                                "name": ent["name"],
+                                "type": ent.get("type", "Entity"),
+                                "threat": ent.get("threat", "MEDIUM"),
+                                "confidence": ent.get("confidence", 0.92),
+                                "case_id": c["id"]
+                            })
+                
                 relationships = []
+                seen_rels = set()
+                
+                # Ingest all graph edges
+                for edge in graph_data.get("edges", []):
+                    ed = edge.get("data", {})
+                    src = ed.get("source")
+                    tgt = ed.get("target")
+                    rel_label = ed.get("label") or ed.get("relation") or ed.get("relation_type", "CONNECTED")
+                    rel_id = ed.get("id") or f"{src}->{tgt}:{rel_label}"
+                    if rel_id not in seen_rels:
+                        seen_rels.add(rel_id)
+                        relationships.append({
+                            "id": rel_id,
+                            "source": src,
+                            "target": tgt,
+                            "relation": rel_label,
+                            "type": ed.get("relation_type", "association"),
+                            "confidence": ed.get("confidence", 0.90)
+                        })
+                        
+                # Also merge any additional extracted relationships from evidence_store
                 for e in case_evidence:
                     for rel in e.get("relationships", []):
-                        relationships.append(rel)
+                        rel_id = rel.get("id") or f"{rel.get('source')}->{rel.get('target')}:{rel.get('relation')}"
+                        if rel_id not in seen_rels:
+                            seen_rels.add(rel_id)
+                            relationships.append(rel)
 
                 return {
                     **c,
                     "evidence": case_evidence,
                     "entities": entities,
                     "relationships": relationships,
-                    "timeline": timeline
+                    "timeline": timeline,
+                    "entity_count": len(entities),
+                    "relationships_count": len(relationships)
                 }
         return None
 
@@ -2099,14 +2160,25 @@ class IntelligenceDB:
         return new_edge
 
     def merge_entities(self, primary_id: str, alias_name: str, score: float):
+        # Support ID aliases (suspect-1 -> ent-person-voronin, veh-771 -> ent-veh-escalade)
+        alias_id_map = {
+            "suspect-1": "ent-person-voronin",
+            "veh-771": "ent-veh-escalade",
+            "cand-01": "ent-person-voronin",
+            "cand-02": "ent-person-rostov"
+        }
+        target_ids = {primary_id, alias_id_map.get(primary_id, primary_id)}
+        
         # Add alias attribute to primary node in graph
         for node in self.graph["nodes"]:
-            if node["data"]["id"] == primary_id:
-                existing_aliases = node["data"].get("aliases", [])
+            nd = node["data"]
+            if nd["id"] in target_ids or nd.get("label", "").lower() == primary_id.lower():
+                existing_aliases = nd.get("aliases", [])
                 if alias_name not in existing_aliases:
                     existing_aliases.append(alias_name)
-                    node["data"]["aliases"] = existing_aliases
-                    node["data"]["details"] += f" [RESOLVED ALIAS: {alias_name} (Conf: {int(score*100)}%)]"
+                    nd["aliases"] = existing_aliases
+                    curr_details = nd.get("details", "")
+                    nd["details"] = f"{curr_details} [RESOLVED ALIAS: {alias_name} (Conf: {int(score*100)}%)]".strip()
                 return node
         return None
 

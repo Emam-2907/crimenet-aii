@@ -62,7 +62,7 @@ async def add_security_headers(request: Request, call_next):
         "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
         "font-src 'self' https://fonts.gstatic.com data:; "
         "img-src 'self' data: blob: https:; "
-        "connect-src 'self' http://localhost:8000 https://crimenet-ai-2.vercel.app https://*.vercel.app; "
+        "connect-src 'self' http://localhost:8000 http://localhost:3000 https://crimenet-aii.vercel.app https://crimenet-aii-emam-2907.vercel.app https://crimenet-ai-2.vercel.app https://*.vercel.app; "
         "frame-ancestors 'none';"
     )
     return response

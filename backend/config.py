@@ -29,7 +29,7 @@ ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "30"))
 
 # Allowed CORS origins
-DEFAULT_ORIGINS = "http://localhost:5173,http://localhost:3000,http://127.0.0.1:5173,https://crimenet-ai-2.vercel.app"
+DEFAULT_ORIGINS = "http://localhost:5173,http://localhost:3000,http://127.0.0.1:5173,http://127.0.0.1:8000,https://crimenet-aii.vercel.app,https://crimenet-aii-emam-2907.vercel.app,https://crimenet-ai-2.vercel.app"
 ALLOWED_ORIGINS = [
     origin.strip()
     for origin in os.getenv("ALLOWED_ORIGINS", DEFAULT_ORIGINS).split(",")

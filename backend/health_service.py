@@ -65,9 +65,10 @@ def probe_system_health() -> Dict[str, Any]:
             "connected": False,
             "engine": "LOCAL_GRAPH_CACHE_FALLBACK",
             "uri": neo_stat.get("uri", "bolt://127.0.0.1:7687"),
-            "note": "Live Neo4j instance offline. Read-only graph topology loaded from local memory cache."
+            "note": "Live Neo4j instance offline. Graph topology and entity resolution loaded from local memory cache."
         }
-        disabled_features.extend(["GRAPH_MUTATION", "LIVE_CYPHER_PERSISTENCE"])
+        if CRIMENET_ENV != "demo":
+            disabled_features.extend(["GRAPH_MUTATION", "LIVE_CYPHER_PERSISTENCE"])
 
     # 3. Probe Evidence Storage
     evidence_status = "DEMO" if CRIMENET_ENV == "demo" else "LIVE"

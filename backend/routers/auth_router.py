@@ -52,7 +52,19 @@ async def demo_login(req: DemoLoginRequest, request: Request, response: Response
     from backend.config import DEMO_ACCOUNTS
     user = None
     for em, acc in DEMO_ACCOUNTS.items():
-        if email_clean == em.lower() or email_clean == em.split("@")[0].lower():
+        prefix = em.split("@")[0].lower()
+        badge = acc.get("badge_id", "").lower()
+        full_name = acc.get("full_name", "").lower()
+        prefix_parts = prefix.split(".")
+        candidates = {em.lower(), prefix, badge}
+        candidates.update(prefix_parts)
+        
+        if (
+            email_clean in candidates
+            or email_clean == full_name
+            or email_clean in full_name
+            or any(part in email_clean for part in prefix_parts if len(part) >= 3)
+        ):
             user = acc
             break
             
