@@ -2,7 +2,7 @@ import os
 import hashlib
 import secrets
 from pathlib import Path
-from typing import Dict, Any
+from typing import Dict, Any, List
 
 # Load .env file from project root if available (NEVER logged or committed)
 try:
