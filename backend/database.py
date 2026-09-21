@@ -1636,6 +1636,88 @@ ENTITY_RESOLUTION_CASES = [
             }
         ],
         "rationale": "ALPR optical camera match identifies vehicle swapping registration plates at Exit 14 just 18 minutes prior to Port Sovereign Heist."
+    },
+    {
+        "id": "ER-CASE-096",
+        "primaryName": "Elena Rostov",
+        "primary_entity": "Elena Rostov",
+        "primaryId": "P-017",
+        "primary_id": "P-017",
+        "threat": "HIGH",
+        "confidence": 0.932,
+        "status": "PENDING_CONFIRMATION",
+        "dossierPhoto": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80",
+        "currentAliases": ["Valkyrie", "CipherQueen"],
+        "candidates": [
+            {
+                "aliasName": "Alena Rostova (Swiss Escrow Signatory)",
+                "entity_name": "Alena Rostova (Swiss Escrow Signatory)",
+                "source": "FinCEN Blockchain Cross-Reference #SW-991",
+                "matchScore": 0.96,
+                "score": 0.96,
+                "evidencePoints": [
+                    "Cryptographic signature match on 140 USDT transaction",
+                    "Shared satellite IP range (213.158.xx.xx)",
+                    "Levenshtein distance of 1 character to verified passport name"
+                ],
+                "matching_attributes": [
+                    "Cryptographic signature match on 140 USDT transaction",
+                    "Shared satellite IP range (213.158.xx.xx)",
+                    "Levenshtein distance of 1 character to verified passport name"
+                ],
+                "icon": "credit"
+            },
+            {
+                "aliasName": "E. Rostov (Panama Maritime Broker)",
+                "entity_name": "E. Rostov (Panama Maritime Broker)",
+                "source": "Harbor Registry Bill of Lading (Nhava Sheva Pier)",
+                "matchScore": 0.91,
+                "score": 0.91,
+                "evidencePoints": [
+                    "Coinciding customs dispatch timestamp (04:18 UTC)",
+                    "Shared encrypted ProtonMail handle hash"
+                ],
+                "matching_attributes": [
+                    "Coinciding customs dispatch timestamp (04:18 UTC)",
+                    "Shared encrypted ProtonMail handle hash"
+                ],
+                "icon": "phone"
+            }
+        ],
+        "rationale": "RapidFuzz name similarity and multi-sig cryptographic transaction ledger corroborate Alena Rostova as Elena Rostov's operational offshore alias."
+    },
+    {
+        "id": "ER-CASE-097",
+        "primaryName": "Escrow Cold Wallet 0x889...F1C",
+        "primary_entity": "Escrow Cold Wallet 0x889...F1C",
+        "primaryId": "FIN-001",
+        "primary_id": "FIN-001",
+        "threat": "CRITICAL",
+        "confidence": 0.965,
+        "status": "PENDING_CONFIRMATION",
+        "dossierPhoto": "https://images.unsplash.com/photo-1621416894569-0f39ed31d247?auto=format&fit=crop&w=200&q=80",
+        "currentAliases": ["Tether Tumbler Vault #4"],
+        "candidates": [
+            {
+                "aliasName": "Offshore Escrow Pool 0x889b...F1Cc",
+                "entity_name": "Offshore Escrow Pool 0x889b...F1Cc",
+                "source": "FinCEN SAR Transaction Log #SAR-2026-44",
+                "matchScore": 0.98,
+                "score": 0.98,
+                "evidencePoints": [
+                    "Exact byte prefix matching Ethereum deposit contract",
+                    "Coordinated transfer of 140,000 USDT at 04:22 UTC",
+                    "Linked directly to Terminal C harbormaster bribe sequence"
+                ],
+                "matching_attributes": [
+                    "Exact byte prefix matching Ethereum deposit contract",
+                    "Coordinated transfer of 140,000 USDT at 04:22 UTC",
+                    "Linked directly to Terminal C harbormaster bribe sequence"
+                ],
+                "icon": "credit"
+            }
+        ],
+        "rationale": "Blockchain clustering analysis links 0x889b...F1Cc directly to primary syndicate multi-sig smart contract."
     }
 ]
 

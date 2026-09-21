@@ -382,7 +382,12 @@ export default function WorldIntelligenceMap({
 
   const [activeStyle, setActiveStyle] = useState('cartoDark');
   const [activeRegion, setActiveRegion] = useState('GLOBAL');
-  const [activeInspectNode, setActiveInspectNode] = useState(selectedEntity || DEFAULT_GLOBAL_NODES[0]);
+  const [activeInspectNode, setActiveInspectNode] = useState(() => {
+    if (selectedEntity && selectedEntity.lat != null && selectedEntity.lng != null) {
+      return selectedEntity;
+    }
+    return DEFAULT_GLOBAL_NODES[0];
+  });
   const [cursorCoords, setCursorCoords] = useState({ lat: '25.0000', lng: '15.0000' });
   const [searchQuery, setSearchQuery] = useState('');
   const [showSearchResults, setShowSearchResults] = useState(false);
@@ -422,6 +427,30 @@ export default function WorldIntelligenceMap({
 
     return Array.from(map.values());
   }, [externalNodes]);
+
+  // Sync activeInspectNode when selectedEntity changes
+  useEffect(() => {
+    if (selectedEntity) {
+      if (selectedEntity.lat != null && selectedEntity.lng != null) {
+        setActiveInspectNode(selectedEntity);
+      } else {
+        const found = allNodes.find(n => n.id === selectedEntity.id);
+        if (found && found.lat != null) {
+          setActiveInspectNode(found);
+        } else {
+          setActiveInspectNode(prev => ({
+            ...prev,
+            ...selectedEntity,
+            lat: selectedEntity.lat != null ? Number(selectedEntity.lat) : (prev?.lat || 40.7128),
+            lng: selectedEntity.lng != null ? Number(selectedEntity.lng) : (prev?.lng || -74.0060),
+            city: selectedEntity.city || prev?.city || 'Monitored Station',
+            country: selectedEntity.country || prev?.country || 'Jurisdiction',
+            details: selectedEntity.details || prev?.details || 'Investigation entity'
+          }));
+        }
+      }
+    }
+  }, [selectedEntity, allNodes]);
 
   // Filter nodes based on user filter toggles
   const filteredNodes = useMemo(() => {
@@ -466,10 +495,12 @@ export default function WorldIntelligenceMap({
     map.addControl(new maplibregl.ScaleControl({ unit: 'metric' }), 'bottom-left');
 
     map.on('mousemove', (e) => {
-      setCursorCoords({
-        lat: e.lngLat.lat.toFixed(4),
-        lng: e.lngLat.lng.toFixed(4)
-      });
+      if (e?.lngLat?.lat != null && e?.lngLat?.lng != null) {
+        setCursorCoords({
+          lat: Number(e.lngLat.lat).toFixed(4),
+          lng: Number(e.lngLat.lng).toFixed(4)
+        });
+      }
     });
 
     map.on('load', () => {
@@ -1052,12 +1083,14 @@ export default function WorldIntelligenceMap({
             }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--t-muted)' }}>
                 <span>Jurisdiction:</span>
-                <strong style={{ color: '#E6E9ED' }}>{activeInspectNode.city}, {activeInspectNode.country}</strong>
+                <strong style={{ color: '#E6E9ED' }}>{activeInspectNode?.city || 'Monitored Station'}, {activeInspectNode?.country || 'Jurisdiction'}</strong>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--t-muted)', fontFamily: 'var(--f-mono)' }}>
                 <span>Coordinates:</span>
                 <span style={{ color: 'var(--blue-light)' }}>
-                  {activeInspectNode.lat.toFixed(4)}° N, {activeInspectNode.lng.toFixed(4)}° W
+                  {activeInspectNode?.lat != null && activeInspectNode?.lng != null
+                    ? `${Number(activeInspectNode.lat).toFixed(4)}° N, ${Number(activeInspectNode.lng).toFixed(4)}° W`
+                    : 'Coordinates: Lat/Lng pending triangulation'}
                 </span>
               </div>
             </div>

@@ -113,7 +113,7 @@ export default function CameraDetailsPanel() {
 
         {/* Telemetry and Coordinates */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '6px', fontSize: '0.66rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)', flexWrap: 'wrap' }}>
-          <span>GPS: {selectedCamera.lat?.toFixed(4) || '40.7142'}°N, {Math.abs(selectedCamera.lng || -74.0062).toFixed(4)}°W</span>
+          <span>GPS: {selectedCamera?.lat != null ? Number(selectedCamera.lat).toFixed(4) : '40.7142'}°N, {selectedCamera?.lng != null ? Math.abs(Number(selectedCamera.lng)).toFixed(4) : '74.0062'}°W</span>
           <span>·</span>
           <span>{selectedCamera.resolution || '1080p Optical'}</span>
           <span>·</span>

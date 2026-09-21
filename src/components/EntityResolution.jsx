@@ -65,6 +65,64 @@ const RESOLUTION_CASES = [
       }
     ],
     rationale: 'ALPR highway cameras captured vehicle swapping registration plates at highway exit 14 immediately following the Port Sovereign raid.'
+  },
+  {
+    id: 'ER-CASE-096',
+    primaryName: 'Elena Rostov',
+    primaryId: 'P-017',
+    threat: 'HIGH',
+    currentAliases: ['Valkyrie', 'CipherQueen'],
+    confidence: 0.932,
+    status: 'PENDING_CONFIRMATION',
+    dossierPhoto: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
+    candidates: [
+      {
+        aliasName: 'Alena Rostova (Swiss Escrow Signatory)',
+        source: 'FinCEN Blockchain Cross-Reference #SW-991',
+        matchScore: 0.96,
+        evidencePoints: [
+          'Cryptographic signature match on 140 USDT transaction',
+          'Shared satellite IP range (213.158.xx.xx)',
+          'Levenshtein distance of 1 character to verified passport name'
+        ],
+        icon: 'credit'
+      },
+      {
+        aliasName: 'E. Rostov (Panama Maritime Broker)',
+        source: 'Harbor Registry Bill of Lading (Nhava Sheva Pier)',
+        matchScore: 0.91,
+        evidencePoints: [
+          'Coinciding customs dispatch timestamp (04:18 UTC)',
+          'Shared encrypted ProtonMail handle hash'
+        ],
+        icon: 'phone'
+      }
+    ],
+    rationale: 'RapidFuzz name similarity and multi-sig cryptographic transaction ledger corroborate Alena Rostova as Elena Rostov\'s operational offshore alias.'
+  },
+  {
+    id: 'ER-CASE-097',
+    primaryName: 'Escrow Cold Wallet 0x889...F1C',
+    primaryId: 'FIN-001',
+    threat: 'CRITICAL',
+    currentAliases: ['Tether Tumbler Vault #4'],
+    confidence: 0.965,
+    status: 'PENDING_CONFIRMATION',
+    dossierPhoto: 'https://images.unsplash.com/photo-1621416894569-0f39ed31d247?auto=format&fit=crop&w=200&q=80',
+    candidates: [
+      {
+        aliasName: 'Offshore Escrow Pool 0x889b...F1Cc',
+        source: 'FinCEN SAR Transaction Log #SAR-2026-44',
+        matchScore: 0.98,
+        evidencePoints: [
+          'Exact byte prefix matching Ethereum deposit contract',
+          'Coordinated transfer of 140,000 USDT at 04:22 UTC',
+          'Linked directly to Terminal C harbormaster bribe sequence'
+        ],
+        icon: 'credit'
+      }
+    ],
+    rationale: 'Blockchain clustering analysis links 0x889b...F1Cc directly to primary syndicate multi-sig smart contract.'
   }
 ];
 
@@ -349,26 +407,26 @@ export default function EntityResolution() {
           }}>
             <div>
               <div style={{ color: 'var(--text-muted)' }}>Similarity Ratio:</div>
-              <div style={{ fontSize: '1.1rem', fontWeight: 700, color: fuzzyResult.similarity_ratio >= 0.85 ? '#34d399' : '#fbbf24' }}>
-                {(fuzzyResult.similarity_ratio * 100).toFixed(1)}%
+              <div style={{ fontSize: '1.1rem', fontWeight: 700, color: (fuzzyResult.similarity_ratio ?? fuzzyResult.similarity_score ?? 0) >= 0.85 ? '#34d399' : '#fbbf24' }}>
+                {(Number(fuzzyResult.similarity_ratio ?? fuzzyResult.similarity_score ?? 0) * 100).toFixed(1)}%
               </div>
             </div>
             <div>
               <div style={{ color: 'var(--text-muted)' }}>Token Sort Ratio:</div>
               <div style={{ fontSize: '1.1rem', fontWeight: 700, color: '#38bdf8' }}>
-                {fuzzyResult.token_sort_ratio}%
+                {fuzzyResult.token_sort_ratio ?? fuzzyResult.metrics?.token_sort_ratio ?? 0}%
               </div>
             </div>
             <div>
               <div style={{ color: 'var(--text-muted)' }}>Levenshtein Distance:</div>
               <div style={{ fontSize: '1.1rem', fontWeight: 700, color: '#f0f6fc' }}>
-                {fuzzyResult.levenshtein_distance} edit(s)
+                {fuzzyResult.levenshtein_distance ?? fuzzyResult.metrics?.levenshtein_distance ?? 0} edit(s)
               </div>
             </div>
             <div>
               <div style={{ color: 'var(--text-muted)' }}>Engine Recommendation:</div>
-              <div style={{ fontSize: '0.76rem', fontWeight: 700, color: fuzzyResult.similarity_ratio >= 0.85 ? '#34d399' : '#f87171' }}>
-                {fuzzyResult.recommended_action || (fuzzyResult.similarity_ratio >= 0.85 ? 'AUTOMATED_MERGE' : 'MANUAL_REVIEW')}
+              <div style={{ fontSize: '0.76rem', fontWeight: 700, color: (fuzzyResult.similarity_ratio ?? fuzzyResult.similarity_score ?? 0) >= 0.85 ? '#34d399' : '#f87171' }}>
+                {fuzzyResult.recommended_action || fuzzyResult.recommendation || ((fuzzyResult.similarity_ratio ?? fuzzyResult.similarity_score ?? 0) >= 0.85 ? 'AUTOMATED_MERGE' : 'MANUAL_REVIEW')}
               </div>
             </div>
           </div>

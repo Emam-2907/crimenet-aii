@@ -414,7 +414,7 @@ export default function CR204CytoscapeGraph({ onFocusMap, height = '360px' }) {
                 </span>
               </div>
               <div style={{ fontSize: '0.66rem', color: '#8D98A5', fontFamily: 'var(--font-mono, monospace)' }}>
-                Type: {selectedNodeData.type?.toUpperCase()} {selectedNodeData.lat ? `· Coordinates: ${selectedNodeData.lat.toFixed(4)}, ${selectedNodeData.lng.toFixed(4)}` : ''}
+                Type: {selectedNodeData.type?.toUpperCase()} {selectedNodeData?.lat != null && selectedNodeData?.lng != null ? `· Coordinates: ${Number(selectedNodeData.lat).toFixed(4)}, ${Number(selectedNodeData.lng).toFixed(4)}` : ''}
               </div>
             </div>
           </div>

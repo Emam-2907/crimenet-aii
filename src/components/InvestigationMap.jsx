@@ -82,7 +82,7 @@ export default function InvestigationMap() {
 
   const [searchQuery, setSearchQuery] = useState('');
   const [showSearchResults, setShowSearchResults] = useState(false);
-  const [useVectorFallback, setUseVectorFallback] = useState(true);
+  const [useVectorFallback, setUseVectorFallback] = useState(false);
   const [activeLayers, setActiveLayers] = useState({
     cameras: true,
     locations: true,
@@ -969,6 +969,30 @@ export default function InvestigationMap() {
         >
           <Eye size={12} />
           <span>Coverage Area</span>
+        </button>
+
+        {/* Real Map vs Vector Radar Mode Toggle */}
+        <button
+          type="button"
+          onClick={() => setUseVectorFallback(!useVectorFallback)}
+          style={{
+            backgroundColor: !useVectorFallback ? 'rgba(56, 189, 248, 0.2)' : '#101419',
+            border: !useVectorFallback ? '1px solid #38bdf8' : '1px solid var(--border-default)',
+            borderRadius: '6px',
+            padding: '6px 10px',
+            color: !useVectorFallback ? '#38bdf8' : 'var(--text-muted)',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+            fontSize: '0.70rem',
+            fontWeight: 600,
+            backdropFilter: 'blur(6px)'
+          }}
+          title="Toggle between Original Geographic Map and Tactical Radar Grid"
+        >
+          <Layers size={12} />
+          <span>{!useVectorFallback ? 'Original Real Map 🌍' : 'Vector Radar Grid'}</span>
         </button>
       </div>
 

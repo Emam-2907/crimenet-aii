@@ -79,9 +79,12 @@ def merge_resolved_entity(
 
 
 class FuzzyMatchRequest(BaseModel):
-    query: str
+    query: Optional[str] = None
+    query_name: Optional[str] = None
     target: Optional[str] = None
+    candidate_name: Optional[str] = None
     case_id: Optional[str] = None
+    threshold: Optional[float] = 0.60
 
 
 @router.post("/fuzzy-match")
@@ -93,7 +96,7 @@ def compute_fuzzy_match(
     Live, unscripted Entity Resolution testing endpoint.
     Computes real RapidFuzz string similarity, token sort ratio, and Levenshtein edit distance.
     """
-    query = (request.query or "").strip()
+    query = (request.query or request.query_name or "").strip()
     if not query:
         raise HTTPException(status_code=422, detail="Query string cannot be empty.")
 
@@ -115,7 +118,7 @@ def compute_fuzzy_match(
         {"id": "SUSPECT-IND-02", "name": "Vikram Malhotra", "aliases": ["Vicky", "V. Malhotra", "Malhotra Saab"]}
     ]
 
-    target_input = (request.target or "").strip()
+    target_input = (request.target or request.candidate_name or "").strip()
 
     if target_input:
         # Direct comparison between query and user-specified target
@@ -136,7 +139,12 @@ def compute_fuzzy_match(
             "query": query,
             "target": target_input,
             "similarity_score": sim_score,
+            "similarity_ratio": sim_score,
             "similarity_percentage": f"{int(sim_score * 100)}%",
+            "token_sort_ratio": score_token_sort,
+            "levenshtein_distance": lev_dist,
+            "recommended_action": "AUTOMATED_MERGE" if sim_score >= 0.85 else "MANUAL_REVIEW",
+            "recommendation": "AUTO_MERGE_CANDIDATE" if sim_score >= 0.88 else ("MANUAL_INVESTIGATOR_REVIEW" if sim_score >= 0.65 else "DISTINCT_ENTITY"),
             "metrics": {
                 "ratio": score_ratio,
                 "token_sort_ratio": score_token_sort,
@@ -144,7 +152,6 @@ def compute_fuzzy_match(
                 "levenshtein_distance": lev_dist,
                 "engine": "RapidFuzz v3.14 (C++ SIMD Vectorized)" if has_rapidfuzz else "difflib.SequenceMatcher"
             },
-            "recommendation": "AUTO_MERGE_CANDIDATE" if sim_score >= 0.88 else ("MANUAL_INVESTIGATOR_REVIEW" if sim_score >= 0.65 else "DISTINCT_ENTITY"),
             "justification": f"Levenshtein edit distance is {lev_dist}. Token sort ratio of {score_token_sort}% indicates {'high confidence near-duplicate alias' if sim_score >= 0.85 else 'divergent character sequence requiring verification'}."
         }
 
@@ -181,10 +188,18 @@ def compute_fuzzy_match(
 
     matches.sort(key=lambda m: m["similarity_score"], reverse=True)
 
+    top = matches[0] if matches else None
+    top_score = top["similarity_score"] if top else 0.0
+
     return {
         "query": query,
         "total_targets_evaluated": len(matches),
-        "top_match": matches[0] if matches else None,
+        "top_match": top,
+        "similarity_score": top_score,
+        "similarity_ratio": top_score,
+        "token_sort_ratio": int(top_score * 100),
+        "levenshtein_distance": top["levenshtein_distance"] if top else 0,
+        "recommended_action": "AUTOMATED_MERGE" if top_score >= 0.85 else "MANUAL_REVIEW",
         "candidates": matches,
         "engine": "RapidFuzz v3.14 (C++ SIMD Vectorized)" if has_rapidfuzz else "difflib.SequenceMatcher"
     }
