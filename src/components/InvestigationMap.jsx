@@ -37,6 +37,27 @@ function createGeoJSONCircle(centerLng, centerLat, radiusInMeters, points = 36) 
   };
 }
 
+// Helper to project geographic coordinates to SVG viewport
+function projectCoords(lng, lat, width = 950, height = 600) {
+  const minLng = -74.0115;
+  const maxLng = -73.9960;
+  const minLat = 40.7090;
+  const maxLat = 40.7205;
+
+  const padX = 70;
+  const padY = 70;
+  const usableW = width - padX * 2;
+  const usableH = height - padY * 2;
+
+  const normX = Math.max(0, Math.min(1, ((lng || -74.0045) - minLng) / (maxLng - minLng)));
+  const normY = Math.max(0, Math.min(1, (maxLat - (lat || 40.7145)) / (maxLat - minLat)));
+
+  return {
+    x: padX + normX * usableW,
+    y: padY + normY * usableH
+  };
+}
+
 export default function InvestigationMap() {
   const {
     investigationData,
@@ -61,6 +82,7 @@ export default function InvestigationMap() {
 
   const [searchQuery, setSearchQuery] = useState('');
   const [showSearchResults, setShowSearchResults] = useState(false);
+  const [useVectorFallback, setUseVectorFallback] = useState(false);
   const [activeLayers, setActiveLayers] = useState({
     cameras: true,
     locations: true,
@@ -101,6 +123,12 @@ export default function InvestigationMap() {
   useEffect(() => {
     if (!mapContainerRef.current || mapRef.current) return;
 
+    if (typeof maplibregl.supported === 'function' && !maplibregl.supported()) {
+      console.warn('MapLibre GL WebGL not supported. Activating High-Precision Vector Canvas Mode.');
+      setUseVectorFallback(true);
+      return;
+    }
+
     // Dark Tactical Tile Style (OpenStreetMap compatible via CartoDB Dark Matter)
     const darkStyle = {
       version: 8,
@@ -128,15 +156,22 @@ export default function InvestigationMap() {
       ]
     };
 
-    const map = new maplibregl.Map({
-      container: mapContainerRef.current,
-      style: darkStyle,
-      center: [-74.0045, 40.7145], // Sector 4 South Pier Logistics Corridor
-      zoom: 15.2,
-      pitch: 25,
-      bearing: -15,
-      attributionControl: false
-    });
+    let map;
+    try {
+      map = new maplibregl.Map({
+        container: mapContainerRef.current,
+        style: darkStyle,
+        center: [-74.0045, 40.7145], // Sector 4 South Pier Logistics Corridor
+        zoom: 15.2,
+        pitch: 25,
+        bearing: -15,
+        attributionControl: false
+      });
+    } catch (err) {
+      console.warn('MapLibre GL instantiation failed, switching to vector mode:', err);
+      setUseVectorFallback(true);
+      return;
+    }
 
     map.addControl(new maplibregl.NavigationControl({ showCompass: true, showZoom: true }), 'top-right');
     map.addControl(new maplibregl.ScaleControl({ unit: 'metric' }), 'bottom-left');
@@ -248,7 +283,9 @@ export default function InvestigationMap() {
       clearTimeout(t4);
       window.removeEventListener('resize', onWinResize);
       markersRef.current.forEach(m => m.remove());
-      map.remove();
+      if (mapRef.current) {
+        try { mapRef.current.remove(); } catch (e) {}
+      }
       mapRef.current = null;
     };
   }, [investigationData]);
@@ -595,7 +632,162 @@ export default function InvestigationMap() {
     }}>
 
       {/* MapLibre WebGL Canvas Container */}
-      <div ref={mapContainerRef} style={{ width: '100%', height: '100%', minHeight: '560px', flex: 1 }} />
+      <div
+        ref={mapContainerRef}
+        data-testid="tactical-map"
+        style={{
+          width: '100%',
+          height: '100%',
+          minHeight: '560px',
+          flex: 1,
+          display: useVectorFallback ? 'none' : 'block'
+        }}
+      />
+
+      {/* High-Precision Tactical Vector Radar Grid Fallback */}
+      {useVectorFallback && (
+        <div
+          data-testid="tactical-map-vector"
+          style={{
+            position: 'relative',
+            width: '100%',
+            height: '100%',
+            minHeight: '560px',
+            backgroundColor: '#040711',
+            overflow: 'hidden',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flex: 1
+          }}
+        >
+          <svg
+            viewBox="0 0 950 600"
+            style={{ width: '100%', height: '100%', maxHeight: '620px' }}
+          >
+            <defs>
+              <pattern id="tactical-grid-pat" width="36" height="36" patternUnits="userSpaceOnUse">
+                <path d="M 36 0 L 0 0 0 36" fill="none" stroke="rgba(255,255,255,0.04)" strokeWidth="1" />
+              </pattern>
+            </defs>
+
+            {/* Tactical Grid Background */}
+            <rect width="950" height="600" fill="#030712" />
+            <rect width="950" height="600" fill="url(#tactical-grid-pat)" />
+
+            {/* Concentric Radar Rings */}
+            <circle cx="475" cy="300" r="130" fill="none" stroke="rgba(91, 124, 153, 0.12)" strokeWidth="1" strokeDasharray="4,4" />
+            <circle cx="475" cy="300" r="250" fill="none" stroke="rgba(91, 124, 153, 0.08)" strokeWidth="1" strokeDasharray="4,4" />
+
+            {/* Tactical Sector Headers */}
+            <text x="36" y="44" fill="#6B7280" fontFamily="monospace" fontSize="11" fontWeight="700">SECTOR 4 // SOUTH PIER LOGISTICS MATRIX</text>
+            <text x="36" y="60" fill="#4B5563" fontFamily="monospace" fontSize="9">RADAR MODE: TACTICAL VECTOR PROJECTION</text>
+            <text x="760" y="44" fill="#6B7280" fontFamily="monospace" fontSize="10">40°42'52"N  74°00'16"W</text>
+
+            {/* Inferred Route Lines */}
+            {activeLayers.vehicleRoute && (
+              <g>
+                <path
+                  d="M 230 220 Q 380 260 480 300 T 700 320"
+                  fill="none"
+                  stroke="#3F5F78"
+                  strokeWidth="5"
+                  opacity="0.35"
+                />
+                <path
+                  d="M 230 220 Q 380 260 480 300 T 700 320"
+                  fill="none"
+                  stroke="#5B7C99"
+                  strokeWidth="2"
+                  strokeDasharray="6,4"
+                />
+              </g>
+            )}
+
+            {/* Location Indicators (L-08, L-10, L-12) */}
+            {activeLayers.locations && ['L-08', 'L-10', 'L-12'].map(locId => {
+              const loc = investigationData.entities[locId];
+              if (!loc) return null;
+              const pos = projectCoords(loc.lng || loc.longitude, loc.lat || loc.latitude, 950, 600);
+              return (
+                <g key={locId} onClick={() => selectEntity(locId, 'location')} style={{ cursor: 'pointer' }}>
+                  <rect x={pos.x - 8} y={pos.y - 8} width="16" height="16" fill="rgba(192, 132, 252, 0.15)" stroke="#C084FC" strokeWidth="1.5" transform={`rotate(45 ${pos.x} ${pos.y})`} />
+                  <text x={pos.x} y={pos.y + 20} textAnchor="middle" fill="#C084FC" fontFamily="monospace" fontSize="8" fontWeight="600">
+                    {locId}
+                  </text>
+                </g>
+              );
+            })}
+
+            {/* Incident Marker (INC-204) */}
+            {activeLayers.incidents && (() => {
+              const inc = investigationData.entities['INC-204'];
+              if (!inc) return null;
+              const pos = projectCoords(inc.lng || inc.longitude, inc.lat || inc.latitude, 950, 600);
+              return (
+                <g key="INC-204" onClick={() => selectEntity('INC-204', 'incident')} style={{ cursor: 'pointer' }}>
+                  <circle cx={pos.x} cy={pos.y} r="18" fill="rgba(239, 68, 68, 0.2)" stroke="#EF4444" strokeWidth="1.5" strokeDasharray="3,3" />
+                  <circle cx={pos.x} cy={pos.y} r="6" fill="#EF4444" />
+                  <text x={pos.x} y={pos.y - 12} textAnchor="middle" fill="#F87171" fontFamily="monospace" fontSize="8" fontWeight="700">
+                    BREACH ALARM INC-204
+                  </text>
+                </g>
+              );
+            })()}
+
+            {/* Vehicle Sighting Marker (V-102) */}
+            {activeLayers.vehicleRoute && (() => {
+              const veh = investigationData.entities['V-102'];
+              if (!veh) return null;
+              const pos = projectCoords(veh.lng || veh.longitude, veh.lat || veh.latitude, 950, 600);
+              return (
+                <g key="V-102" onClick={() => selectEntity('V-102', 'vehicle')} style={{ cursor: 'pointer' }}>
+                  <circle cx={pos.x} cy={pos.y} r="12" fill="rgba(251, 191, 36, 0.25)" stroke="#FBBF24" strokeWidth="2" />
+                  <text x={pos.x} y={pos.y + 4} textAnchor="middle" fill="#FBBF24" fontSize="9" fontWeight="bold">V</text>
+                  <text x={pos.x} y={pos.y + 24} textAnchor="middle" fill="#FCD34D" fontFamily="monospace" fontSize="8" fontWeight="700">
+                    V-102 (Escalade)
+                  </text>
+                </g>
+              );
+            })()}
+
+            {/* Camera Nodes (CCTV-01 to CCTV-12) */}
+            {activeLayers.cameras && filteredCameras.map(cam => {
+              const pos = projectCoords(cam.lng || cam.longitude, cam.lat || cam.latitude, 950, 600);
+              const isSelected = selectedEntityId === cam.id;
+              const isOnline = cam.status === 'ONLINE';
+              const isWarning = cam.status === 'WARNING' || cam.status === 'MAINTENANCE';
+              const dotColor = isOnline ? '#34D399' : (isWarning ? '#FBBF24' : '#9CA3AF');
+
+              return (
+                <g
+                  key={cam.id}
+                  onClick={() => selectCamera(cam.id)}
+                  style={{ cursor: 'pointer' }}
+                  data-testid="cctv-node"
+                  role="button"
+                  tabIndex={0}
+                >
+                  {/* Selected Indicator Ring */}
+                  {isSelected && (
+                    <circle cx={pos.x} cy={pos.y} r="22" fill="rgba(91, 124, 153, 0.35)" stroke="#5B7C99" strokeWidth="2" />
+                  )}
+
+                  {/* Node Circle */}
+                  <circle cx={pos.x} cy={pos.y} r="14" fill="#111827" stroke={isSelected ? '#5B7C99' : dotColor} strokeWidth="2" />
+                  <circle cx={pos.x} cy={pos.y} r="4" fill={dotColor} />
+
+                  {/* Camera ID Badge */}
+                  <rect x={pos.x - 24} y={pos.y + 18} width="48" height="15" rx="3" fill="#0B0F17" stroke={isSelected ? '#5B7C99' : '#1F2937'} strokeWidth="1" />
+                  <text x={pos.x} y={pos.y + 29} textAnchor="middle" fill={isSelected ? '#E6E9ED' : '#9CA3AF'} fontFamily="monospace" fontSize="8" fontWeight="700">
+                    {cam.cameraId || cam.id}
+                  </text>
+                </g>
+              );
+            })}
+          </svg>
+        </div>
+      )}
 
       {/* Persistent Synthetic Data Disclaimer */}
       <div style={{

@@ -247,7 +247,7 @@ export default function ExplainableLeads() {
                     PERSONS OF INTEREST IDENTIFIED:
                   </div>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-                    {extractedData.entities.suspects.map((s, idx) => (
+                    {(extractedData.entities?.suspects || []).map((s, idx) => (
                       <span key={idx} className="badge badge-critical" style={{ fontSize: '0.75rem' }}>
                         {s.name}
                       </span>
@@ -261,7 +261,7 @@ export default function ExplainableLeads() {
                     LOCATIONS & ASSETS:
                   </div>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-                    {extractedData.entities.locations.map((l, idx) => (
+                    {(extractedData.entities?.locations || []).map((l, idx) => (
                       <span key={idx} className="badge badge-warning" style={{ fontSize: '0.75rem' }}>
                         {l.name}
                       </span>
@@ -275,7 +275,7 @@ export default function ExplainableLeads() {
                     TRANSIT VEHICLES & PLATES:
                   </div>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-                    {extractedData.entities.vehicles.map((v, idx) => (
+                    {(extractedData.entities?.vehicles || []).map((v, idx) => (
                       <span key={idx} className="badge" style={{ background: 'var(--bg-elevated)', color: 'var(--text-primary)', border: '1px solid var(--border-default)', fontSize: '0.75rem' }}>
                         {v.name}
                       </span>
@@ -289,7 +289,7 @@ export default function ExplainableLeads() {
                     FINANCIAL ESCROW & ARTIFACTS:
                   </div>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-                    {extractedData.entities.financial.map((f, idx) => (
+                    {(extractedData.entities?.financial || []).map((f, idx) => (
                       <span key={idx} className="badge badge-active" style={{ fontSize: '0.75rem' }}>
                         {f.name}
                       </span>
@@ -303,7 +303,7 @@ export default function ExplainableLeads() {
                     RF & TECHNICAL TELEMETRY:
                   </div>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-                    {extractedData.entities.technical_signatures.map((t, idx) => (
+                    {(extractedData.entities?.technical_signatures || []).map((t, idx) => (
                       <span key={idx} className="badge" style={{ background: 'var(--bg-elevated)', color: 'var(--accent-hover)', border: '1px solid var(--border-default)', fontSize: '0.75rem' }}>
                         {t.name}
                       </span>
@@ -416,7 +416,7 @@ export default function ExplainableLeads() {
                       RECOMMENDED TACTICAL ACTIONS:
                     </div>
                     <ul style={{ paddingLeft: '18px', margin: 0, fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
-                      {lead.suggested_actions.map((act, aIdx) => (
+                      {(lead.suggested_actions || []).map((act, aIdx) => (
                         <li key={aIdx} style={{ marginBottom: '4px' }}>{act}</li>
                       ))}
                     </ul>

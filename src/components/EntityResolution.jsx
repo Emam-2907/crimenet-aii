@@ -68,9 +68,41 @@ const RESOLUTION_CASES = [
   }
 ];
 
+const normalizeCase = (c) => {
+  if (!c) return null;
+  const primaryId = c.primaryId || c.primary_id || 'suspect-1';
+  const primaryName = c.primaryName || c.primary_entity || 'Unknown Target';
+  const defaultPhoto = (primaryId === 'veh-771' || String(primaryId).includes('veh'))
+    ? 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=200&q=80'
+    : 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80';
+
+  const rawCandidates = c.candidates || c.matches || [];
+  const normalizedCandidates = rawCandidates.map(cand => ({
+    aliasName: cand.aliasName || cand.entity_name || 'Unverified Alias',
+    source: cand.source || 'Cross-Jurisdiction Telemetry',
+    matchScore: typeof cand.matchScore === 'number' ? cand.matchScore : (typeof cand.score === 'number' ? cand.score : 0.9),
+    evidencePoints: cand.evidencePoints || cand.matching_attributes || ['Biometric and cryptographic signature correlation'],
+    icon: cand.icon || ((cand.aliasName || cand.entity_name || '').toLowerCase().includes('plate') ? 'car' : 'phone')
+  }));
+
+  return {
+    ...c,
+    id: c.id || 'ER-CASE-094',
+    primaryName,
+    primaryId,
+    threat: c.threat || 'CRITICAL',
+    currentAliases: c.currentAliases || (c.resolved_alias ? [c.resolved_alias] : ['Cypher-9', 'The Architect']),
+    confidence: typeof c.confidence === 'number' ? c.confidence : 0.945,
+    status: c.status || 'PENDING_CONFIRMATION',
+    dossierPhoto: c.dossierPhoto || defaultPhoto,
+    candidates: normalizedCandidates,
+    rationale: c.rationale || 'Cryptographic keystroke analysis and shared burner phone activity connect discrepancies directly to verified operational profile.'
+  };
+};
+
 export default function EntityResolution() {
-  const [cases, setCases] = useState(RESOLUTION_CASES);
-  const [activeCase, setActiveCase] = useState(RESOLUTION_CASES[0]);
+  const [cases, setCases] = useState(() => RESOLUTION_CASES.map(normalizeCase));
+  const [activeCase, setActiveCase] = useState(() => normalizeCase(RESOLUTION_CASES[0]));
   const [mergedMap, setMergedMap] = useState({});
   const [mergeError, setMergeError] = useState(null);
   const [isMerging, setIsMerging] = useState(false);
@@ -79,8 +111,14 @@ export default function EntityResolution() {
     let isMounted = true;
     api.getEntityResolutionCases().then(res => {
       if (isMounted && res && res.cases && res.cases.length > 0) {
-        setCases(res.cases);
-        setActiveCase(res.cases[0]);
+        const norm = res.cases.map(normalizeCase).filter(Boolean);
+        if (norm.length > 0) {
+          setCases(norm);
+          setActiveCase(prev => {
+            const found = norm.find(item => item.id === prev?.id);
+            return found || norm[0];
+          });
+        }
       }
     }).catch(err => {
       console.warn('Could not load live entity resolution cases:', err);
@@ -89,6 +127,7 @@ export default function EntityResolution() {
   }, []);
 
   const handleMerge = async (candidate) => {
+    if (!activeCase || !candidate) return;
     soundFx.playTacticalClick();
     setMergeError(null);
     setIsMerging(true);
@@ -107,7 +146,7 @@ export default function EntityResolution() {
         if (c.id === activeCase.id) {
           return {
             ...c,
-            currentAliases: [...c.currentAliases, candidate.aliasName],
+            currentAliases: [...(c.currentAliases || []), candidate.aliasName],
             status: 'RESOLVED_VERIFIED'
           };
         }
@@ -116,7 +155,7 @@ export default function EntityResolution() {
 
       setActiveCase(prev => ({
         ...prev,
-        currentAliases: [...prev.currentAliases, candidate.aliasName],
+        currentAliases: [...(prev?.currentAliases || []), candidate.aliasName],
         status: 'RESOLVED_VERIFIED'
       }));
 
@@ -219,7 +258,7 @@ export default function EntityResolution() {
           </div>
 
           {cases.map(c => {
-            const isSelected = activeCase.id === c.id;
+            const isSelected = activeCase?.id === c.id;
             return (
               <div
                 key={c.id}
@@ -248,7 +287,7 @@ export default function EntityResolution() {
                   {c.primaryName}
                 </div>
                 <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '4px' }}>
-                  {c.candidates.length} Candidate Discrepancies
+                  {(c.candidates || []).length} Candidate Discrepancies
                 </div>
               </div>
             );
@@ -256,152 +295,158 @@ export default function EntityResolution() {
         </div>
 
         {/* Right: Active Resolution File */}
-        <div className="panel-card" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '18px', background: 'var(--bg-surface)' }}>
-          {/* Primary Subject Dossier Card */}
-          <div style={{
-            display: 'flex',
-            gap: '16px',
-            alignItems: 'center',
-            background: 'var(--bg-elevated)',
-            border: '1px solid var(--border-default)',
-            borderRadius: '6px',
-            padding: '16px'
-          }}>
-            <img
-              src={activeCase.dossierPhoto}
-              alt={activeCase.primaryName}
-              style={{
-                width: '64px',
-                height: '64px',
-                borderRadius: '6px',
-                objectFit: 'cover',
-                border: '1px solid var(--border-default)'
-              }}
-            />
-            <div style={{ flex: 1 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-                <span className="badge badge-critical">{activeCase.threat}</span>
-                <span style={{ fontSize: '0.70rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>
-                  TARGET ID: {activeCase.primaryId}
-                </span>
-              </div>
-              <h3 style={{ margin: 0, fontSize: '1.15rem', color: 'var(--text-primary)', fontWeight: 600 }}>
-                {activeCase.primaryName}
-              </h3>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '6px', flexWrap: 'wrap' }}>
-                <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>Verified Aliases:</span>
-                {activeCase.currentAliases.map((al, idx) => (
-                  <span key={idx} className="badge badge-info" style={{ fontSize: '0.68rem' }}>
-                    {al}
+        {activeCase ? (
+          <div className="panel-card" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '18px', background: 'var(--bg-surface)' }}>
+            {/* Primary Subject Dossier Card */}
+            <div style={{
+              display: 'flex',
+              gap: '16px',
+              alignItems: 'center',
+              background: 'var(--bg-elevated)',
+              border: '1px solid var(--border-default)',
+              borderRadius: '6px',
+              padding: '16px'
+            }}>
+              <img
+                src={activeCase.dossierPhoto}
+                alt={activeCase.primaryName}
+                style={{
+                  width: '64px',
+                  height: '64px',
+                  borderRadius: '6px',
+                  objectFit: 'cover',
+                  border: '1px solid var(--border-default)'
+                }}
+              />
+              <div style={{ flex: 1 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                  <span className="badge badge-critical">{activeCase.threat}</span>
+                  <span style={{ fontSize: '0.70rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>
+                    TARGET ID: {activeCase.primaryId}
                   </span>
-                ))}
+                </div>
+                <h3 style={{ margin: 0, fontSize: '1.15rem', color: 'var(--text-primary)', fontWeight: 600 }}>
+                  {activeCase.primaryName}
+                </h3>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '6px', flexWrap: 'wrap' }}>
+                  <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>Verified Aliases:</span>
+                  {(activeCase.currentAliases || []).map((al, idx) => (
+                    <span key={idx} className="badge badge-info" style={{ fontSize: '0.68rem' }}>
+                      {al}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              <div style={{ textAlign: 'right' }}>
+                <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>CONFIDENCE SCORE</div>
+                <div style={{ fontSize: '1.35rem', fontWeight: 700, color: 'var(--success)', fontFamily: 'var(--font-heading)' }}>
+                  {Math.round((activeCase.confidence || 0) * 100)}%
+                </div>
               </div>
             </div>
 
-            <div style={{ textAlign: 'right' }}>
-              <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>CONFIDENCE SCORE</div>
-              <div style={{ fontSize: '1.35rem', fontWeight: 700, color: 'var(--success)', fontFamily: 'var(--font-heading)' }}>
-                {Math.round(activeCase.confidence * 100)}%
+            {/* Rationale brief */}
+            <div style={{
+              background: 'var(--accent-dim)',
+              border: '1px solid var(--accent-border)',
+              borderRadius: '6px',
+              padding: '12px 16px',
+              fontSize: '0.80rem',
+              color: 'var(--text-secondary)'
+            }}>
+              <strong style={{ color: 'var(--accent-hover)' }}>INVESTIGATIVE RATIONALE:</strong> {activeCase.rationale}
+            </div>
+
+            {/* Candidate Matches */}
+            <div>
+              <div style={{ fontSize: '0.76rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <GitMerge size={15} color="var(--accent)" />
+                PROPOSED ENTITY MERGES FOR UNIFICATION
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                {(activeCase.candidates || []).map((cand, idx) => {
+                  const isMerged = mergedMap[`${activeCase.id}-${cand.aliasName}`];
+                  return (
+                    <div
+                      key={idx}
+                      style={{
+                        background: 'var(--bg-elevated)',
+                        border: isMerged ? '1px solid var(--success-border)' : '1px solid var(--border-default)',
+                        borderRadius: '6px',
+                        padding: '14px',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '10px'
+                      }}
+                    >
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div>
+                          <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>
+                            SOURCE: {cand.source}
+                          </div>
+                          <div style={{ fontSize: '0.92rem', fontWeight: 600, color: 'var(--text-primary)', marginTop: '2px' }}>
+                            {cand.aliasName}
+                          </div>
+                        </div>
+                        <div style={{ textAlign: 'right' }}>
+                          <span style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--accent-hover)', fontFamily: 'var(--font-mono)' }}>
+                            {Math.round((cand.matchScore || 0) * 100)}% Match
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Evidence Points */}
+                      <div style={{
+                        background: 'var(--bg-surface)',
+                        padding: '8px 12px',
+                        borderRadius: '4px',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '4px',
+                        border: '1px solid var(--border-subtle)'
+                      }}>
+                        {(cand.evidencePoints || []).map((pt, pIdx) => (
+                          <div key={pIdx} style={{ fontSize: '0.74rem', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <span style={{ color: 'var(--accent)' }}>•</span> {pt}
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* Merge Action Button */}
+                      <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                        <button
+                          onClick={() => handleMerge(cand)}
+                          disabled={isMerged}
+                          className={isMerged ? "btn-secondary" : "btn-primary"}
+                          style={{
+                            padding: '6px 14px',
+                            fontSize: '0.75rem'
+                          }}
+                        >
+                          {isMerged ? (
+                            <>
+                              <Check size={13} style={{ color: 'var(--success)' }} /> Unified into Case Graph
+                            </>
+                          ) : (
+                            <>
+                              <GitMerge size={13} /> Verify & Merge Identity
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </div>
-
-          {/* Rationale brief */}
-          <div style={{
-            background: 'var(--accent-dim)',
-            border: '1px solid var(--accent-border)',
-            borderRadius: '6px',
-            padding: '12px 16px',
-            fontSize: '0.80rem',
-            color: 'var(--text-secondary)'
-          }}>
-            <strong style={{ color: 'var(--accent-hover)' }}>INVESTIGATIVE RATIONALE:</strong> {activeCase.rationale}
+        ) : (
+          <div className="panel-card" style={{ padding: '30px', textAlign: 'center', color: 'var(--text-muted)' }}>
+            Select an entity disambiguation case from the queue.
           </div>
-
-          {/* Candidate Matches */}
-          <div>
-            <div style={{ fontSize: '0.76rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <GitMerge size={15} color="var(--accent)" />
-              PROPOSED ENTITY MERGES FOR UNIFICATION
-            </div>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              {activeCase.candidates.map((cand, idx) => {
-                const isMerged = mergedMap[`${activeCase.id}-${cand.aliasName}`];
-                return (
-                  <div
-                    key={idx}
-                    style={{
-                      background: 'var(--bg-elevated)',
-                      border: isMerged ? '1px solid var(--success-border)' : '1px solid var(--border-default)',
-                      borderRadius: '6px',
-                      padding: '14px',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: '10px'
-                    }}
-                  >
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <div>
-                        <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>
-                          SOURCE: {cand.source}
-                        </div>
-                        <div style={{ fontSize: '0.92rem', fontWeight: 600, color: 'var(--text-primary)', marginTop: '2px' }}>
-                          {cand.aliasName}
-                        </div>
-                      </div>
-                      <div style={{ textAlign: 'right' }}>
-                        <span style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--accent-hover)', fontFamily: 'var(--font-mono)' }}>
-                          {Math.round(cand.matchScore * 100)}% Match
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Evidence Points */}
-                    <div style={{
-                      background: 'var(--bg-surface)',
-                      padding: '8px 12px',
-                      borderRadius: '4px',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: '4px',
-                      border: '1px solid var(--border-subtle)'
-                    }}>
-                      {cand.evidencePoints.map((pt, pIdx) => (
-                        <div key={pIdx} style={{ fontSize: '0.74rem', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                          <span style={{ color: 'var(--accent)' }}>•</span> {pt}
-                        </div>
-                      ))}
-                    </div>
-
-                    {/* Merge Action Button */}
-                    <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                      <button
-                        onClick={() => handleMerge(cand)}
-                        disabled={isMerged}
-                        className={isMerged ? "btn-secondary" : "btn-primary"}
-                        style={{
-                          padding: '6px 14px',
-                          fontSize: '0.75rem'
-                        }}
-                      >
-                        {isMerged ? (
-                          <>
-                            <Check size={13} style={{ color: 'var(--success)' }} /> Unified into Case Graph
-                          </>
-                        ) : (
-                          <>
-                            <GitMerge size={13} /> Verify & Merge Identity
-                          </>
-                        )}
-                      </button>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </div>
+        )}
       </div>
     </div>
   );

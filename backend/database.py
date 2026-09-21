@@ -1029,42 +1029,146 @@ CYTOSCAPE_GRAPH_DATA = {
 # Entity Resolution Disambiguation Candidates
 ENTITY_RESOLUTION_CASES = [
     {
-        "id": "ER-901",
+        "id": "ER-CASE-094",
+        "primaryName": "Viktor Voronin",
         "primary_entity": "Viktor Voronin",
+        "primaryId": "suspect-1",
         "primary_id": "suspect-1",
+        "threat": "CRITICAL",
         "confidence": 0.945,
-        "status": "UNRESOLVED_MATCH",
-        "matches": [
+        "status": "PENDING_CONFIRMATION",
+        "dossierPhoto": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80",
+        "currentAliases": ["Cypher-9", "The Architect"],
+        "candidates": [
             {
+                "aliasName": "Ghost_0x",
                 "entity_name": "Ghost_0x",
-                "source": "Darknet Forum Wiretap",
-                "matching_attributes": ["PGP Key Fingerprint *004D", "Burner Phone +1-800-DARK-91", "Same Tor Relay Node"],
-                "score": 0.97
+                "source": "Darknet Forum Wiretap & Tor Relay Log",
+                "matchScore": 0.97,
+                "score": 0.97,
+                "evidencePoints": [
+                    "Matching PGP Public Key Fingerprint (*004D)",
+                    "Shared Burner Device ICCID (+1-800-DARK-91)",
+                    "Coinciding IP Packet Time-to-Live (TTL: 64)"
+                ],
+                "matching_attributes": [
+                    "Matching PGP Public Key Fingerprint (*004D)",
+                    "Shared Burner Device ICCID (+1-800-DARK-91)",
+                    "Coinciding IP Packet Time-to-Live (TTL: 64)"
+                ],
+                "icon": "phone"
             },
             {
+                "aliasName": "Victor V. (Kowloon Port Consignee)",
                 "entity_name": "Victor V. (Kowloon Port Consignee)",
-                "source": "Customs Manifest Import Log",
-                "matching_attributes": ["Forged Bulgarian Passport #BG-8911", "Matching Facial Biometric Vectors"],
-                "score": 0.92
+                "source": "Customs Manifest Import Log #BG-8911",
+                "matchScore": 0.92,
+                "score": 0.92,
+                "evidencePoints": [
+                    "Forged Bulgarian Passport & Consignment Documentation",
+                    "Biometric facial landmark ratio match (96.4%)",
+                    "Escrow beneficiary linked to wallet 0x889...F1C"
+                ],
+                "matching_attributes": [
+                    "Forged Bulgarian Passport & Consignment Documentation",
+                    "Biometric facial landmark ratio match (96.4%)",
+                    "Escrow beneficiary linked to wallet 0x889...F1C"
+                ],
+                "icon": "credit"
             }
         ],
-        "rationale": "Signal analysis reveals identical cryptographic signature and IP packet hop patterns connecting Ghost_0x directly to Voronin's verified alias."
-    },
-    {
-        "id": "ER-902",
-        "primary_entity": "Black SUV (VIN: 7829-K)",
-        "primary_id": "veh-771",
-        "confidence": 0.887,
-        "status": "UNRESOLVED_MATCH",
         "matches": [
             {
-                "entity_name": "License Plate 8B9-CYP (Stolen)",
-                "source": "Toll Booth ALPR Camera",
-                "matching_attributes": ["Chassis Make/Model Cadillac Escalade", "Scratched Rear Left Bumper"],
-                "score": 0.89
+                "aliasName": "Ghost_0x",
+                "entity_name": "Ghost_0x",
+                "source": "Darknet Forum Wiretap & Tor Relay Log",
+                "matchScore": 0.97,
+                "score": 0.97,
+                "evidencePoints": [
+                    "Matching PGP Public Key Fingerprint (*004D)",
+                    "Shared Burner Device ICCID (+1-800-DARK-91)",
+                    "Coinciding IP Packet Time-to-Live (TTL: 64)"
+                ],
+                "matching_attributes": [
+                    "Matching PGP Public Key Fingerprint (*004D)",
+                    "Shared Burner Device ICCID (+1-800-DARK-91)",
+                    "Coinciding IP Packet Time-to-Live (TTL: 64)"
+                ],
+                "icon": "phone"
+            },
+            {
+                "aliasName": "Victor V. (Kowloon Port Consignee)",
+                "entity_name": "Victor V. (Kowloon Port Consignee)",
+                "source": "Customs Manifest Import Log #BG-8911",
+                "matchScore": 0.92,
+                "score": 0.92,
+                "evidencePoints": [
+                    "Forged Bulgarian Passport & Consignment Documentation",
+                    "Biometric facial landmark ratio match (96.4%)",
+                    "Escrow beneficiary linked to wallet 0x889...F1C"
+                ],
+                "matching_attributes": [
+                    "Forged Bulgarian Passport & Consignment Documentation",
+                    "Biometric facial landmark ratio match (96.4%)",
+                    "Escrow beneficiary linked to wallet 0x889...F1C"
+                ],
+                "icon": "credit"
             }
         ],
-        "rationale": "ALPR optical camera match identifies vehicle changing plates at Exit 14 just 18 minutes prior to Port Sovereign Heist."
+        "rationale": "Signal analysis reveals identical cryptographic signature and shared burner phone activity connecting Ghost_0x directly to Voronin's verified operational profile."
+    },
+    {
+        "id": "ER-CASE-095",
+        "primaryName": "Black SUV (VIN: 7829-K)",
+        "primary_entity": "Black SUV (VIN: 7829-K)",
+        "primaryId": "veh-771",
+        "primary_id": "veh-771",
+        "threat": "HIGH",
+        "confidence": 0.887,
+        "status": "PENDING_CONFIRMATION",
+        "dossierPhoto": "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=200&q=80",
+        "currentAliases": ["Unmarked Escalade"],
+        "candidates": [
+            {
+                "aliasName": "Plate 8B9-CYP (Stolen Commercial Tag)",
+                "entity_name": "Plate 8B9-CYP (Stolen Commercial Tag)",
+                "source": "Automated License Plate Reader (ALPR)",
+                "matchScore": 0.89,
+                "score": 0.89,
+                "evidencePoints": [
+                    "Chassis optical match (Cadillac Escalade Matte)",
+                    "Scratched rear left fender identified in CCTV",
+                    "Tag recorded at Harbor Gate 4 at 04:22 UTC"
+                ],
+                "matching_attributes": [
+                    "Chassis optical match (Cadillac Escalade Matte)",
+                    "Scratched rear left fender identified in CCTV",
+                    "Tag recorded at Harbor Gate 4 at 04:22 UTC"
+                ],
+                "icon": "car"
+            }
+        ],
+        "matches": [
+            {
+                "aliasName": "Plate 8B9-CYP (Stolen Commercial Tag)",
+                "entity_name": "Plate 8B9-CYP (Stolen Commercial Tag)",
+                "source": "Automated License Plate Reader (ALPR)",
+                "matchScore": 0.89,
+                "score": 0.89,
+                "evidencePoints": [
+                    "Chassis optical match (Cadillac Escalade Matte)",
+                    "Scratched rear left fender identified in CCTV",
+                    "Tag recorded at Harbor Gate 4 at 04:22 UTC"
+                ],
+                "matching_attributes": [
+                    "Chassis optical match (Cadillac Escalade Matte)",
+                    "Scratched rear left fender identified in CCTV",
+                    "Tag recorded at Harbor Gate 4 at 04:22 UTC"
+                ],
+                "icon": "car"
+            }
+        ],
+        "rationale": "ALPR optical camera match identifies vehicle swapping registration plates at Exit 14 just 18 minutes prior to Port Sovereign Heist."
     }
 ]
 

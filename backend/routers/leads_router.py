@@ -9,8 +9,10 @@ from backend.audit_service import audit_service
 router = APIRouter(prefix="/api/leads", tags=["AI Leads & NLP Entity Extraction"])
 
 class TranscriptAnalysisRequest(BaseModel):
-    text: str = Field(..., min_length=5, max_length=5000)
+    text: Optional[str] = None
+    transcript: Optional[str] = None
     case_name: Optional[str] = Field("Intercept-Alpha-88", max_length=100)
+    caseName: Optional[str] = None
 
 SAMPLE_TRANSCRIPT = """
 INTERCEPT AUDIO WIRE - TRANSCRIPT #8821
@@ -28,6 +30,7 @@ SPEAKER 2:
 def get_sample_transcript(current_user: dict = Depends(get_current_user)):
     return {"transcript": SAMPLE_TRANSCRIPT.strip()}
 
+@router.post("/extract")
 @router.post("/extract-entities")
 def extract_entities_from_text(
     request: TranscriptAnalysisRequest,
@@ -37,7 +40,14 @@ def extract_entities_from_text(
     NLP entity extraction pipeline: parses unformatted crime wiretaps or transcripts into
     structured entities: Suspects, Vehicles, Locations, Financial Wallets, Frequencies.
     """
-    text = request.text
+    raw_input = request.text if request.text is not None else request.transcript
+    if raw_input is not None and len(raw_input.strip()) < 5:
+        raise HTTPException(status_code=422, detail="Input transcript must be at least 5 characters.")
+    text = (raw_input or SAMPLE_TRANSCRIPT).strip()
+    if len(text) < 5:
+        raise HTTPException(status_code=422, detail="Input transcript must be at least 5 characters.")
+
+    case_name = request.case_name or request.caseName or "Intercept-Alpha-88"
 
     suspect_patterns = ["Viktor Voronin", "Viktor", "Voronin", "Darius", "Darius Vance", "Elena", "Elena Rostov", "Kane", "Marcus Kane"]
     location_patterns = ["Gate 4", "Warehouse 14B", "South Pier", "Sector 4", "Harbor Terminal C", "Pier Customs"]
@@ -56,7 +66,7 @@ def extract_entities_from_text(
 
     return {
         "status": "ENTITIES_EXTRACTED",
-        "case_name": request.case_name,
+        "case_name": case_name,
         "confidence": round(confidence, 3),
         "entities": {
             "suspects": [{"name": s, "type": "PERSON_OF_INTEREST", "threat": "HIGH"} for s in detected_suspects],
@@ -67,6 +77,7 @@ def extract_entities_from_text(
         }
     }
 
+@router.post("/generate")
 @router.post("/generate-leads")
 def generate_explainable_leads(
     request: TranscriptAnalysisRequest,
@@ -77,6 +88,12 @@ def generate_explainable_leads(
     Generates hypotheses with explicit logical rationales, confidence scores, and action items.
     Uses safe, neutral terminology (e.g. 'High-priority review recommended').
     """
+    raw_input = request.text if request.text is not None else request.transcript
+    if raw_input is not None and len(raw_input.strip()) < 5:
+        raise HTTPException(status_code=422, detail="Input transcript must be at least 5 characters.")
+    text = (raw_input or SAMPLE_TRANSCRIPT).strip()
+    if len(text) < 5:
+        raise HTTPException(status_code=422, detail="Input transcript must be at least 5 characters.")
     leads = [
         {
             "id": "LEAD-AI-01",
