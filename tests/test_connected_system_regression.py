@@ -95,12 +95,20 @@ def test_detective_chen_clearance_and_case_isolation():
     assert auth_case_res.status_code == 200
     print("  [PASS] Detective Chen access to authorized CR-204 permitted (200 OK)")
     
-    # 4. Search results isolated to allowed cases
+    # 4. Search results isolated to allowed cases — including entities/evidence
     search_res = client.get("/api/search?q=Voronin", headers=headers)
     assert search_res.status_code == 200
     results = search_res.json()
     for c in results.get("cases", []):
         assert c["id"] == "CR-204" or "CR-204" in c["id"]
+    leaked_entity_ids = {"ent-person-voronin"}
+    for ent in results.get("entities", []):
+        assert ent.get("id") not in leaked_entity_ids, f"TS/SCI entity leaked in search: {ent}"
+        cid = str(ent.get("case_id", "")).replace("CASE #", "").strip().upper()
+        assert cid == "CR-204", f"Entity from unauthorized case leaked: {ent}"
+    for e in results.get("evidence", []):
+        cid = str(e.get("case_id", "")).replace("CASE #", "").strip().upper()
+        assert cid == "CR-204", f"Evidence from unauthorized case leaked: {e}"
     print("  [PASS] Search isolation: Detective Chen only sees allowed case intelligence")
 
 def test_supervisor_and_admin_elevated_access():

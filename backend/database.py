@@ -2734,7 +2734,8 @@ class IntelligenceDB:
                     "title": e["name"],
                     "subtitle": f"{e['type']} · {e['case_id']}",
                     "status": e.get("processing_state", "ANALYZED"),
-                    "category": "EVIDENCE"
+                    "category": "EVIDENCE",
+                    "case_id": e.get("case_id"),
                 })
 
         matched_entities = []
@@ -2751,7 +2752,8 @@ class IntelligenceDB:
                         "title": name,
                         "subtitle": f"{nd.get('type', 'Entity').upper()} · {nd.get('syndicate', 'Syndicate')}",
                         "status": nd.get("threat", "HIGH"),
-                        "category": "ENTITY"
+                        "category": "ENTITY",
+                        "case_id": nd.get("case_id"),
                     })
 
         for e in self.evidence_store:
@@ -2765,7 +2767,8 @@ class IntelligenceDB:
                             "title": ent_name,
                             "subtitle": f"{ent.get('type', 'Entity')} in {e['id']}",
                             "status": ent.get("threat", "IDENTIFIED"),
-                            "category": "ENTITY"
+                            "category": "ENTITY",
+                            "case_id": e.get("case_id") or ent.get("case_id"),
                         })
 
         return {
