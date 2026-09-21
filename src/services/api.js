@@ -75,6 +75,10 @@ async function request(endpoint, options = {}) {
     }
 
     if (!res.ok) {
+      if ((res.status === 502 || res.status === 504) && !options._isFallbackRetry && typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
+        const fallbackUrl = `https://crimenet-aii.vercel.app/api${endpoint.startsWith('/') ? '' : '/'}${endpoint}`;
+        return await request(fallbackUrl, { ...options, _isFallbackRetry: true });
+      }
       const errorDetail = (data && data.detail) ? data.detail : res.statusText;
       throw new ApiError(errorDetail || `HTTP Error ${res.status}`, res.status, data);
     }
@@ -82,6 +86,14 @@ async function request(endpoint, options = {}) {
     return data;
   } catch (err) {
     clearTimeout(timeoutId);
+    if (!options._isFallbackRetry && typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
+      try {
+        const fallbackUrl = `https://crimenet-aii.vercel.app/api${endpoint.startsWith('/') ? '' : '/'}${endpoint}`;
+        return await request(fallbackUrl, { ...options, _isFallbackRetry: true });
+      } catch (fallbackErr) {
+        // Continue to normalized error throw
+      }
+    }
     if (err instanceof ApiError) {
       throw err;
     }

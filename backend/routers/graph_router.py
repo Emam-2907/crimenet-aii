@@ -13,6 +13,7 @@ from backend.neo4j_service import neo4j_service
 from backend.auth_service import get_current_user, verify_case_access
 from backend.health_service import assert_feature_available
 from backend.audit_service import audit_service
+from backend.database import db
 
 router = APIRouter(tags=["Knowledge Graph & Network Analytics"])
 
@@ -82,6 +83,13 @@ def get_case_entities(case_id: str, current_user: dict = Depends(get_current_use
     Returns all entities discovered or ingested for this case.
     """
     verify_case_access(case_id, current_user)
+    c = db.get_case(case_id)
+    if c and c.get("entities"):
+        return {
+            "case_id": case_id,
+            "entities": c.get("entities", []),
+            "total": len(c.get("entities", []))
+        }
     graph = neo4j_service.get_case_graph(case_id)
     return {
         "case_id": case_id,
@@ -95,6 +103,13 @@ def get_case_relationships(case_id: str, current_user: dict = Depends(get_curren
     Returns all relational links between entities for this case.
     """
     verify_case_access(case_id, current_user)
+    c = db.get_case(case_id)
+    if c and c.get("relationships"):
+        return {
+            "case_id": case_id,
+            "relationships": c.get("relationships", []),
+            "total": len(c.get("relationships", []))
+        }
     graph = neo4j_service.get_case_graph(case_id)
     return {
         "case_id": case_id,

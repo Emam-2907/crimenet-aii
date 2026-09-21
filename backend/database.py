@@ -1808,104 +1808,93 @@ class IntelligenceDB:
         return None
 
 
+    def _enrich_case(self, c: Dict[str, Any]) -> Dict[str, Any]:
+        case_evidence = [e for e in self.evidence_store if e.get("case_id") == c["id"]]
+        timeline = self.timelines.get(c["id"], [])
+        
+        # Retrieve full case graph nodes and edges
+        graph_data = self.get_case_graph(c["id"])
+        
+        entities = []
+        seen_entities = set()
+        
+        # Ingest all graph nodes
+        for node in graph_data.get("nodes", []):
+            nd = node.get("data", {})
+            label = nd.get("label", nd.get("id"))
+            if label and label not in seen_entities:
+                seen_entities.add(label)
+                entities.append({
+                    "id": nd.get("id"),
+                    "name": label,
+                    "type": nd.get("type", "Entity"),
+                    "threat": nd.get("threat", "MEDIUM"),
+                    "confidence": nd.get("confidence", 0.95),
+                    "case_id": c["id"]
+                })
+        
+        # Also merge any additional extracted entities from evidence_store
+        for e in case_evidence:
+            for ent in e.get("entities", []):
+                if ent["name"] not in seen_entities:
+                    seen_entities.add(ent["name"])
+                    entities.append({
+                        "id": ent.get("id", f"ent-{len(entities)+1}"),
+                        "name": ent["name"],
+                        "type": ent.get("type", "Entity"),
+                        "threat": ent.get("threat", "MEDIUM"),
+                        "confidence": ent.get("confidence", 0.92),
+                        "case_id": c["id"]
+                    })
+        
+        relationships = []
+        seen_rels = set()
+        
+        # Ingest all graph edges
+        for edge in graph_data.get("edges", []):
+            ed = edge.get("data", {})
+            src = ed.get("source")
+            tgt = ed.get("target")
+            rel_label = ed.get("label") or ed.get("relation") or ed.get("relation_type", "CONNECTED")
+            rel_id = ed.get("id") or f"{src}->{tgt}:{rel_label}"
+            if rel_id not in seen_rels:
+                seen_rels.add(rel_id)
+                relationships.append({
+                    "id": rel_id,
+                    "source": src,
+                    "target": tgt,
+                    "relation": rel_label,
+                    "type": ed.get("relation_type", "association"),
+                    "confidence": ed.get("confidence", 0.90)
+                })
+                
+        # Also merge any additional extracted relationships from evidence_store
+        for e in case_evidence:
+            for rel in e.get("relationships", []):
+                rel_id = rel.get("id") or f"{rel.get('source')}->{rel.get('target')}:{rel.get('relation')}"
+                if rel_id not in seen_rels:
+                    seen_rels.add(rel_id)
+                    relationships.append(rel)
+
+        return {
+            **c,
+            "evidence": case_evidence,
+            "entities": entities,
+            "relationships": relationships,
+            "timeline": timeline,
+            "evidence_count": len(case_evidence),
+            "entity_count": len(entities),
+            "relationships_count": len(relationships)
+        }
+
     # Case Management Methods (Phase 2)
     def get_cases(self) -> List[Dict[str, Any]]:
-        for c in self.cases:
-            c_evidence = [e for e in self.evidence_store if e.get("case_id") == c["id"]]
-            c["evidence_count"] = len(c_evidence)
-            
-            # Retrieve case graph nodes and edges for accurate entity counts
-            graph_data = self.get_case_graph(c["id"])
-            g_nodes = graph_data.get("nodes", [])
-            g_edges = graph_data.get("edges", [])
-            
-            entity_names = {n["data"].get("label", n["data"]["id"]) for n in g_nodes if "data" in n}
-            for e in c_evidence:
-                for ent in e.get("entities", []):
-                    entity_names.add(ent["name"])
-            c["entity_count"] = len(entity_names)
-            c["relationships_count"] = len(g_edges)
-        return self.cases
+        return [self._enrich_case(c) for c in self.cases]
 
     def get_case(self, case_id: str) -> Optional[Dict[str, Any]]:
         for c in self.get_cases():
             if c["id"] == case_id or c["id"].replace("CASE #", "").strip() == case_id.replace("CASE #", "").strip():
-                case_evidence = [e for e in self.evidence_store if e.get("case_id") == c["id"]]
-                timeline = self.timelines.get(c["id"], [])
-                
-                # Retrieve full case graph nodes and edges
-                graph_data = self.get_case_graph(c["id"])
-                
-                entities = []
-                seen_entities = set()
-                
-                # Ingest all graph nodes
-                for node in graph_data.get("nodes", []):
-                    nd = node.get("data", {})
-                    label = nd.get("label", nd.get("id"))
-                    if label and label not in seen_entities:
-                        seen_entities.add(label)
-                        entities.append({
-                            "id": nd.get("id"),
-                            "name": label,
-                            "type": nd.get("type", "Entity"),
-                            "threat": nd.get("threat", "MEDIUM"),
-                            "confidence": nd.get("confidence", 0.95),
-                            "case_id": c["id"]
-                        })
-                
-                # Also merge any additional extracted entities from evidence_store
-                for e in case_evidence:
-                    for ent in e.get("entities", []):
-                        if ent["name"] not in seen_entities:
-                            seen_entities.add(ent["name"])
-                            entities.append({
-                                "id": ent.get("id", f"ent-{len(entities)+1}"),
-                                "name": ent["name"],
-                                "type": ent.get("type", "Entity"),
-                                "threat": ent.get("threat", "MEDIUM"),
-                                "confidence": ent.get("confidence", 0.92),
-                                "case_id": c["id"]
-                            })
-                
-                relationships = []
-                seen_rels = set()
-                
-                # Ingest all graph edges
-                for edge in graph_data.get("edges", []):
-                    ed = edge.get("data", {})
-                    src = ed.get("source")
-                    tgt = ed.get("target")
-                    rel_label = ed.get("label") or ed.get("relation") or ed.get("relation_type", "CONNECTED")
-                    rel_id = ed.get("id") or f"{src}->{tgt}:{rel_label}"
-                    if rel_id not in seen_rels:
-                        seen_rels.add(rel_id)
-                        relationships.append({
-                            "id": rel_id,
-                            "source": src,
-                            "target": tgt,
-                            "relation": rel_label,
-                            "type": ed.get("relation_type", "association"),
-                            "confidence": ed.get("confidence", 0.90)
-                        })
-                        
-                # Also merge any additional extracted relationships from evidence_store
-                for e in case_evidence:
-                    for rel in e.get("relationships", []):
-                        rel_id = rel.get("id") or f"{rel.get('source')}->{rel.get('target')}:{rel.get('relation')}"
-                        if rel_id not in seen_rels:
-                            seen_rels.add(rel_id)
-                            relationships.append(rel)
-
-                return {
-                    **c,
-                    "evidence": case_evidence,
-                    "entities": entities,
-                    "relationships": relationships,
-                    "timeline": timeline,
-                    "entity_count": len(entities),
-                    "relationships_count": len(relationships)
-                }
+                return c
         return None
 
     def create_case(self, data: Dict[str, Any]) -> Dict[str, Any]:

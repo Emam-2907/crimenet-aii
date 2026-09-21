@@ -2,11 +2,30 @@
   "framework": "vite",
   "alias": [
     "crimenet-aii.vercel.app",
-    "crimenet-aii-emam-2907.vercel.app"
+    "crimenet-aii-emam-2907.vercel.app",
+    "crimenet-ai-2-emam-2907.vercel.app"
   ],
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "headers": [
+    {
+      "source": "/(.*)\\.html",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache, no-store, must-revalidate"
+        }
+      ]
+    },
+    {
+      "source": "/",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache, no-store, must-revalidate"
+        }
+      ]
+    },
     {
       "source": "/(.*)",
       "headers": [

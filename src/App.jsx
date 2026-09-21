@@ -5,8 +5,74 @@ import { InvestigationProvider } from './context/InvestigationContext.jsx';
 import LoginPage from './components/LoginPage.jsx';
 import InvestigationWorkstation from './components/InvestigationWorkstation.jsx';
 
+class WorkstationErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+  componentDidCatch(error, errorInfo) {
+    console.error('Workstation Runtime Error:', error, errorInfo);
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div style={{
+          minHeight: '100vh',
+          width: '100vw',
+          backgroundColor: '#04070c',
+          color: '#f87171',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontFamily: 'monospace',
+          padding: '24px',
+          textAlign: 'center'
+        }}>
+          <div style={{
+            background: 'rgba(239, 68, 68, 0.1)',
+            border: '1px solid rgba(239, 68, 68, 0.3)',
+            borderRadius: '8px',
+            padding: '24px 32px',
+            maxWidth: '560px'
+          }}>
+            <h2 style={{ fontSize: '1.1rem', marginBottom: '12px', color: '#ef4444' }}>
+              CRIMENET TELEMETRY EXCEPTION
+            </h2>
+            <p style={{ fontSize: '0.8rem', color: '#94a3b8', marginBottom: '16px', lineHeight: 1.5 }}>
+              {this.state.error?.message || 'A graphical rendering anomaly occurred.'}
+            </p>
+            <button
+              onClick={() => {
+                this.setState({ hasError: false, error: null });
+                window.location.reload();
+              }}
+              style={{
+                backgroundColor: '#38bdf8',
+                color: '#04070c',
+                border: 'none',
+                padding: '8px 18px',
+                borderRadius: '4px',
+                fontWeight: 600,
+                cursor: 'pointer',
+                fontSize: '0.8rem'
+              }}
+            >
+              Reset Session & Reload Workstation
+            </button>
+          </div>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 function AppContent() {
-  const { currentUser, isAuthenticated, isSessionLoading, logout, demoLogin } = useAuth();
+  const { currentUser, isAuthenticated, isSessionLoading, logout, demoLogin, checkSession } = useAuth();
 
   if (isSessionLoading) {
     return (
@@ -44,19 +110,21 @@ function AppContent() {
 
   if (isAuthenticated && currentUser) {
     return (
-      <InvestigationProvider>
-        <CIRAProvider>
-          <InvestigationWorkstation
-            currentUser={currentUser}
-            onLogout={logout}
-            onSwitchPersona={demoLogin}
-          />
-        </CIRAProvider>
-      </InvestigationProvider>
+      <WorkstationErrorBoundary>
+        <InvestigationProvider>
+          <CIRAProvider>
+            <InvestigationWorkstation
+              currentUser={currentUser}
+              onLogout={logout}
+              onSwitchPersona={demoLogin}
+            />
+          </CIRAProvider>
+        </InvestigationProvider>
+      </WorkstationErrorBoundary>
     );
   }
 
-  return <LoginPage />;
+  return <LoginPage onLoginSuccess={() => checkSession()} />;
 }
 
 export default function App() {

@@ -18,9 +18,8 @@ export const getApiBaseUrl = () => {
     if (hostname !== 'localhost' && hostname !== '127.0.0.1') {
       return `${window.location.origin}/api`;
     }
-    // Local development: match protocol and host dynamically without hardcoding fixed origins
-    const port = '8000';
-    return `${window.location.protocol}//${hostname}:${port}/api`;
+    // Local development: use relative /api (handled by Vite proxy with cloud fallback)
+    return '/api';
   }
 
   // 3. Fallback relative path
