@@ -315,11 +315,7 @@ export default function CytoscapeGraph() {
                 const t = ele.data('type') || '';
                 return ele.data('shape') || ENTITY_CONFIG[t]?.shape || 'ellipse';
               },
-              'shadow-blur': 10,
-              'shadow-color': 'rgba(0, 0, 0, 0.65)',
-              'shadow-opacity': 0.7,
-              'shadow-offset-y': 2,
-              'transition-property': 'background-color, border-color, border-width, shadow-blur, opacity',
+              'transition-property': 'background-color, border-color, border-width, opacity',
               'transition-duration': '0.2s'
             }
           },
@@ -332,9 +328,9 @@ export default function CytoscapeGraph() {
               'border-width': 3,
               'width': 56,
               'height': 56,
-              'shadow-blur': 12,
-              'shadow-color': 'rgba(192, 74, 82, 0.35)',
-              'shadow-opacity': 0.8
+              'underlay-color': '#C04A52',
+              'underlay-padding': 3,
+              'underlay-opacity': 0.25
             }
           },
           // High Threat Nodes - Amber Accents
@@ -355,9 +351,9 @@ export default function CytoscapeGraph() {
               'border-width': 3,
               'border-color': '#5B7C99',
               'background-color': '#17222B',
-              'shadow-blur': 14,
-              'shadow-color': 'rgba(91, 124, 153, 0.45)',
-              'shadow-opacity': 1.0
+              'underlay-color': '#5B7C99',
+              'underlay-padding': 4,
+              'underlay-opacity': 0.35
             }
           },
           // Node Search / Path Highlight - Tactical Amber Focus Ring
@@ -367,9 +363,9 @@ export default function CytoscapeGraph() {
               'border-width': 3,
               'border-color': '#B58A45',
               'background-color': '#221E14',
-              'shadow-blur': 14,
-              'shadow-color': 'rgba(181, 138, 69, 0.35)',
-              'shadow-opacity': 1.0,
+              'underlay-color': '#B58A45',
+              'underlay-padding': 4,
+              'underlay-opacity': 0.35,
               'opacity': 1.0
             }
           },

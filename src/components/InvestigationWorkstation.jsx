@@ -238,6 +238,7 @@ export default function InvestigationWorkstation({ currentUser, onLogout, onSwit
   const [showCaseDropdown, setShowCaseDropdown] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [isCCTNSOpen, setIsCCTNSOpen] = useState(false);
+  const [showPersonaModal, setShowPersonaModal] = useState(false);
 
   // Global Ctrl+K shortcut for Global Search
   useEffect(() => {
@@ -746,13 +747,7 @@ export default function InvestigationWorkstation({ currentUser, onLogout, onSwit
                 </span>
               </div>
               <button
-                onClick={() => {
-                  if (onSwitchPersona) {
-                    onSwitchPersona();
-                  } else {
-                    onLogout();
-                  }
-                }}
+                onClick={() => setShowPersonaModal(true)}
                 title="Switch persona or return to Login Portal"
                 style={{
                   marginLeft: '4px',
@@ -791,7 +786,7 @@ export default function InvestigationWorkstation({ currentUser, onLogout, onSwit
           padding: fullscreen || activePage === 'chat' ? '0' : '22px 24px',
           background: 'var(--ink)'
         }}>
-          {activePage === 'dashboard'  && <Dashboard currentUser={currentUser} onSwitchPersona={onSwitchPersona || onLogout} />}
+          {activePage === 'dashboard'  && <Dashboard currentUser={currentUser} onSwitchPersona={() => setShowPersonaModal(true)} />}
           {activePage === 'cr204'      && <CR204InvestigationView />}
           {activePage === 'cases'      && <CasesList />}
           {activePage === 'workspace'  && <CaseWorkspace />}
@@ -824,6 +819,231 @@ export default function InvestigationWorkstation({ currentUser, onLogout, onSwit
         onClose={() => setIsCCTNSOpen(false)}
       />
 
+      <PersonaSwitchModal
+        isOpen={showPersonaModal}
+        onClose={() => setShowPersonaModal(false)}
+        currentEmail={currentUser?.email}
+        onSelectPersona={(email) => onSwitchPersona && onSwitchPersona(email)}
+        onLogout={onLogout}
+      />
+
+    </div>
+  );
+}
+
+const DEMO_PERSONAS = [
+  {
+    email: 'analyst.vance@crimenet.demo',
+    name: 'Special Agent Marcus Vance',
+    role: 'ANALYST',
+    badge: 'CN-ALPHA-0941',
+    clearance: 'TS/SCI-ORCON',
+    station: 'Metro Tactical Counter-Syndicate Command'
+  },
+  {
+    email: 'investigator.chen@crimenet.demo',
+    name: 'Detective Sarah Chen',
+    role: 'INVESTIGATOR',
+    badge: 'CN-INV-5512',
+    clearance: 'SECRET',
+    station: 'Major Case Investigation Unit'
+  },
+  {
+    email: 'supervisor.wright@crimenet.demo',
+    name: 'Inspector Thomas Wright',
+    role: 'SUPERVISOR',
+    badge: 'CN-SUP-7719',
+    clearance: 'TS//SCI',
+    station: 'Regional Fusion Command'
+  },
+  {
+    email: 'admin@crimenet.demo',
+    name: 'Command Administrator',
+    role: 'ADMIN',
+    badge: 'CN-HQ-0001',
+    clearance: 'TS//SCI-ORCON',
+    station: 'Joint Intelligence Headquarters'
+  }
+];
+
+function PersonaSwitchModal({ isOpen, onClose, currentEmail, onSelectPersona, onLogout }) {
+  if (!isOpen) return null;
+
+  return (
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label="Tactical Persona & Clearance Switcher"
+      onClick={onClose}
+      style={{
+        position: 'fixed',
+        inset: 0,
+        backgroundColor: 'rgba(2, 6, 12, 0.85)',
+        backdropFilter: 'blur(6px)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 9999,
+        padding: '16px'
+      }}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          width: '100%',
+          maxWidth: '480px',
+          backgroundColor: '#0c111d',
+          border: '1px solid #1e293b',
+          borderRadius: '12px',
+          padding: '24px',
+          boxShadow: '0 20px 40px rgba(0, 0, 0, 0.7)',
+          fontFamily: 'var(--font-sans, system-ui)'
+        }}
+      >
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px' }}>
+          <div>
+            <div style={{ fontSize: '0.68rem', fontFamily: 'var(--font-mono, monospace)', color: '#38bdf8', fontWeight: 700, letterSpacing: '0.06em' }}>
+              SECURITY & ROLE IDENTITIES
+            </div>
+            <h3 style={{ margin: '4px 0 0', fontSize: '1.15rem', color: '#f8fafc', fontWeight: 700 }}>
+              Switch Tactical Persona
+            </h3>
+          </div>
+          <button
+            onClick={onClose}
+            style={{
+              background: 'none',
+              border: 'none',
+              color: '#94a3b8',
+              cursor: 'pointer',
+              fontSize: '1.1rem',
+              padding: '4px 8px',
+              borderRadius: '6px'
+            }}
+            title="Close modal"
+          >
+            ✕
+          </button>
+        </div>
+
+        <p style={{ fontSize: '0.78rem', color: '#94a3b8', margin: '0 0 16px', lineHeight: 1.45 }}>
+          Select an active investigative profile below to instantaneously switch station roles, RBAC access levels, and case isolation rules:
+        </p>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '20px' }}>
+          {DEMO_PERSONAS.map((p) => {
+            const isActive = currentEmail === p.email;
+            return (
+              <button
+                key={p.email}
+                type="button"
+                onClick={() => {
+                  onSelectPersona(p.email);
+                  onClose();
+                }}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  padding: '10px 14px',
+                  backgroundColor: isActive ? 'rgba(56, 189, 248, 0.08)' : '#111827',
+                  border: `1px solid ${isActive ? '#38bdf8' : '#1f2937'}`,
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  textAlign: 'left',
+                  transition: 'all 0.15s ease'
+                }}
+                onMouseEnter={(e) => {
+                  if (!isActive) e.currentTarget.style.borderColor = '#334155';
+                }}
+                onMouseLeave={(e) => {
+                  if (!isActive) e.currentTarget.style.borderColor = '#1f2937';
+                }}
+              >
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span style={{ fontSize: '0.86rem', fontWeight: 600, color: '#f8fafc' }}>
+                      {p.name}
+                    </span>
+                    <span style={{
+                      fontSize: '0.62rem',
+                      fontFamily: 'var(--font-mono, monospace)',
+                      fontWeight: 700,
+                      padding: '1px 6px',
+                      borderRadius: '3px',
+                      backgroundColor: p.role === 'ADMIN' ? 'rgba(239, 68, 68, 0.15)' : 'rgba(56, 189, 248, 0.15)',
+                      color: p.role === 'ADMIN' ? '#f87171' : '#38bdf8',
+                      border: `1px solid ${p.role === 'ADMIN' ? 'rgba(239, 68, 68, 0.3)' : 'rgba(56, 189, 248, 0.3)'}`
+                    }}>
+                      {p.role}
+                    </span>
+                  </div>
+                  <div style={{ fontSize: '0.70rem', color: '#64748b', marginTop: '3px' }}>
+                    {p.badge} · {p.clearance} · {p.station}
+                  </div>
+                </div>
+
+                {isActive ? (
+                  <span style={{
+                    fontSize: '0.64rem',
+                    fontFamily: 'var(--font-mono, monospace)',
+                    color: '#34d399',
+                    fontWeight: 700,
+                    backgroundColor: 'rgba(52, 211, 153, 0.1)',
+                    padding: '3px 8px',
+                    borderRadius: '4px',
+                    border: '1px solid rgba(52, 211, 153, 0.3)'
+                  }}>
+                    ACTIVE
+                  </span>
+                ) : (
+                  <span style={{ fontSize: '0.74rem', color: '#38bdf8', fontWeight: 600 }}>
+                    Switch →
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </div>
+
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #1e293b', paddingTop: '16px' }}>
+          <button
+            type="button"
+            onClick={() => {
+              onClose();
+              onLogout();
+            }}
+            style={{
+              padding: '8px 14px',
+              backgroundColor: 'transparent',
+              border: '1px solid rgba(239, 68, 68, 0.3)',
+              borderRadius: '6px',
+              color: '#f87171',
+              fontSize: '0.78rem',
+              fontWeight: 600,
+              cursor: 'pointer'
+            }}
+          >
+            Sign Out to Login Portal
+          </button>
+          <button
+            type="button"
+            onClick={onClose}
+            style={{
+              padding: '8px 16px',
+              backgroundColor: '#1e293b',
+              border: 'none',
+              borderRadius: '6px',
+              color: '#f8fafc',
+              fontSize: '0.78rem',
+              fontWeight: 600,
+              cursor: 'pointer'
+            }}
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

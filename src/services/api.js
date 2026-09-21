@@ -86,6 +86,10 @@ async function request(endpoint, options = {}) {
     return data;
   } catch (err) {
     clearTimeout(timeoutId);
+    if (err instanceof ApiError && err.status >= 400 && err.status < 500) {
+      // Authoritative client/auth errors (401, 403, 404, 422) must not trigger remote fallback
+      throw err;
+    }
     if (!options._isFallbackRetry && typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
       try {
         const fallbackUrl = `https://crimenet-aii.vercel.app/api${endpoint.startsWith('/') ? '' : '/'}${endpoint}`;
@@ -109,11 +113,13 @@ function anySignal(signals) {
   const controller = new AbortController();
   for (const s of signals) {
     if (!s) continue;
-    if (s.aborted) {
-      controller.abort(s.reason);
-      return s;
+    const actualSignal = s instanceof AbortSignal ? s : (s?.signal instanceof AbortSignal ? s.signal : null);
+    if (!actualSignal) continue;
+    if (actualSignal.aborted) {
+      controller.abort(actualSignal.reason);
+      return controller.signal;
     }
-    s.addEventListener('abort', () => controller.abort(s.reason), { once: true });
+    actualSignal.addEventListener('abort', () => controller.abort(actualSignal.reason), { once: true });
   }
   return controller.signal;
 }
@@ -231,9 +237,10 @@ export const api = {
   },
 
   demoLogin: async (email) => {
+    const targetEmail = (email || 'analyst.vance@crimenet.demo').trim();
     const data = await request('/auth/demo-login', {
       method: 'POST',
-      body: { email }
+      body: { email: targetEmail }
     });
     if (data && data.access_token) {
       api.setToken(data.access_token);
@@ -381,10 +388,13 @@ export const api = {
   },
 
   // ── Global Intelligence Search ─────────────────────────────────────────────
-  globalSearch: async (query, signal = null) => {
+  globalSearch: async (query, optionsOrSignal = null) => {
     if (!query || !query.trim()) {
       return { cases: [], evidence: [], entities: [], total_matches: 0 };
     }
+    const signal = optionsOrSignal instanceof AbortSignal
+      ? optionsOrSignal
+      : (optionsOrSignal?.signal instanceof AbortSignal ? optionsOrSignal.signal : null);
     return await request(`/search?q=${encodeURIComponent(query.trim())}`, { signal });
   },
 

@@ -308,6 +308,11 @@ def verify_case_access(case_id: str, user: dict) -> bool:
     norm_allowed = [str(c).replace("CASE #", "").strip().upper() for c in allowed_cases]
     if norm_target in norm_allowed or any(norm_target == a for a in norm_allowed):
         return True
+
+    # Entity Resolution dossiers (ER-CASE-094, 095, 096) belong to priority dockets CR-204 / CR-2026-0142
+    if norm_target.startswith("ER-") or norm_target.startswith("ER_"):
+        if any(parent in norm_allowed for parent in ["CR-204", "CR-2026-0142", "*"]):
+            return True
     
     audit_service.log_event(
         action="CASE_ACCESS",

@@ -195,9 +195,9 @@ export default function CR204CytoscapeGraph({ onFocusMap, height = '360px' }) {
           style: {
             'border-color': '#E6E9ED',
             'border-width': 3,
-            'shadow-blur': 12,
-            'shadow-color': '#5B7C99',
-            'shadow-opacity': 0.6
+            'underlay-color': '#5B7C99',
+            'underlay-padding': 4,
+            'underlay-opacity': 0.35
           }
         }
       ],

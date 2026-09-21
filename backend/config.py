@@ -74,7 +74,7 @@ if CRIMENET_ENV == "demo":
             "clearance": "TS/SCI-ORCON",
             "badge_id": "CN-ALPHA-0941",
             "station": "Metro Tactical Counter-Syndicate Command",
-            "allowed_cases": ["CR-204", "CASE #CR-2026-0142", "CASE #CR-2026-0089"]
+            "allowed_cases": ["CR-204", "CASE #CR-2026-0142", "CASE #CR-2026-0089", "ER-CASE-094", "ER-CASE-095", "ER-CASE-096"]
         },
         "investigator.chen@crimenet.demo": {
             "email": "investigator.chen@crimenet.demo",
@@ -84,7 +84,7 @@ if CRIMENET_ENV == "demo":
             "clearance": "SECRET",
             "badge_id": "CN-INV-5512",
             "station": "Major Case Investigation Unit",
-            "allowed_cases": ["CR-204"]
+            "allowed_cases": ["CR-204", "ER-CASE-094", "ER-CASE-095", "ER-CASE-096"]
         },
         "supervisor.wright@crimenet.demo": {
             "email": "supervisor.wright@crimenet.demo",
