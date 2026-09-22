@@ -1,7 +1,22 @@
 import React, { useState } from 'react';
 import { api } from '../services/api.js';
 import { useAuth } from '../context/AuthContext.jsx';
-import { Shield, Eye, EyeOff, Loader2, Lock, CheckCircle2 } from 'lucide-react';
+import { Eye, EyeOff, Loader2 } from 'lucide-react';
+
+const STARS = [
+  { top: '15%', left: '7%', size: '3px', opacity: 0.85, glow: true },
+  { top: '14%', left: '25%', size: '2.5px', opacity: 0.9, glow: true },
+  { top: '19%', left: '37%', size: '2px', opacity: 0.6 },
+  { top: '17%', left: '49%', size: '2px', opacity: 0.75 },
+  { top: '15%', left: '68%', size: '2.5px', opacity: 0.85 },
+  { top: '14%', left: '92%', size: '3px', opacity: 0.9, glow: true },
+  { top: '19%', left: '95%', size: '2px', opacity: 0.7 },
+  { top: '48%', left: '9%', size: '2px', opacity: 0.55 },
+  { top: '38%', left: '94%', size: '2px', opacity: 0.6 },
+  { top: '91%', left: '65%', size: '2.5px', opacity: 0.8 },
+  { top: '95%', left: '33%', size: '2px', opacity: 0.7 },
+  { top: '95%', left: '80%', size: '2.5px', opacity: 0.85 }
+];
 
 const DEMO_PASSWORD_MAP = {
   'analyst.vance@crimenet.demo': 'Crimenet2026!',
@@ -45,7 +60,7 @@ export default function LoginPage({ onLoginSuccess }) {
     let cleanPassword = password.trim();
 
     if (!cleanId || !cleanPassword) {
-      setErrorMsg('Please enter investigator ID and credential. (Demo: analyst.vance / Crimenet2026!)');
+      setErrorMsg('Please enter username and password. (Demo: analyst.vance / Crimenet2026!)');
       return;
     }
 
@@ -70,57 +85,64 @@ export default function LoginPage({ onLoginSuccess }) {
       }
     } catch (err) {
       console.error('Login error:', err);
-      setErrorMsg(err.message || 'Authentication rejected. Verify credentials or agency clearance.');
+      setErrorMsg(err.message || 'Incorrect ID or password. Please try again.');
       setIsLoading(false);
     }
   };
 
-  const handleQuickFill = (roleEmail) => {
-    setId(roleEmail);
-    setPassword(DEMO_PASSWORD_MAP[roleEmail] || 'Crimenet2026!');
-    setErrorMsg('');
-  };
-
   return (
     <div className="login-page">
-      {/* Tactical Background Grid Overlay */}
-      <div className="tactical-bg-grid" aria-hidden="true" />
+      {/* Background Star Specks */}
+      <div className="stars-container" aria-hidden="true">
+        {STARS.map((star, idx) => (
+          <span
+            key={idx}
+            style={{
+              position: 'absolute',
+              top: star.top,
+              left: star.left,
+              width: star.size,
+              height: star.size,
+              borderRadius: '50%',
+              backgroundColor: '#fff',
+              opacity: star.opacity,
+              boxShadow: star.glow ? '0 0 6px #93c5fd' : 'none',
+              pointerEvents: 'none'
+            }}
+          />
+        ))}
+      </div>
 
       {/* Login Card */}
       <div className="login-card">
-        {/* Authoritative Badge Emblem */}
-        <div className="badge-header">
-          <div className="emblem-wrapper">
-            <Shield size={24} style={{ color: 'var(--coral, #DA7667)' }} />
-          </div>
-          <div className="classification-pill">
-            RESTRICTED ACCESS · LAW ENFORCEMENT ONLY
-          </div>
+        {/* Detective Logo */}
+        <div className="logo" role="img" aria-label="Detective logo">
+          🕵️
         </div>
 
-        {/* Title */}
+        {/* Header */}
         <h1>CRIMENET AI</h1>
-        <p className="subtitle">Relational Intelligence & Investigative Command System</p>
+        <p className="subtitle">Criminal Network Analysis System</p>
 
         {/* Form */}
         <form onSubmit={handleSubmit} noValidate>
-          <label htmlFor="investigator-id">Investigator Identifier / Email</label>
+          <label htmlFor="investigator-id">Investigator ID</label>
           <input
             id="investigator-id"
             type="text"
-            placeholder="e.g. analyst.vance"
+            placeholder="Enter your ID"
             value={id}
             onChange={(e) => setId(e.target.value)}
             autoComplete="username"
             disabled={isLoading}
           />
 
-          <label htmlFor="investigator-password">Security Clearance Credential</label>
+          <label htmlFor="investigator-password">Password</label>
           <div style={{ position: 'relative' }}>
             <input
               id="investigator-password"
               type={showPassword ? 'text' : 'password'}
-              placeholder="Enter clearance password"
+              placeholder="Enter your password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               autoComplete="current-password"
@@ -139,7 +161,7 @@ export default function LoginPage({ onLoginSuccess }) {
                 background: 'none',
                 border: 'none',
                 boxShadow: 'none',
-                color: 'var(--text-muted, #7E8B9B)',
+                color: '#64748b',
                 padding: '4px',
                 margin: 0,
                 cursor: 'pointer',
@@ -152,50 +174,36 @@ export default function LoginPage({ onLoginSuccess }) {
             </button>
           </div>
 
-          {/* Quick Credential Presets */}
-          <div className="quick-roles">
-            <span className="quick-label">DEMO CLEARANCES:</span>
-            <button type="button" onClick={() => handleQuickFill('analyst.vance@crimenet.demo')}>Analyst</button>
-            <button type="button" onClick={() => handleQuickFill('investigator.chen@crimenet.demo')}>Detective</button>
-            <button type="button" onClick={() => handleQuickFill('supervisor.wright@crimenet.demo')}>Supervisor</button>
-          </div>
-
-          {/* Login Action Button */}
+          {/* Left-Aligned Login Action Button */}
           <button type="submit" disabled={isLoading} className="login-btn">
             {isLoading ? (
               <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
                 <Loader2 size={15} style={{ animation: 'spin 1s linear infinite' }} />
-                <span>AUTHENTICATING CLEARANCE...</span>
+                <span>LOGGING IN...</span>
               </span>
             ) : (
-              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
-                <Lock size={14} />
-                <span>ENTER COMMAND WORKSTATION</span>
-              </span>
+              'LOGIN'
             )}
           </button>
 
           {/* Feedback Message */}
           {errorMsg && (
-            <div className="error-message" role="alert">
+            <p className="error-message" role="alert">
               {errorMsg}
-            </div>
+            </p>
           )}
         </form>
 
         {/* Footer Text */}
-        <div className="footer-bar">
-          <span>SECURE PROTOCOL TLS 1.3</span>
-          <span>·</span>
-          <span>DOCKET ARCHITECTURE v4.2</span>
-        </div>
+        <p className="footer-text">AI-Powered Crime Investigation Platform</p>
       </div>
 
-      {/* Embedded Styles with Velvet / Rouge / Burgundy Palette */}
+      {/* Embedded Component Styles */}
       <style>{`
         .login-page {
-          background-color: var(--bg-main, #0C0E14);
-          background-image: radial-gradient(circle at 50% 15%, #23161A 0%, #0C0E14 70%);
+          background: radial-gradient(circle at 20% 20%, #173a70 0, transparent 35%),
+                      radial-gradient(circle at 80% 80%, #17245c 0, transparent 35%),
+                      #060b16;
           justify-content: center;
           align-items: center;
           min-height: 100vh;
@@ -203,87 +211,87 @@ export default function LoginPage({ onLoginSuccess }) {
           display: flex;
           position: relative;
           overflow: hidden;
-          font-family: var(--font-sans, 'Inter', -apple-system, sans-serif);
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
           margin: 0;
-          padding: 20px;
+          padding: 16px;
           box-sizing: border-box;
         }
 
-        .tactical-bg-grid {
+        .login-page::before {
+          content: "";
+          border: 1px solid rgba(79, 140, 255, 0.15);
+          border-radius: 50%;
+          width: 500px;
+          height: 500px;
+          animation: 5s ease-in-out infinite pulseRing;
+          position: absolute;
+          pointer-events: none;
+        }
+
+        .login-page::after {
+          content: "";
+          background: rgba(79, 140, 255, 0.08);
+          border-radius: 50%;
+          width: 280px;
+          height: 280px;
+          animation: 7s ease-in-out infinite loginFloatTwo;
+          position: absolute;
+          bottom: -100px;
+          right: -90px;
+          pointer-events: none;
+        }
+
+        .stars-container {
           position: absolute;
           inset: 0;
-          background-size: 40px 40px;
-          background-image: 
-            linear-gradient(to right, rgba(118, 81, 84, 0.08) 1px, transparent 1px),
-            linear-gradient(to bottom, rgba(118, 81, 84, 0.08) 1px, transparent 1px);
           pointer-events: none;
+          z-index: 1;
         }
 
         .login-card {
           z-index: 2;
+          -webkit-backdrop-filter: blur(18px);
+          backdrop-filter: blur(18px);
           text-align: center;
-          background: var(--bg-surface, #151922);
-          border: 1px solid rgba(118, 81, 84, 0.45);
-          border-radius: 12px;
-          width: 440px;
+          background: rgba(17, 28, 46, 0.88);
+          border: 1px solid #2b4168;
+          border-radius: 20px;
+          width: 400px;
           max-width: 100%;
-          padding: 34px 30px 26px;
+          padding: 40px 32px 30px;
           box-sizing: border-box;
+          animation: 0.7s ease-out loginCardEnter;
           position: relative;
-          box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.03);
-          transition: border-color 0.2s, box-shadow 0.2s;
+          box-shadow: 0 25px 70px rgba(0, 0, 0, 0.55);
+          transition: border-color 0.25s, box-shadow 0.25s, transform 0.25s;
         }
 
         .login-card:hover {
-          border-color: rgba(173, 84, 92, 0.6);
-          box-shadow: 0 24px 60px rgba(0, 0, 0, 0.7), 0 0 20px rgba(173, 84, 92, 0.12);
+          border-color: #4f8cff;
+          box-shadow: 0 25px 80px rgba(37, 87, 197, 0.2);
         }
 
-        .badge-header {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 10px;
-          margin-bottom: 14px;
-        }
-
-        .emblem-wrapper {
-          width: 46px;
-          height: 46px;
-          border-radius: 10px;
-          background: rgba(51, 37, 41, 0.85);
-          border: 1px solid rgba(173, 84, 92, 0.4);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
-        }
-
-        .classification-pill {
-          font-size: 0.64rem;
-          font-family: var(--font-mono, monospace);
-          font-weight: 700;
-          letter-spacing: 0.06em;
-          padding: 3px 10px;
-          border-radius: 4px;
-          background: rgba(173, 84, 92, 0.15);
-          border: 1px solid rgba(173, 84, 92, 0.35);
-          color: var(--coral, #DA7667);
+        .login-card .logo {
+          margin-bottom: 12px;
+          font-size: 52px;
+          line-height: 1;
+          display: inline-block;
+          animation: 3s ease-in-out infinite logoFloat;
+          user-select: none;
         }
 
         .login-card h1 {
-          color: var(--text-primary, #F3F5F9);
-          margin: 0 0 6px 0;
-          font-size: 22px;
+          color: #ffffff;
+          margin: 0 0 8px 0;
+          font-size: 26px;
           font-weight: 700;
-          letter-spacing: 0.06em;
+          letter-spacing: 0.04em;
         }
 
         .login-card .subtitle {
-          color: var(--text-secondary, #A2ABB9);
-          margin: 0 0 22px 0;
-          font-size: 13px;
-          line-height: 1.4;
+          color: #9aa8bd;
+          margin: 0 0 28px 0;
+          font-size: 14px;
         }
 
         .login-card form {
@@ -291,12 +299,11 @@ export default function LoginPage({ onLoginSuccess }) {
         }
 
         .login-card label {
-          color: var(--text-primary, #F3F5F9);
-          margin-top: 14px;
-          margin-bottom: 6px;
-          font-size: 12px;
-          font-weight: 600;
-          letter-spacing: 0.02em;
+          color: #dce2ef;
+          margin-top: 18px;
+          margin-bottom: 8px;
+          font-size: 14px;
+          font-weight: 500;
           display: block;
         }
 
@@ -305,121 +312,105 @@ export default function LoginPage({ onLoginSuccess }) {
         }
 
         .login-card input {
-          color: var(--text-primary, #F3F5F9);
-          background: var(--bg-elevated, #1E2430);
-          border: 1px solid var(--border-default, #2A3342);
-          border-radius: 6px;
+          color: #ffffff;
+          background: rgba(8, 17, 31, 0.9);
+          border: 1px solid #30425f;
+          border-radius: 10px;
           outline: none;
           width: 100%;
-          padding: 10px 14px;
-          font-size: 13px;
+          padding: 13px 15px;
+          font-size: 14px;
           box-sizing: border-box;
-          transition: border-color 0.15s ease, box-shadow 0.15s ease;
+          transition: all 0.25s ease;
           font-family: inherit;
         }
 
         .login-card input:focus {
-          border-color: var(--rouge, #AD545C);
-          box-shadow: 0 0 0 2px rgba(173, 84, 92, 0.25);
+          border-color: #5b8cff;
+          box-shadow: 0 0 0 3px rgba(91, 140, 255, 0.15), 0 0 18px rgba(91, 140, 255, 0.12);
+          transform: translateY(-1px);
         }
 
         .login-card input::placeholder {
-          color: var(--text-muted, #626F80);
-        }
-
-        .quick-roles {
-          display: flex;
-          align-items: center;
-          gap: 6px;
-          margin-top: 12px;
-          flex-wrap: wrap;
-        }
-
-        .quick-label {
-          font-size: 0.62rem;
-          color: var(--text-muted, #7E8B9B);
-          font-family: var(--font-mono, monospace);
-          font-weight: 600;
-        }
-
-        .quick-roles button {
-          padding: 2px 7px;
-          border-radius: 4px;
-          font-size: 0.64rem;
-          font-family: var(--font-mono, monospace);
-          background: var(--bg-elevated, #1E2430);
-          border: 1px solid var(--border-default, #2A3342);
-          color: var(--text-secondary, #A2ABB9);
-          cursor: pointer;
-          transition: all 0.15s ease;
-        }
-
-        .quick-roles button:hover {
-          border-color: var(--rouge, #AD545C);
-          color: var(--coral, #DA7667);
-          background: rgba(173, 84, 92, 0.12);
+          color: #5a6e8c;
         }
 
         .login-card .login-btn {
-          color: #FFFFFF;
+          color: #ffffff;
           cursor: pointer;
-          background: var(--rouge, #AD545C);
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          border-radius: 6px;
-          margin-top: 20px;
-          padding: 11px 20px;
-          font-size: 13px;
-          font-weight: 600;
-          letter-spacing: 0.04em;
-          box-shadow: 0 4px 12px rgba(173, 84, 92, 0.25);
-          transition: background 0.15s ease, transform 0.1s ease;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          width: 100%;
+          background: linear-gradient(135deg, #3568e8, #2457c5);
+          border: none;
+          border-radius: 10px;
+          margin-top: 24px;
+          padding: 12px 28px;
+          font-size: 14px;
+          font-weight: 700;
+          letter-spacing: 0.05em;
+          box-shadow: 0 8px 25px rgba(36, 87, 197, 0.25);
+          transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
+          display: inline-block;
           font-family: inherit;
         }
 
         .login-card .login-btn:hover:not(:disabled) {
-          background: #BD6069;
-          transform: translateY(-1px);
-          box-shadow: 0 6px 16px rgba(173, 84, 92, 0.35);
+          transform: translateY(-2px);
+          box-shadow: 0 8px 22px rgba(53, 104, 232, 0.4);
         }
 
         .login-card .login-btn:active:not(:disabled) {
-          transform: translateY(0);
+          transform: scale(0.97);
         }
 
         .login-card .login-btn:disabled {
-          opacity: 0.6;
+          opacity: 0.7;
           cursor: not-allowed;
         }
 
         .login-card .error-message {
-          color: var(--coral, #DA7667);
+          color: #f87171;
           text-align: center;
-          background: rgba(173, 84, 92, 0.14);
-          border: 1px solid rgba(173, 84, 92, 0.35);
-          border-radius: 6px;
-          margin-top: 14px;
+          background: rgba(239, 68, 68, 0.1);
+          border: 1px solid rgba(239, 68, 68, 0.25);
+          border-radius: 8px;
+          margin-top: 18px;
           margin-bottom: 0;
-          padding: 8px 12px;
-          font-size: 12px;
+          padding: 10px 12px;
+          font-size: 13px;
+          animation: 0.3s ease-out messageFade;
         }
 
-        .login-card .footer-bar {
-          color: var(--text-muted, #7E8B9B);
-          margin-top: 22px;
-          font-size: 10px;
-          font-family: var(--font-mono, monospace);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 6px;
-          letter-spacing: 0.05em;
-          border-top: 1px solid var(--border-default, #2A3342);
-          padding-top: 14px;
+        .login-card .footer-text {
+          color: #69758f;
+          margin-top: 26px;
+          margin-bottom: 0;
+          font-size: 12px;
+          text-align: center;
           user-select: none;
+        }
+
+        @keyframes pulseRing {
+          0%, 100% { opacity: 0.2; transform: scale(0.85); }
+          50% { opacity: 0.5; transform: scale(1.15); }
+        }
+
+        @keyframes loginFloatTwo {
+          0%, 100% { transform: translate(0, 0); }
+          50% { transform: translate(-20px, -25px); }
+        }
+
+        @keyframes loginCardEnter {
+          0% { opacity: 0; transform: translateY(25px) scale(0.97); }
+          100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        @keyframes logoFloat {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-5px); }
+        }
+
+        @keyframes messageFade {
+          0% { opacity: 0; transform: translateY(6px); }
+          100% { opacity: 1; transform: translateY(0); }
         }
 
         @keyframes spin {
@@ -429,10 +420,11 @@ export default function LoginPage({ onLoginSuccess }) {
 
         @media (max-width: 480px) {
           .login-card {
-            padding: 26px 20px 20px;
+            padding: 32px 22px 24px;
+            border-radius: 18px;
           }
           .login-card h1 {
-            font-size: 20px;
+            font-size: 24px;
           }
         }
       `}</style>
