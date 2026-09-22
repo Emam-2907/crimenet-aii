@@ -1127,46 +1127,182 @@ export default function CytoscapeGraph() {
 
         {/* VIEW 2: ORIGINAL WORLD MAP (Visible in 'WORLD_MAP' and 'SPLIT') */}
         {(viewMode === 'WORLD_MAP' || viewMode === 'SPLIT') && (
-          <div style={{
-            flex: 1,
-            width: viewMode === 'SPLIT' ? '50%' : '100%',
-            height: '100%',
-            position: 'relative',
-            overflow: 'hidden',
-            borderLeft: viewMode === 'SPLIT' ? '1px solid var(--border-default)' : 'none'
-          }}>
-            <WorldIntelligenceMap
-              externalNodes={graphData.nodes}
-              selectedEntity={selectedNode}
-              showFloatingCard={false}
-              onSelectEntity={(node) => {
-                setSelectedNode(node);
-                setActiveSideDrawer('INSPECTOR');
-                if (cyRef.current) {
-                  const ele = cyRef.current.getElementById(node.id);
-                  if (ele.length > 0) {
-                    cyRef.current.elements().removeClass('highlighted dimmed');
-                    ele.addClass('highlighted');
-                    ele.neighborhood().addClass('highlighted');
-                    cyRef.current.elements().not(ele).not(ele.neighborhood()).addClass('dimmed');
-                  }
-                }
-              }}
-              onInspectInGraph={(node) => {
-                setViewMode('GRAPH');
-                setTimeout(() => {
+          viewMode === 'SPLIT' ? (
+            <div style={{
+              flex: 1,
+              width: '50%',
+              height: '100%',
+              position: 'relative',
+              overflow: 'hidden',
+              borderLeft: '1px solid var(--border-default)'
+            }}>
+              <WorldIntelligenceMap
+                externalNodes={graphData.nodes}
+                selectedEntity={selectedNode}
+                showFloatingCard={false}
+                onSelectEntity={(node) => {
+                  setSelectedNode(node);
+                  setActiveSideDrawer('INSPECTOR');
                   if (cyRef.current) {
                     const ele = cyRef.current.getElementById(node.id);
                     if (ele.length > 0) {
-                      cyRef.current.animate({ center: { eles: ele }, zoom: 1.6, duration: 400 });
+                      cyRef.current.elements().removeClass('highlighted dimmed');
+                      ele.addClass('highlighted');
+                      ele.neighborhood().addClass('highlighted');
+                      cyRef.current.elements().not(ele).not(ele.neighborhood()).addClass('dimmed');
                     }
                   }
-                }, 150);
-              }}
-              onAskCira={handleAskCira}
-              height="100%"
-            />
-          </div>
+                }}
+                onInspectInGraph={(node) => {
+                  setViewMode('GRAPH');
+                  setTimeout(() => {
+                    if (cyRef.current) {
+                      const ele = cyRef.current.getElementById(node.id);
+                      if (ele.length > 0) {
+                        cyRef.current.animate({ center: { eles: ele }, zoom: 1.6, duration: 400 });
+                      }
+                    }
+                  }, 150);
+                }}
+                onAskCira={handleAskCira}
+                height="100%"
+              />
+            </div>
+          ) : (
+            <div style={{
+              flex: 1,
+              display: 'flex',
+              flexDirection: 'column',
+              overflowY: 'auto',
+              background: 'var(--bg-main, #0C0E14)',
+              padding: '14px 14px 28px 14px',
+              gap: '14px'
+            }}>
+              {/* Minimized & Balanced Map Section (Original Map as requested) */}
+              <div style={{
+                height: '460px',
+                width: '100%',
+                position: 'relative',
+                borderRadius: '8px',
+                border: '1px solid var(--border-default)',
+                boxShadow: 'var(--shadow-sm)',
+                overflow: 'hidden',
+                flexShrink: 0
+              }}>
+                <WorldIntelligenceMap
+                  externalNodes={graphData.nodes}
+                  selectedEntity={selectedNode}
+                  showFloatingCard={false}
+                  onSelectEntity={(node) => {
+                    setSelectedNode(node);
+                    setActiveSideDrawer('INSPECTOR');
+                    if (cyRef.current) {
+                      const ele = cyRef.current.getElementById(node.id);
+                      if (ele.length > 0) {
+                        cyRef.current.elements().removeClass('highlighted dimmed');
+                        ele.addClass('highlighted');
+                        ele.neighborhood().addClass('highlighted');
+                        cyRef.current.elements().not(ele).not(ele.neighborhood()).addClass('dimmed');
+                      }
+                    }
+                  }}
+                  onInspectInGraph={(node) => {
+                    setViewMode('GRAPH');
+                    setTimeout(() => {
+                      if (cyRef.current) {
+                        const ele = cyRef.current.getElementById(node.id);
+                        if (ele.length > 0) {
+                          cyRef.current.animate({ center: { eles: ele }, zoom: 1.6, duration: 400 });
+                        }
+                      }
+                    }, 150);
+                  }}
+                  onAskCira={handleAskCira}
+                  height="100%"
+                />
+              </div>
+
+              {/* Surrounding Intelligence Controls & Transnational Node Directory */}
+              <div style={{
+                background: 'var(--bg-surface)',
+                border: '1px solid var(--border-default)',
+                borderRadius: '8px',
+                padding: '14px 16px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '10px'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <Globe size={15} style={{ color: 'var(--coral, #DA7667)' }} />
+                    <span style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-primary)' }}>
+                      Transnational Intelligence Nexus · Monitored Global Entities
+                    </span>
+                  </div>
+                  <span style={{ fontSize: '0.70rem', fontFamily: 'var(--font-mono)', color: 'var(--text-secondary)' }}>
+                    {graphData.nodes?.length || 0} Entities Tracked in Case Network
+                  </span>
+                </div>
+
+                {/* Quick Entity Selector Cards */}
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
+                  gap: '10px',
+                  marginTop: '4px'
+                }}>
+                  {(graphData.nodes || []).slice(0, 6).map((n) => {
+                    const nodeData = n.data || n;
+                    return (
+                      <div
+                        key={nodeData.id}
+                        style={{
+                          background: 'var(--bg-elevated)',
+                          border: '1px solid var(--border-default)',
+                          borderRadius: '6px',
+                          padding: '10px 12px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          gap: '8px'
+                        }}
+                      >
+                        <div style={{ overflow: 'hidden' }}>
+                          <div style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                            {nodeData.label || nodeData.name || nodeData.id}
+                          </div>
+                          <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>
+                            {nodeData.type || 'Entity'} · {nodeData.threat || 'MONITORED'}
+                          </div>
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSelectedNode(nodeData);
+                            setActiveSideDrawer('INSPECTOR');
+                          }}
+                          style={{
+                            padding: '5px 10px',
+                            background: 'rgba(173, 84, 92, 0.15)',
+                            border: '1px solid rgba(173, 84, 92, 0.35)',
+                            color: 'var(--coral, #DA7667)',
+                            borderRadius: '4px',
+                            fontSize: '0.66rem',
+                            fontWeight: 600,
+                            cursor: 'pointer',
+                            flexShrink: 0
+                          }}
+                        >
+                          Inspect Entity →
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          )
         )}
 
         {/* ── RIGHT SLIDE-OUT PANEL ────────────────────────────────────────── */}
