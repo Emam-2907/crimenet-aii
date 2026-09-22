@@ -719,18 +719,18 @@ export default function CrimeAIChat() {
                   {/* Avatar Icon */}
                   <div style={{
                     width: '32px', height: '32px', borderRadius: '6px',
-                    background: isUser ? 'var(--bg-elevated)' : 'rgba(0, 200, 122, 0.12)',
-                    border: `1px solid ${isUser ? 'var(--border-default)' : 'var(--primary-border)'}`,
+                    background: isUser ? 'var(--bg-elevated)' : 'rgba(173, 84, 92, 0.16)',
+                    border: `1px solid ${isUser ? 'var(--border-default)' : 'rgba(173, 84, 92, 0.35)'}`,
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     flexShrink: 0
                   }}>
-                    {isUser ? <User size={15} style={{ color: 'var(--secondary-light)' }} /> : <FileText size={15} style={{ color: 'var(--primary)' }} />}
+                    {isUser ? <User size={15} style={{ color: 'var(--text-secondary)' }} /> : <FileText size={15} style={{ color: 'var(--coral, #DA7667)' }} />}
                   </div>
 
                   {/* Message Bubble Card */}
                   <div style={{
                     background: isUser ? 'var(--bg-elevated)' : 'var(--bg-surface)',
-                    border: isUser ? '1px solid var(--border-default)' : '1px solid var(--border-default)',
+                    border: isUser ? '1px solid var(--border-default)' : '1px solid rgba(118, 81, 84, 0.35)',
                     borderRadius: '8px',
                     padding: '14px 18px',
                     boxShadow: 'var(--shadow-sm)',
@@ -743,11 +743,11 @@ export default function CrimeAIChat() {
                     }}>
                       <span style={{
                         fontSize: '0.68rem', fontFamily: 'var(--font-mono)', fontWeight: 700,
-                        color: isUser ? 'var(--text-mid)' : 'var(--primary)', letterSpacing: '0.04em'
+                        color: isUser ? 'var(--text-secondary)' : 'var(--coral, #DA7667)', letterSpacing: '0.04em'
                       }}>
-                        {isUser ? 'INVESTIGATOR' : 'CIRA ASSISTANT'}
+                        {isUser ? 'INVESTIGATOR' : 'CIRA INTELLIGENCE ASSISTANT'}
                       </span>
-                      <span style={{ fontSize: '0.62rem', color: 'var(--text-low)', fontFamily: 'var(--font-mono)' }}>
+                      <span style={{ fontSize: '0.62rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>
                         {msg.timestamp || 'RECENT'}
                       </span>
                     </div>
@@ -767,7 +767,7 @@ export default function CrimeAIChat() {
                       }}>
                         <div style={{
                           display: 'flex', alignItems: 'center', gap: '6px',
-                          fontSize: '0.65rem', fontFamily: 'var(--f-mono)', color: '#38bdf8',
+                          fontSize: '0.65rem', fontFamily: 'var(--font-mono)', color: 'var(--coral, #DA7667)',
                           fontWeight: 700, textTransform: 'uppercase', marginBottom: '6px'
                         }}>
                           <FileText size={12} />
@@ -781,9 +781,9 @@ export default function CrimeAIChat() {
                               title={`Inspect ${src.id} in forensic chain-of-custody viewer`}
                               style={{
                                 padding: '3px 8px', borderRadius: '4px',
-                                background: 'rgba(56, 189, 248, 0.12)',
-                                border: '1px solid rgba(56, 189, 248, 0.35)',
-                                color: '#7dd3fc', fontSize: '0.70rem', fontFamily: 'var(--f-mono)',
+                                background: 'rgba(218, 118, 103, 0.12)',
+                                border: '1px solid rgba(218, 118, 103, 0.35)',
+                                color: 'var(--coral, #DA7667)', fontSize: '0.70rem', fontFamily: 'var(--font-mono)',
                                 cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px',
                                 transition: 'all 0.15s ease'
                               }}
@@ -805,7 +805,7 @@ export default function CrimeAIChat() {
                       }}>
                         <div style={{
                           display: 'flex', alignItems: 'center', gap: '6px',
-                          fontSize: '0.64rem', fontFamily: 'var(--f-mono)', color: 'var(--green-light)',
+                          fontSize: '0.64rem', fontFamily: 'var(--font-mono)', color: 'var(--rouge, #AD545C)',
                           fontWeight: 700, textTransform: 'uppercase', marginBottom: '6px'
                         }}>
                           <Share2 size={12} />
@@ -818,9 +818,9 @@ export default function CrimeAIChat() {
                               onClick={() => handleSend(`Show me all connections for ${ent.name || ent.id}`)}
                               style={{
                                 padding: '2px 7px', borderRadius: '4px',
-                                background: 'rgba(0, 200, 122, 0.1)',
-                                border: '1px solid rgba(0, 200, 122, 0.3)',
-                                color: '#6ee7b7', fontSize: '0.68rem', fontFamily: 'var(--f-mono)',
+                                background: 'rgba(173, 84, 92, 0.12)',
+                                border: '1px solid rgba(173, 84, 92, 0.35)',
+                                color: 'var(--coral, #DA7667)', fontSize: '0.68rem', fontFamily: 'var(--font-mono)',
                                 cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px'
                               }}
                             >
@@ -855,10 +855,10 @@ export default function CrimeAIChat() {
                                 alignItems: 'center',
                                 gap: '5px'
                               }}
-                              onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--accent)'; e.currentTarget.style.color = '#fff'; }}
+                              onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--coral, #DA7667)'; e.currentTarget.style.color = '#fff'; }}
                               onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border-default)'; e.currentTarget.style.color = 'var(--text-secondary)'; }}
                             >
-                              <CornerDownRight size={10} style={{ color: 'var(--accent)' }} />
+                              <CornerDownRight size={10} style={{ color: 'var(--coral, #DA7667)' }} />
                               <span>{lbl}</span>
                             </button>
                           );
@@ -890,7 +890,7 @@ export default function CrimeAIChat() {
                   flexDirection: 'column',
                   gap: '6px'
                 }}>
-                  <div style={{ fontSize: '0.76rem', color: 'var(--accent-hover)', fontFamily: 'var(--font-mono)', fontWeight: 600 }}>
+                  <div style={{ fontSize: '0.76rem', color: 'var(--coral, #DA7667)', fontFamily: 'var(--font-mono)', fontWeight: 600 }}>
                     CIRA is querying active case intelligence...
                   </div>
                   <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
@@ -915,7 +915,7 @@ export default function CrimeAIChat() {
             <div ref={chatBottomRef} />
           </div>
 
-          {/* 🦇 Bat Bot Tactical Command Shortcuts Bar */}
+          {/* Tactical Command Directives Bar */}
           <div style={{
             padding: '6px 22px',
             backgroundColor: 'var(--bg-surface)',
@@ -925,15 +925,15 @@ export default function CrimeAIChat() {
             gap: '8px',
             flexWrap: 'wrap'
           }}>
-            <span style={{ fontSize: '0.66rem', fontFamily: 'var(--font-mono)', color: 'var(--accent-hover)', fontWeight: 700 }}>
-              🦇 BAT BOT COMMANDS:
+            <span style={{ fontSize: '0.66rem', fontFamily: 'var(--font-mono)', color: 'var(--coral, #DA7667)', fontWeight: 700 }}>
+              TACTICAL DIRECTIVES:
             </span>
             {[
-              { label: '⚡ /request-footage', cmd: 'CIRA Bat Bot: Identify corridor blindspots and dispatch automated evidentiary request to property owner for exterior footage.' },
-              { label: '🎯 /face-recon', cmd: 'Run ArcFace-ResNet50 biometric facial recognition across all ingested surveillance frames for primary targets.' },
-              { label: '🕸️ /graph-trace', cmd: 'Trace the direct chain of associations and intercepted communications linking Viktor Voronin to Terminal C Harbor Depot.' },
-              { label: '🗺️ /map-sync', cmd: 'Cross-reference all suspect sighting GPS coordinates from the tactical map with the relational knowledge graph.' },
-              { label: '🛡️ /cordon-plan', cmd: 'Calculate tactical containment cordon and escape vector probabilities for Incident INC-204.' }
+              { label: '/request-footage', cmd: 'Identify corridor blindspots and dispatch automated evidentiary request to property owner for exterior footage.' },
+              { label: '/face-recon', cmd: 'Run ArcFace-ResNet50 biometric facial recognition across all ingested surveillance frames for primary targets.' },
+              { label: '/graph-trace', cmd: 'Trace the direct chain of associations and intercepted communications linking Viktor Voronin to Terminal C Harbor Depot.' },
+              { label: '/map-sync', cmd: 'Cross-reference all suspect sighting GPS coordinates from the tactical map with the relational knowledge graph.' },
+              { label: '/cordon-plan', cmd: 'Calculate tactical containment cordon and escape vector probabilities for Incident INC-204.' }
             ].map((btn, idx) => (
               <button
                 key={idx}

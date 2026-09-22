@@ -144,8 +144,9 @@ export default function Dashboard({ currentUser, onSwitchPersona }) {
 
       {/* Tactical CCTV Surveillance & Geographic Investigation Map Hero Banner */}
       <div style={{
-        background: 'var(--bg-surface)',
-        border: '1px solid var(--border-default)',
+        background: 'linear-gradient(135deg, var(--bg-surface) 0%, rgba(51, 37, 41, 0.35) 100%)',
+        border: '1px solid var(--border-burgundy)',
+        borderLeft: '4px solid var(--accent)',
         borderRadius: '8px',
         padding: '18px 24px',
         display: 'flex',
@@ -158,14 +159,14 @@ export default function Dashboard({ currentUser, onSwitchPersona }) {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', maxWidth: '720px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <span className="dot dot-green" />
-            <span style={{ fontSize: '0.72rem', fontFamily: 'var(--font-mono)', color: 'var(--accent-hover)', fontWeight: 700, letterSpacing: '0.06em' }}>
+            <span style={{ fontSize: '0.70rem', fontFamily: 'var(--font-mono)', color: 'var(--accent-hover)', fontWeight: 700, letterSpacing: '0.06em' }}>
               PRIMARY CCTV SURVEILLANCE & GEOGRAPHIC TRACKING MATRIX
             </span>
             <span style={{
               fontSize: '0.62rem', fontFamily: 'var(--font-mono)', padding: '1px 6px',
-              borderRadius: '3px', background: 'var(--critical-dim)', color: 'var(--critical)', border: '1px solid var(--critical-border)'
+              borderRadius: '3px', background: 'var(--coral-dim)', color: 'var(--coral)', border: '1px solid var(--coral-border)'
             }}>
-              SYNTHETIC PROTOCOL
+              LIVE SENSOR MATRIX
             </span>
           </div>
           <h3 style={{ margin: 0, fontSize: '1.18rem', fontWeight: 700, color: 'var(--text-primary)' }}>
@@ -210,8 +211,8 @@ export default function Dashboard({ currentUser, onSwitchPersona }) {
 
       {/* Connected Case System Metrics */}
       <div style={{
-        display: 'grid', gap: '12px',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))'
+        display: 'grid', gap: '14px',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))'
       }}>
         <StatCard
           label="ACTIVE INVESTIGATION CASES"
@@ -224,7 +225,7 @@ export default function Dashboard({ currentUser, onSwitchPersona }) {
           label="CRITICAL PRIORITY LEADS"
           value={criticalCasesCount}
           sub="Requires immediate investigator review"
-          color="var(--critical)"
+          color="var(--coral)"
           badge="IMMEDIATE"
         />
         <StatCard

@@ -2,15 +2,15 @@ import React, { useState, useMemo } from 'react';
 import { useCIRA } from '../context/CIRAContext.jsx';
 
 const STATUS_CONFIG = {
-  Active:         { bg: 'rgba(79, 122, 103, 0.18)', color: '#4F7A67', border: 'rgba(79, 122, 103, 0.4)' },
-  Critical:       { bg: 'rgba(192, 74, 82, 0.18)',  color: '#C04A52', border: 'rgba(192, 74, 82, 0.4)' },
-  'Under Review': { bg: 'rgba(181, 138, 69, 0.18)', color: '#B58A45', border: 'rgba(181, 138, 69, 0.4)' },
+  Active:         { bg: 'var(--success-dim)', color: 'var(--success)', border: 'var(--success-border)' },
+  Critical:       { bg: 'var(--coral-dim)',  color: 'var(--coral)', border: 'var(--coral-border)' },
+  'Under Review': { bg: 'var(--warning-dim)', color: 'var(--warning)', border: 'var(--warning-border)' },
   Closed:         { bg: 'var(--bg-elevated)', color: 'var(--text-secondary)', border: 'var(--border-default)' }
 };
 
 const PRIORITY_CONFIG = {
-  Critical: { color: '#C04A52', border: 'rgba(192, 74, 82, 0.4)' },
-  High:     { color: '#B58A45', border: 'rgba(181, 138, 69, 0.4)' },
+  Critical: { color: 'var(--coral)', border: 'var(--coral-border)' },
+  High:     { color: 'var(--warning)', border: 'var(--warning-border)' },
   Medium:   { color: 'var(--accent-hover)', border: 'var(--accent-border)' },
   Low:      { color: 'var(--text-muted)', border: 'var(--border-default)' }
 };
@@ -63,7 +63,7 @@ export default function CasesList() {
             <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '1.3rem', fontWeight: 700, color: 'var(--text-primary)' }}>
               Investigation Case Management
             </h2>
-            <span className="badge badge-info" style={{ fontSize: '0.66rem' }}>
+            <span className="badge badge-rouge" style={{ fontSize: '0.66rem' }}>
               {filteredCases.length} OF {totalCases} DOCKETS
             </span>
           </div>
@@ -95,7 +95,7 @@ export default function CasesList() {
         </div>
         <div style={{ padding: '14px 18px', background: 'var(--bg-surface)', border: '1px solid var(--border-default)', borderRadius: '8px' }}>
           <div style={{ fontSize: '0.70rem', color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)' }}>CRITICAL PRIORITY</div>
-          <div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#F87171', fontFamily: 'var(--font-display)', marginTop: '4px' }}>
+          <div style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--coral)', fontFamily: 'var(--font-display)', marginTop: '4px' }}>
             {criticalCount} <span style={{ fontSize: '0.74rem', color: 'var(--text-muted)', fontWeight: 500 }}>High Urgency</span>
           </div>
         </div>
@@ -107,7 +107,7 @@ export default function CasesList() {
         </div>
         <div style={{ padding: '14px 18px', background: 'var(--bg-surface)', border: '1px solid var(--border-default)', borderRadius: '8px' }}>
           <div style={{ fontSize: '0.70rem', color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)' }}>IDENTIFIED ENTITIES</div>
-          <div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#A855F7', fontFamily: 'var(--font-display)', marginTop: '4px' }}>
+          <div style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--text-primary)', fontFamily: 'var(--font-display)', marginTop: '4px' }}>
             {totalEntities} <span style={{ fontSize: '0.74rem', color: 'var(--text-muted)', fontWeight: 500 }}>Nodes Resolved</span>
           </div>
         </div>
@@ -115,7 +115,7 @@ export default function CasesList() {
 
       {/* Control Filters Bar */}
       <div style={{
-        padding: '12px 16px', background: 'var(--ink-1)', border: '1px solid var(--b-faint)',
+        padding: '12px 16px', background: 'var(--bg-surface)', border: '1px solid var(--border-default)',
         borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         flexWrap: 'wrap', gap: '12px'
       }}>

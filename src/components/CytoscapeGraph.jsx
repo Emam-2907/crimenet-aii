@@ -22,20 +22,20 @@ try {
 
 // 7 Standard Geometric Entity Visuals (Sleek Intelligence Standard)
 const ENTITY_CONFIG = {
-  Person: { shape: 'ellipse', color: '#9B3D45', label: 'Person', icon: User, code: 'P' },
+  Person: { shape: 'ellipse', color: '#AD545C', label: 'Person', icon: User, code: 'P' },
   Phone: { shape: 'round-rectangle', color: '#5B7C99', label: 'Phone / Comm', icon: Phone, code: 'TEL' },
-  Vehicle: { shape: 'round-rectangle', color: '#B58A45', label: 'Vehicle', icon: Car, code: 'VEH' },
-  'Financial Account': { shape: 'round-rectangle', color: '#4F7A67', label: 'Financial / Escrow', icon: CreditCard, code: 'ESC' },
-  FinancialAccount: { shape: 'round-rectangle', color: '#4F7A67', label: 'Financial / Escrow', icon: CreditCard, code: 'ESC' },
-  financial: { shape: 'round-rectangle', color: '#4F7A67', label: 'Financial / Escrow', icon: CreditCard, code: 'ESC' },
-  Location: { shape: 'ellipse', color: '#3F5F78', label: 'Location', icon: MapPin, code: 'LOC' },
-  Organization: { shape: 'round-rectangle', color: '#8D98A5', label: 'Organization', icon: Building, code: 'ORG' },
+  Vehicle: { shape: 'round-rectangle', color: '#D49A42', label: 'Vehicle', icon: Car, code: 'VEH' },
+  'Financial Account': { shape: 'round-rectangle', color: '#4E9A78', label: 'Financial / Escrow', icon: CreditCard, code: 'ESC' },
+  FinancialAccount: { shape: 'round-rectangle', color: '#4E9A78', label: 'Financial / Escrow', icon: CreditCard, code: 'ESC' },
+  financial: { shape: 'round-rectangle', color: '#4E9A78', label: 'Financial / Escrow', icon: CreditCard, code: 'ESC' },
+  Location: { shape: 'ellipse', color: '#765154', label: 'Location', icon: MapPin, code: 'LOC' },
+  Organization: { shape: 'round-rectangle', color: '#9B8286', label: 'Organization', icon: Building, code: 'ORG' },
   Evidence: { shape: 'round-rectangle', color: '#5B7C99', label: 'Evidence Asset', icon: FileText, code: 'EV' },
-  Camera: { shape: 'round-rectangle', color: '#4F7A67', label: 'CCTV Camera', icon: Eye, code: 'CAM' },
-  'Face Match': { shape: 'diamond', color: '#9B3D45', label: 'Biometric Candidate (87%)', icon: UserCheck, code: 'FM' },
-  Biometric: { shape: 'diamond', color: '#9B3D45', label: 'Biometric Candidate (87%)', icon: UserCheck, code: 'FM' },
+  Camera: { shape: 'round-rectangle', color: '#4E9A78', label: 'CCTV Camera', icon: Eye, code: 'CAM' },
+  'Face Match': { shape: 'diamond', color: '#DA7667', label: 'Biometric Candidate (87%)', icon: UserCheck, code: 'FM' },
+  Biometric: { shape: 'diamond', color: '#DA7667', label: 'Biometric Candidate (87%)', icon: UserCheck, code: 'FM' },
   Incident: { shape: 'octagon', color: '#C04A52', label: 'Incident Breach', icon: AlertTriangle, code: 'INC' },
-  Case: { shape: 'diamond', color: '#3F5F78', label: 'Case Docket', icon: Shield, code: 'CASE' }
+  Case: { shape: 'diamond', color: '#765154', label: 'Case Docket', icon: Shield, code: 'CASE' }
 };
 
 // Distinguishable Relationship Styles (Clean Link Analysis)
@@ -276,20 +276,20 @@ export default function CytoscapeGraph() {
           {
             selector: 'node',
             style: {
-              'background-color': '#171D24',
+              'background-color': '#151922',
               'label': 'data(label)',
-              'color': '#E6E9ED',
+              'color': '#F3F5F9',
               'font-family': 'Inter, system-ui, sans-serif',
               'font-size': '11px',
               'font-weight': 600,
               'text-valign': 'bottom',
               'text-margin-y': 7,
-              'text-background-opacity': 0.92,
-              'text-background-color': '#101419',
+              'text-background-opacity': 0.95,
+              'text-background-color': '#0C0E14',
               'text-background-padding': '3px 6px',
               'text-background-shape': 'roundrectangle',
               'text-border-width': 1,
-              'text-border-color': '#2A333D',
+              'text-border-color': 'rgba(118, 81, 84, 0.4)',
               'text-border-opacity': 0.8,
               'width': (ele) => {
                 const s = ele.data('size');
@@ -308,7 +308,7 @@ export default function CytoscapeGraph() {
               'border-width': 2,
               'border-color': (ele) => {
                 const t = ele.data('type') || '';
-                return ele.data('color') || ENTITY_CONFIG[t]?.color || '#5B7C99';
+                return ele.data('color') || ENTITY_CONFIG[t]?.color || '#765154';
               },
               'border-opacity': 1.0,
               'shape': (ele) => {
@@ -323,47 +323,47 @@ export default function CytoscapeGraph() {
           {
             selector: 'node[threat = "CRITICAL"]',
             style: {
-              'background-color': '#201517',
-              'border-color': '#C04A52',
+              'background-color': '#211317',
+              'border-color': '#AD545C',
               'border-width': 3,
               'width': 56,
               'height': 56,
-              'underlay-color': '#C04A52',
+              'underlay-color': '#AD545C',
               'underlay-padding': 3,
-              'underlay-opacity': 0.25
+              'underlay-opacity': 0.28
             }
           },
-          // High Threat Nodes - Amber Accents
+          // High Threat Nodes - Coral Accents
           {
             selector: 'node[threat = "HIGH"]',
             style: {
-              'background-color': '#1F1A14',
-              'border-color': '#B58A45',
+              'background-color': '#251916',
+              'border-color': '#DA7667',
               'border-width': 2.5,
               'width': 50,
               'height': 50
             }
           },
-          // Node Selection - Crisp Steel Blue Focus Ring
+          // Node Selection - Crisp Rouge / Coral Focus Ring
           {
             selector: 'node:selected',
             style: {
               'border-width': 3,
-              'border-color': '#5B7C99',
-              'background-color': '#17222B',
-              'underlay-color': '#5B7C99',
+              'border-color': '#DA7667',
+              'background-color': '#24161B',
+              'underlay-color': '#DA7667',
               'underlay-padding': 4,
               'underlay-opacity': 0.35
             }
           },
-          // Node Search / Path Highlight - Tactical Amber Focus Ring
+          // Node Search / Path Highlight - Tactical Coral Focus Ring
           {
             selector: 'node.highlighted',
             style: {
               'border-width': 3,
-              'border-color': '#B58A45',
-              'background-color': '#221E14',
-              'underlay-color': '#B58A45',
+              'border-color': '#DA7667',
+              'background-color': '#24161B',
+              'underlay-color': '#DA7667',
               'underlay-padding': 4,
               'underlay-opacity': 0.35,
               'opacity': 1.0
@@ -387,7 +387,7 @@ export default function CytoscapeGraph() {
               },
               'line-color': (ele) => {
                 const rt = ele.data('relation_type') || 'association';
-                return RELATION_CONFIG[rt]?.color || 'rgba(141, 152, 165, 0.65)';
+                return RELATION_CONFIG[rt]?.color || 'rgba(118, 81, 84, 0.65)';
               },
               'line-style': (ele) => {
                 const rt = ele.data('relation_type') || 'association';
@@ -395,7 +395,7 @@ export default function CytoscapeGraph() {
               },
               'target-arrow-color': (ele) => {
                 const rt = ele.data('relation_type') || 'association';
-                return RELATION_CONFIG[rt]?.color || 'rgba(141, 152, 165, 0.85)';
+                return RELATION_CONFIG[rt]?.color || 'rgba(118, 81, 84, 0.85)';
               },
               'target-arrow-shape': 'triangle',
               'arrow-scale': 1.05,
@@ -404,10 +404,10 @@ export default function CytoscapeGraph() {
               'font-size': '9px',
               'font-family': 'JetBrains Mono, monospace',
               'font-weight': 500,
-              'color': '#8D98A5',
+              'color': '#A2ABB9',
               'text-rotation': 'autorotate',
               'text-background-opacity': 0.85,
-              'text-background-color': '#101419',
+              'text-background-color': '#0C0E14',
               'text-background-padding': '2px 4px',
               'text-background-shape': 'roundrectangle',
               'text-border-width': 0,
@@ -421,8 +421,8 @@ export default function CytoscapeGraph() {
             selector: 'edge:selected',
             style: {
               'width': 3,
-              'line-color': '#5B7C99',
-              'target-arrow-color': '#5B7C99',
+              'line-color': '#DA7667',
+              'target-arrow-color': '#DA7667',
               'opacity': 1.0
             }
           },
@@ -431,8 +431,8 @@ export default function CytoscapeGraph() {
             selector: 'edge.highlighted',
             style: {
               'width': 3,
-              'line-color': '#B58A45',
-              'target-arrow-color': '#B58A45',
+              'line-color': '#DA7667',
+              'target-arrow-color': '#DA7667',
               'opacity': 1.0
             }
           },
@@ -938,8 +938,8 @@ export default function CytoscapeGraph() {
           <button
             type="submit"
             style={{
-              padding: '6px 12px', background: 'var(--green)', border: 'none',
-              borderRadius: '6px', color: '#06090e', fontWeight: 700, fontSize: '0.72rem', cursor: 'pointer'
+              padding: '6px 12px', background: 'var(--rouge, #AD545C)', border: 'none',
+              borderRadius: '6px', color: '#FFFFFF', fontWeight: 600, fontSize: '0.72rem', cursor: 'pointer'
             }}
           >
             Focus
@@ -955,8 +955,8 @@ export default function CytoscapeGraph() {
               value={typeFilter}
               onChange={(e) => setTypeFilter(e.target.value)}
               style={{
-                background: 'var(--ink-1)', border: '1px solid var(--b-soft)',
-                color: '#fff', fontSize: '0.70rem', padding: '4px 8px', borderRadius: '4px'
+                background: 'var(--bg-elevated)', border: '1px solid var(--b-soft)',
+                color: 'var(--text-primary)', fontSize: '0.70rem', padding: '4px 8px', borderRadius: '4px'
               }}
             >
               <option value="ALL">All Entities</option>
@@ -977,8 +977,8 @@ export default function CytoscapeGraph() {
               value={relationFilter}
               onChange={(e) => setRelationFilter(e.target.value)}
               style={{
-                background: 'var(--ink-1)', border: '1px solid var(--b-soft)',
-                color: '#fff', fontSize: '0.70rem', padding: '4px 8px', borderRadius: '4px'
+                background: 'var(--bg-elevated)', border: '1px solid var(--b-soft)',
+                color: 'var(--text-primary)', fontSize: '0.70rem', padding: '4px 8px', borderRadius: '4px'
               }}
             >
               <option value="ALL">All Relations</option>
@@ -1002,9 +1002,9 @@ export default function CytoscapeGraph() {
                 style={{
                   padding: '3px 7px', borderRadius: '4px', fontSize: '0.64rem',
                   fontFamily: 'var(--f-mono)', cursor: 'pointer',
-                  border: threatFilter === tf ? '1px solid var(--green)' : '1px solid var(--b-soft)',
-                  background: threatFilter === tf ? 'rgba(0, 200, 122, 0.14)' : 'var(--ink-1)',
-                  color: threatFilter === tf ? 'var(--green-light)' : 'var(--t-muted)'
+                  border: threatFilter === tf ? '1px solid var(--coral, #DA7667)' : '1px solid var(--b-soft)',
+                  background: threatFilter === tf ? 'rgba(218, 118, 103, 0.16)' : 'var(--bg-elevated)',
+                  color: threatFilter === tf ? 'var(--coral, #DA7667)' : 'var(--t-muted)'
                 }}
               >
                 {tf}
@@ -1022,8 +1022,8 @@ export default function CytoscapeGraph() {
               }}
               style={{
                 padding: '3px 8px', borderRadius: '4px', fontSize: '0.64rem',
-                fontFamily: 'var(--f-mono)', background: 'rgba(255, 42, 95, 0.15)',
-                border: '1px solid rgba(255, 42, 95, 0.3)', color: 'var(--red-light)',
+                fontFamily: 'var(--f-mono)', background: 'rgba(173, 84, 92, 0.16)',
+                border: '1px solid rgba(173, 84, 92, 0.35)', color: 'var(--coral, #DA7667)',
                 cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px'
               }}
             >

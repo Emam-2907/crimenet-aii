@@ -6,52 +6,67 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 :root {
-  /* ── 1. Core Color System (Restrained Investigative Standard) ─────────────── */
-  --bg-main:          #080A0D; /* Obsidian Black */
-  --bg-surface:       #101419; /* Charcoal Black */
-  --bg-elevated:      #171D24; /* Gunmetal */
-  --bg-hover:         #1C232B;
-  --border-default:   #2A333D; /* Dark Steel */
-  --border-subtle:    rgba(42, 51, 61, 0.6);
-  --border-strong:    #3D4A59;
+  /* ── 1. Core Color System (Black, Velvet, Burgundy, Rouge, Coral) ─────────── */
+  --bg-main:          #0C0E14; /* Deep Obsidian Base (avoiding murky pure black) */
+  --bg-surface:       #151922; /* Charcoal Base for Cards & Sidebars */
+  --bg-elevated:      #1E2430; /* Elevated Secondary Panels & Table Headers */
+  --bg-hover:         #283040; /* Interactive Item Hover Surface */
+  --bg-velvet:        #231A1E; /* Velvet Surface Tint for High-Priority Dockets */
+  
+  --border-default:   #2C3444; /* Clean, Distinguishable Boundaries */
+  --border-subtle:    rgba(255, 255, 255, 0.08);
+  --border-strong:    #404B60;
+  --border-burgundy:  rgba(118, 81, 84, 0.45); /* Velvet/Burgundy Structural Accent */
+  --border-rouge:     rgba(173, 84, 92, 0.45);
 
-  /* Primary Accent: Steel Blue */
-  --accent:           #3F5F78; /* Steel Blue */
-  --accent-hover:     #5B7C99; /* Light Steel Blue */
-  --accent-dim:       rgba(63, 95, 120, 0.16);
-  --accent-border:    rgba(91, 124, 153, 0.35);
+  /* Primary Palette Accents */
+  --black:            #000000;
+  --velvet:           #332529; /* Velvet */
+  --burgundy:         #765154; /* Burgundy */
+  --rouge:            #AD545C; /* Rouge */
+  --coral:            #DA7667; /* Warm Coral */
+
+  /* Primary Brand / Interactive Accent: Rouge */
+  --accent:           #AD545C; /* Rouge CTA Accent */
+  --accent-hover:     #C3646D; /* Lighter Rouge */
+  --accent-dim:       rgba(173, 84, 92, 0.16);
+  --accent-border:    rgba(173, 84, 92, 0.38);
+
+  /* Coral Highlights */
+  --coral-dim:        rgba(218, 118, 103, 0.16);
+  --coral-border:     rgba(218, 118, 103, 0.40);
 
   /* Status Colors */
-  --success:          #4F7A67; /* Muted Forest Green */
-  --success-dim:      rgba(79, 122, 103, 0.16);
-  --success-border:   rgba(79, 122, 103, 0.38);
+  --success:          #4E9A78; /* Clean Tactical Green */
+  --success-dim:      rgba(78, 154, 120, 0.16);
+  --success-border:   rgba(78, 154, 120, 0.38);
 
-  --warning:          #B58A45; /* Tactical Amber / Warning */
-  --warning-dim:      rgba(181, 138, 69, 0.16);
-  --warning-border:   rgba(181, 138, 69, 0.38);
+  --warning:          #D49A42; /* Tactical Warm Amber */
+  --warning-dim:      rgba(212, 154, 66, 0.16);
+  --warning-border:   rgba(212, 154, 66, 0.38);
 
-  --danger:           #9B3D45; /* Muted Red (Suspects / High Risk) */
-  --danger-dim:       rgba(155, 61, 69, 0.16);
-  --danger-border:    rgba(155, 61, 69, 0.38);
+  --danger:           #AD545C; /* Rouge (Target Alert) */
+  --danger-dim:       rgba(173, 84, 92, 0.16);
+  --danger-border:    rgba(173, 84, 92, 0.38);
 
-  --critical:         #C04A52; /* Critical Alert Red */
-  --critical-dim:     rgba(192, 74, 82, 0.18);
-  --critical-border:  rgba(192, 74, 82, 0.40);
+  --critical:         #DA7667; /* Warm Coral (Critical Immediate Alert) */
+  --critical-dim:     rgba(218, 118, 103, 0.18);
+  --critical-border:  rgba(218, 118, 103, 0.42);
 
-  /* Typography */
-  --text-primary:     #E6E9ED; /* Soft White */
-  --text-secondary:   #8D98A5; /* Cool Gray */
-  --text-muted:       #626F7F;
-  --text-dim:         #454F5B;
+  /* Typography (High Contrast WCAG AAA) */
+  --text-primary:     #F3F5F9; /* Crisp Off-White */
+  --text-secondary:   #A2ABB9; /* Cool Gray Readable Body */
+  --text-muted:       #768092; /* Distinct Secondary Metadata */
+  --text-dim:         #545E70;
 
   /* Entity Categorization Colors */
-  --color-person:     #9B3D45; /* Muted Red */
-  --color-phone:      #5B7C99; /* Light Steel Blue */
-  --color-vehicle:    #B58A45; /* Tactical Amber */
-  --color-finance:    #4F7A67; /* Muted Green */
-  --color-location:   #3F5F78; /* Steel Blue */
-  --color-evidence:   #5B7C99; /* Light Steel Blue */
-  --color-org:        #8D98A5; /* Cool Gray */
+  --color-person:     #AD545C; /* Rouge */
+  --color-phone:      #5E82A6; /* Tactical Steel Blue */
+  --color-vehicle:    #D49A42; /* Warm Amber */
+  --color-finance:    #4E9A78; /* Muted Green */
+  --color-location:   #765154; /* Burgundy */
+  --color-evidence:   #5E82A6; /* Steel Blue */
+  --color-org:        #94A0B2; /* Cool Slate */
 
   /* ── 2. Compatibility Mapping for Legacy Variables ────────────────────────── */
   --primary:          var(--accent);
@@ -59,7 +74,7 @@
   --primary-dim:      var(--accent-dim);
   --primary-border:   var(--accent-border);
   --secondary:        var(--accent-hover);
-  --secondary-light:  #7595B2;
+  --secondary-light:  #C3646D;
   --secondary-dim:    var(--accent-dim);
 
   --ink:              var(--bg-main);
@@ -67,8 +82,8 @@
   --ink-1:            var(--bg-surface);
   --ink-2:            var(--bg-elevated);
   --ink-3:            var(--bg-hover);
-  --ink-4:            #202731;
-  --ink-5:            #2A333D;
+  --ink-4:            #262E3D;
+  --ink-5:            #2C3444;
 
   --b-faint:          var(--border-subtle);
   --b-soft:           var(--border-default);
@@ -85,17 +100,17 @@
   --text-low:         var(--text-muted);
 
   --green:            var(--success);
-  --green-light:      #6B9984;
+  --green-light:      #68B892;
   --green-dim:        var(--success-dim);
   --green-border:     var(--success-border);
   --emerald-safe:     var(--success);
 
-  --blue:             var(--accent);
-  --blue-light:       var(--accent-hover);
-  --blue-dim:         var(--accent-dim);
-  --blue-border:      var(--accent-border);
-  --cyan-primary:     var(--accent-hover);
-  --cyan-border:      var(--accent-border);
+  --blue:             #5E82A6;
+  --blue-light:       #7B9EBF;
+  --blue-dim:         rgba(94, 130, 166, 0.16);
+  --blue-border:      rgba(94, 130, 166, 0.35);
+  --cyan-primary:     #7B9EBF;
+  --cyan-border:      rgba(94, 130, 166, 0.35);
 
   --red:              var(--danger);
   --red-light:        var(--critical);
@@ -104,7 +119,7 @@
   --crimson-alert:    var(--critical);
 
   --amber:            var(--warning);
-  --amber-light:      #C8A25D;
+  --amber-light:      #E2AC58;
   --amber-dim:        var(--warning-dim);
   --amber-border:     var(--warning-border);
   --amber-warning:    var(--warning);
@@ -119,10 +134,10 @@
   --f-body:           var(--font-sans);
   --f-mono:           var(--font-mono);
 
-  /* Transitions & Shadows (Subtle, Disciplined, Zero Neon Glow) */
-  --shadow-sm:        0 1px 2px rgba(0, 0, 0, 0.5);
-  --shadow-md:        0 4px 12px rgba(0, 0, 0, 0.6);
-  --shadow-lg:        0 8px 24px rgba(0, 0, 0, 0.75);
+  /* Transitions & Shadows */
+  --shadow-sm:        0 1px 3px rgba(0, 0, 0, 0.45);
+  --shadow-md:        0 4px 14px rgba(0, 0, 0, 0.55);
+  --shadow-lg:        0 8px 24px rgba(0, 0, 0, 0.65);
   --transition-fast:  0.15s ease;
   --transition-base:  0.2s cubic-bezier(0.4, 0, 0.2, 1);
   --trans-smooth:     0.2s cubic-bezier(0.4, 0, 0.2, 1);
@@ -304,7 +319,7 @@ input::placeholder, textarea::placeholder {
 }
 .badge-active, .badge-safe, .badge-success {
   background: var(--success-dim);
-  color: #6B9984;
+  color: #68B892;
   border: 1px solid var(--success-border);
 }
 .badge-critical, .badge-danger, .badge-red {
@@ -314,13 +329,23 @@ input::placeholder, textarea::placeholder {
 }
 .badge-warning, .badge-high, .badge-amber {
   background: var(--warning-dim);
-  color: #C8A25D;
+  color: #E2AC58;
   border: 1px solid var(--warning-border);
 }
 .badge-info, .badge-blue, .badge-cyan {
+  background: rgba(94, 130, 166, 0.18);
+  color: #8EB4D8;
+  border: 1px solid rgba(94, 130, 166, 0.38);
+}
+.badge-rouge {
   background: var(--accent-dim);
   color: var(--accent-hover);
   border: 1px solid var(--accent-border);
+}
+.badge-coral {
+  background: var(--coral-dim);
+  color: var(--coral);
+  border: 1px solid var(--coral-border);
 }
 .badge-neutral {
   background: var(--bg-elevated);

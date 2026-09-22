@@ -14,12 +14,12 @@ const CATEGORIES = [
 ];
 
 const TYPE_COLORS = {
-  Documents:         { color: 'var(--blue-light)',   bg: 'var(--blue-dim)',  border: 'var(--blue-border)' },
-  Images:            { color: '#f0abfc',             bg: 'rgba(240,171,252,0.1)', border: 'rgba(240,171,252,0.25)' },
-  Videos:            { color: '#a78bfa',             bg: 'rgba(167,139,250,0.1)', border: 'rgba(167,139,250,0.25)' },
-  'Call Records':     { color: 'var(--amber-light)',  bg: 'var(--amber-dim)', border: 'rgba(217,119,6,0.3)' },
-  'Financial Records':{ color: 'var(--green-light)',  bg: 'var(--green-dim)', border: 'rgba(0,200,122,0.3)' },
-  'Location Data':   { color: '#38bdf8',             bg: 'rgba(56,189,248,0.1)', border: 'rgba(56,189,248,0.25)' }
+  Documents:         { color: 'var(--text-primary)',   bg: 'var(--bg-elevated)',  border: 'var(--border-default)' },
+  Images:            { color: 'var(--accent-hover)',   bg: 'var(--accent-dim)',   border: 'var(--accent-border)' },
+  Videos:            { color: 'var(--coral)',          bg: 'var(--coral-dim)',    border: 'var(--coral-border)' },
+  'Call Records':    { color: 'var(--warning)',        bg: 'var(--warning-dim)',  border: 'var(--warning-border)' },
+  'Financial Records':{ color: 'var(--success)',       bg: 'var(--success-dim)',  border: 'var(--success-border)' },
+  'Location Data':   { color: '#7B9EBF',               bg: 'rgba(94, 130, 166, 0.16)', border: 'rgba(94, 130, 166, 0.35)' }
 };
 
 export default function EvidenceLibrary() {
@@ -72,14 +72,14 @@ export default function EvidenceLibrary() {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <h2 style={{ fontFamily: 'var(--f-display)', fontSize: '1.35rem', fontWeight: 800, color: '#fff' }}>
+            <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '1.35rem', fontWeight: 800, color: 'var(--text-primary)' }}>
               Evidence Intelligence Repository
             </h2>
-            <span className="badge badge-info" style={{ fontSize: '0.64rem', fontFamily: 'var(--f-mono)' }}>
+            <span className="badge badge-rouge" style={{ fontSize: '0.64rem', fontFamily: 'var(--font-mono)' }}>
               {filteredEvidence.length} OF {evidenceList.length} ARTIFACTS
             </span>
           </div>
-          <p style={{ fontSize: '0.8rem', color: 'var(--t-muted)', marginTop: '2px' }}>
+          <p style={{ fontSize: '0.80rem', color: 'var(--text-secondary)', marginTop: '2px' }}>
             Central repository of ingested telecommunications, surveillance visuals, forensic documents, and financial records.
           </p>
         </div>
@@ -88,10 +88,13 @@ export default function EvidenceLibrary() {
           onClick={loadEvidence}
           style={{
             display: 'flex', alignItems: 'center', gap: '6px',
-            padding: '7px 14px', background: 'var(--ink-2)',
-            border: '1px solid var(--b-soft)', borderRadius: '6px',
-            color: 'var(--t-secondary)', fontSize: '0.78rem', cursor: 'pointer'
+            padding: '7px 14px', background: 'var(--bg-elevated)',
+            border: '1px solid var(--border-default)', borderRadius: '6px',
+            color: 'var(--text-primary)', fontSize: '0.78rem', cursor: 'pointer',
+            transition: 'var(--transition-fast)'
           }}
+          onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--accent)'; e.currentTarget.style.background = 'var(--bg-hover)'; }}
+          onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border-default)'; e.currentTarget.style.background = 'var(--bg-elevated)'; }}
         >
           ↻ Refresh Repository
         </button>
@@ -99,7 +102,7 @@ export default function EvidenceLibrary() {
 
       {/* Filters Bar */}
       <div style={{
-        padding: '12px 16px', background: 'var(--ink-1)', border: '1px solid var(--b-faint)',
+        padding: '12px 16px', background: 'var(--bg-surface)', border: '1px solid var(--border-default)',
         borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         flexWrap: 'wrap', gap: '12px'
       }}>

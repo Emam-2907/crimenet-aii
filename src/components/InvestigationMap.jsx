@@ -1033,25 +1033,26 @@ export default function InvestigationMap() {
           <span>Coverage</span>
         </button>
 
-        {/* Basemap Style Switcher (Zero Watermarks / Unwatermarked Full Prototype) */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '3px', backgroundColor: '#0B0F17', padding: '2px 3px', borderRadius: '6px', border: '1px solid var(--border-default)' }}>
+        {/* Basemap Style Switcher */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '3px', backgroundColor: 'var(--bg-elevated)', padding: '2px 3px', borderRadius: '6px', border: '1px solid var(--border-default)' }}>
           <button
             type="button"
             onClick={() => handleBasemapChange('tactical-dark')}
             style={{
-              backgroundColor: !useVectorFallback && basemapMode === 'tactical-dark' ? '#38bdf8' : 'transparent',
-              color: !useVectorFallback && basemapMode === 'tactical-dark' ? '#000' : 'var(--text-secondary)',
+              backgroundColor: !useVectorFallback && basemapMode === 'tactical-dark' ? 'var(--accent)' : 'transparent',
+              color: !useVectorFallback && basemapMode === 'tactical-dark' ? '#ffffff' : 'var(--text-secondary)',
               border: 'none',
               borderRadius: '4px',
-              padding: '4px 7px',
+              padding: '4px 8px',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
               gap: '4px',
               fontSize: '0.66rem',
-              fontWeight: 700
+              fontWeight: 700,
+              transition: 'var(--transition-fast)'
             }}
-            title="Tactical Dark Basemap (Obsidian Grid - Zero Watermark)"
+            title="Tactical Dark Basemap"
           >
             <span>🗺️ Dark</span>
           </button>
@@ -1060,19 +1061,20 @@ export default function InvestigationMap() {
             type="button"
             onClick={() => handleBasemapChange('satellite')}
             style={{
-              backgroundColor: !useVectorFallback && basemapMode === 'satellite' ? '#38bdf8' : 'transparent',
-              color: !useVectorFallback && basemapMode === 'satellite' ? '#000' : 'var(--text-secondary)',
+              backgroundColor: !useVectorFallback && basemapMode === 'satellite' ? 'var(--accent)' : 'transparent',
+              color: !useVectorFallback && basemapMode === 'satellite' ? '#ffffff' : 'var(--text-secondary)',
               border: 'none',
               borderRadius: '4px',
-              padding: '4px 7px',
+              padding: '4px 8px',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
               gap: '4px',
               fontSize: '0.66rem',
-              fontWeight: 700
+              fontWeight: 700,
+              transition: 'var(--transition-fast)'
             }}
-            title="Satellite Reconnaissance (High-Resolution Aerial Orthophoto)"
+            title="Satellite Reconnaissance"
           >
             <span>🛰️ Satellite</span>
           </button>
@@ -1081,19 +1083,20 @@ export default function InvestigationMap() {
             type="button"
             onClick={() => handleBasemapChange('osm-street')}
             style={{
-              backgroundColor: !useVectorFallback && basemapMode === 'osm-street' ? '#38bdf8' : 'transparent',
-              color: !useVectorFallback && basemapMode === 'osm-street' ? '#000' : 'var(--text-secondary)',
+              backgroundColor: !useVectorFallback && basemapMode === 'osm-street' ? 'var(--accent)' : 'transparent',
+              color: !useVectorFallback && basemapMode === 'osm-street' ? '#ffffff' : 'var(--text-secondary)',
               border: 'none',
               borderRadius: '4px',
-              padding: '4px 7px',
+              padding: '4px 8px',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
               gap: '4px',
               fontSize: '0.66rem',
-              fontWeight: 700
+              fontWeight: 700,
+              transition: 'var(--transition-fast)'
             }}
-            title="Original Street Map (OpenStreetMap Infrastructure - Zero Watermark)"
+            title="Original Street Map"
           >
             <span>🌍 Real Map</span>
           </button>
@@ -1102,17 +1105,18 @@ export default function InvestigationMap() {
             type="button"
             onClick={() => setUseVectorFallback(!useVectorFallback)}
             style={{
-              backgroundColor: useVectorFallback ? 'rgba(56, 189, 248, 0.25)' : 'transparent',
-              color: useVectorFallback ? '#38bdf8' : 'var(--text-muted)',
+              backgroundColor: useVectorFallback ? 'var(--accent-dim)' : 'transparent',
+              color: useVectorFallback ? 'var(--accent-hover)' : 'var(--text-muted)',
               border: 'none',
               borderRadius: '4px',
-              padding: '4px 7px',
+              padding: '4px 8px',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
               gap: '4px',
               fontSize: '0.66rem',
-              fontWeight: 600
+              fontWeight: 600,
+              transition: 'var(--transition-fast)'
             }}
             title="Toggle Tactical Vector Radar Grid"
           >
@@ -1134,11 +1138,11 @@ export default function InvestigationMap() {
         gap: '6px',
         overflowX: 'auto',
         padding: '6px 10px',
-        backgroundColor: '#101419',
+        backgroundColor: 'var(--bg-surface)',
         border: '1px solid var(--border-default)',
         borderRadius: '6px',
         backdropFilter: 'blur(8px)',
-        boxShadow: '0 4px 16px rgba(0,0,0,0.6)'
+        boxShadow: 'var(--shadow-md)'
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '5px', marginRight: '6px', flexShrink: 0 }}>
           <Camera size={14} color="var(--accent)" />
@@ -1153,9 +1157,9 @@ export default function InvestigationMap() {
           const hasVehicle = cam.relatedVehicles?.length > 0;
           const hasIncident = cam.relatedIncidents?.length > 0;
 
-          const dotColor = cam.status === 'ONLINE' ? '#4F7A67' :
-                           cam.status === 'WARNING' ? '#B58A45' :
-                           cam.status === 'MAINTENANCE' ? '#B58A45' : '#8D98A5';
+          const dotColor = cam.status === 'ONLINE' ? 'var(--success)' :
+                           cam.status === 'WARNING' ? 'var(--warning)' :
+                           cam.status === 'MAINTENANCE' ? 'var(--warning)' : 'var(--text-muted)';
 
           return (
             <button
@@ -1180,30 +1184,30 @@ export default function InvestigationMap() {
                 fontSize: '0.68rem',
                 fontFamily: 'var(--font-mono)',
                 fontWeight: isSelected ? 700 : 500,
-                border: isSelected ? '1.5px solid #5B7C99' : '1px solid var(--border-subtle)',
-                backgroundColor: isSelected ? 'rgba(63, 95, 120, 0.4)' : '#171D24',
-                color: isSelected ? '#E6E9ED' : 'var(--text-secondary)',
+                border: isSelected ? '1.5px solid var(--accent)' : '1px solid var(--border-default)',
+                backgroundColor: isSelected ? 'var(--accent-dim)' : 'var(--bg-elevated)',
+                color: isSelected ? 'var(--text-primary)' : 'var(--text-secondary)',
                 cursor: 'pointer',
                 whiteSpace: 'nowrap',
                 transition: 'all 0.15s ease',
-                boxShadow: isSelected ? '0 0 8px rgba(91, 124, 153, 0.4)' : 'none'
+                boxShadow: isSelected ? '0 0 8px rgba(173, 84, 92, 0.4)' : 'none'
               }}
               title={`Inspect ${cam.name} (${cam.status})`}
             >
               <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: dotColor }} />
               <span>{cam.cameraId || cam.id}</span>
               {hasFaceMatch && (
-                <span style={{ fontSize: '0.58rem', padding: '1px 4px', borderRadius: '2px', backgroundColor: 'rgba(91, 124, 153, 0.25)', color: '#5B7C99', fontWeight: 700 }}>
+                <span style={{ fontSize: '0.58rem', padding: '1px 4px', borderRadius: '2px', backgroundColor: 'var(--accent-dim)', color: 'var(--accent-hover)', fontWeight: 700 }}>
                   87% FACE
                 </span>
               )}
               {hasVehicle && !hasFaceMatch && (
-                <span style={{ fontSize: '0.58rem', padding: '1px 4px', borderRadius: '2px', backgroundColor: 'rgba(181, 138, 69, 0.25)', color: '#B58A45', fontWeight: 700 }}>
+                <span style={{ fontSize: '0.58rem', padding: '1px 4px', borderRadius: '2px', backgroundColor: 'var(--warning-dim)', color: 'var(--warning)', fontWeight: 700 }}>
                   VEHICLE
                 </span>
               )}
               {hasIncident && (
-                <span style={{ fontSize: '0.58rem', padding: '1px 4px', borderRadius: '2px', backgroundColor: 'rgba(192, 74, 82, 0.25)', color: '#C04A52', fontWeight: 700 }}>
+                <span style={{ fontSize: '0.58rem', padding: '1px 4px', borderRadius: '2px', backgroundColor: 'var(--coral-dim)', color: 'var(--coral)', fontWeight: 700 }}>
                   ALARM
                 </span>
               )}
@@ -1224,7 +1228,7 @@ export default function InvestigationMap() {
         gap: '6px',
         overflowX: 'auto',
         padding: '6px 8px',
-        backgroundColor: '#101419',
+        backgroundColor: 'var(--bg-surface)',
         border: '1px solid var(--border-default)',
         borderRadius: '6px',
         backdropFilter: 'blur(6px)'
@@ -1258,10 +1262,11 @@ export default function InvestigationMap() {
                 borderRadius: '4px',
                 border: isActive ? '1px solid var(--accent)' : '1px solid var(--border-subtle)',
                 backgroundColor: isActive ? 'var(--accent-dim)' : 'transparent',
-                color: isActive ? 'var(--accent)' : 'var(--text-secondary)',
+                color: isActive ? 'var(--accent-hover)' : 'var(--text-secondary)',
                 cursor: 'pointer',
                 whiteSpace: 'nowrap',
-                fontWeight: isActive ? 700 : 500
+                fontWeight: isActive ? 700 : 500,
+                transition: 'var(--transition-fast)'
               }}
             >
               {f.label}
@@ -1272,12 +1277,12 @@ export default function InvestigationMap() {
         {/* Legend Notice for Inferred Route */}
         <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '10px', flexShrink: 0, fontSize: '0.64rem', color: 'var(--text-muted)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-            <span style={{ width: '12px', height: '2px', borderTop: '2px solid #B58A45', display: 'inline-block' }} />
+            <span style={{ width: '12px', height: '2px', borderTop: '2px solid var(--warning)', display: 'inline-block' }} />
             <span>Recorded Sighting</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-            <span style={{ width: '14px', height: '2px', borderTop: '2px dashed #5B7C99', display: 'inline-block' }} />
-            <span style={{ color: '#5B7C99' }}>Inferred Route</span>
+            <span style={{ width: '14px', height: '2px', borderTop: '2px dashed var(--accent)', display: 'inline-block' }} />
+            <span style={{ color: 'var(--accent-hover)' }}>Inferred Route</span>
           </div>
         </div>
       </div>

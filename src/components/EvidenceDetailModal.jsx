@@ -45,7 +45,7 @@ export default function EvidenceDetailModal({ evidence, onClose }) {
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <span style={{
               fontFamily: 'var(--f-mono)', fontSize: '0.78rem',
-              fontWeight: 700, color: 'var(--blue-light)'
+              fontWeight: 700, color: 'var(--coral, #DA7667)'
             }}>
               {evidence.id}
             </span>
@@ -53,8 +53,8 @@ export default function EvidenceDetailModal({ evidence, onClose }) {
             <span style={{
               padding: '2px 8px', borderRadius: '4px', fontSize: '0.64rem',
               fontFamily: 'var(--f-mono)', fontWeight: 700,
-              background: 'rgba(0, 200, 122, 0.12)', color: 'var(--green-light)',
-              border: '1px solid rgba(0, 200, 122, 0.3)'
+              background: 'rgba(78, 154, 120, 0.15)', color: '#4E9A78',
+              border: '1px solid rgba(78, 154, 120, 0.35)'
             }}>
               {evidence.processing_state || 'ANALYZED'}
             </span>
@@ -90,7 +90,7 @@ export default function EvidenceDetailModal({ evidence, onClose }) {
               {evidence.name}
             </h3>
             <div style={{ fontSize: '0.78rem', color: 'var(--t-muted)' }}>
-              Case Docket: <strong style={{ color: 'var(--blue-light)', fontFamily: 'var(--f-mono)' }}>{evidence.case_id}</strong>
+              Case Docket: <strong style={{ color: 'var(--coral, #DA7667)', fontFamily: 'var(--f-mono)' }}>{evidence.case_id}</strong>
               {evidence.case_name && <span> — {evidence.case_name}</span>}
             </div>
           </div>

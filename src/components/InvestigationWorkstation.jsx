@@ -265,14 +265,14 @@ export default function InvestigationWorkstation({ currentUser, onLogout, onSwit
 
       {/* ── Persistent Operational Prototype Banner ── */}
       <div style={{
-        backgroundColor: '#0c131d',
-        color: '#94a3b8',
+        backgroundColor: '#181215',
+        color: '#A0A8B6',
         fontSize: '0.68rem',
         fontWeight: 600,
         letterSpacing: '0.03em',
         textAlign: 'center',
         padding: '5px 12px',
-        borderBottom: '1px solid rgba(56, 189, 248, 0.25)',
+        borderBottom: '1px solid var(--border-burgundy)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -281,7 +281,7 @@ export default function InvestigationWorkstation({ currentUser, onLogout, onSwit
         fontFamily: 'var(--font-mono, monospace)',
         flexShrink: 0
       }}>
-        <span style={{ backgroundColor: 'rgba(56, 189, 248, 0.18)', border: '1px solid #38bdf8', color: '#38bdf8', fontSize: '0.58rem', padding: '1px 6px', borderRadius: '3px', fontWeight: 800 }}>OPERATIONAL PROTOTYPE</span>
+        <span style={{ backgroundColor: 'var(--accent-dim)', border: '1px solid var(--accent-border)', color: 'var(--accent-hover)', fontSize: '0.58rem', padding: '1px 6px', borderRadius: '3px', fontWeight: 800 }}>OPERATIONAL PROTOTYPE</span>
         <span>CRIMENET TACTICAL INTELLIGENCE SUITE — LAW ENFORCEMENT SENSITIVE // AUTHORIZED ACCESS ONLY // CASE CR-204</span>
       </div>
 
@@ -296,7 +296,7 @@ export default function InvestigationWorkstation({ currentUser, onLogout, onSwit
           <span style={{ color: 'var(--text-secondary)' }}>CRIMINAL NETWORK ANALYSIS & TACTICAL CCTV MATRIX</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <span style={{ backgroundColor: 'rgba(16, 185, 129, 0.15)', border: '1px solid rgba(16, 185, 129, 0.4)', borderRadius: '4px', padding: '1px 8px', color: '#34d399', fontSize: '0.62rem', fontWeight: 700 }}>
+          <span style={{ backgroundColor: 'var(--success-dim)', border: '1px solid var(--success-border)', borderRadius: '4px', padding: '1px 8px', color: 'var(--success)', fontSize: '0.62rem', fontWeight: 700 }}>
             OPERATIONAL PROTOTYPE
           </span>
           <span>MODE: <strong style={{ color: 'var(--success)' }}>TACTICAL GRAPH & CCTV SENSOR FUSION</strong></span>
@@ -540,13 +540,13 @@ export default function InvestigationWorkstation({ currentUser, onLogout, onSwit
         <header style={{
           height: '54px', flexShrink: 0, display: 'flex', alignItems: 'center',
           justifyContent: 'space-between', padding: '0 22px',
-          background: 'var(--ink-1)', borderBottom: '1px solid var(--b-faint)',
+          background: 'var(--bg-surface)', borderBottom: '1px solid var(--border-default)',
           zIndex: 90
         }}>
 
           {/* Left: Page Title & Breadcrumb */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <h1 style={{ fontFamily: 'var(--f-display)', fontSize: '1.02rem', fontWeight: 700, color: '#fff' }}>
+            <h1 style={{ fontFamily: 'var(--font-display)', fontSize: '1.02rem', fontWeight: 700, color: 'var(--text-primary)' }}>
               {PAGE_TITLES[activePage] || activePage}
             </h1>
             <span style={{
@@ -555,17 +555,17 @@ export default function InvestigationWorkstation({ currentUser, onLogout, onSwit
               fontWeight: 700,
               padding: '2px 8px',
               borderRadius: '4px',
-              backgroundColor: 'rgba(56, 189, 248, 0.15)',
-              color: '#38bdf8',
-              border: '1px solid rgba(56, 189, 248, 0.35)',
+              backgroundColor: 'var(--accent-dim)',
+              color: 'var(--accent-hover)',
+              border: '1px solid var(--accent-border)',
               letterSpacing: '0.04em'
             }}>
               OPERATIONAL PROTOTYPE
             </span>
             {activePage === 'workspace' && activeCase && (
               <span style={{
-                fontFamily: 'var(--f-mono)', fontSize: '0.74rem',
-                color: 'var(--blue-light)', fontWeight: 600
+                fontFamily: 'var(--font-mono)', fontSize: '0.74rem',
+                color: 'var(--accent-hover)', fontWeight: 600
               }}>
                 / {activeCase.id}
               </span>
@@ -580,11 +580,13 @@ export default function InvestigationWorkstation({ currentUser, onLogout, onSwit
               onClick={() => setIsCCTNSOpen(true)}
               style={{
                 display: 'flex', alignItems: 'center', gap: '6px',
-                padding: '5px 11px', background: 'rgba(56, 189, 248, 0.12)',
-                border: '1px solid rgba(56, 189, 248, 0.35)', borderRadius: '6px',
-                color: '#38bdf8', fontSize: '0.74rem', fontWeight: 600, cursor: 'pointer',
-                transition: 'var(--ease)'
+                padding: '6px 12px', background: 'var(--bg-elevated)',
+                border: '1px solid var(--border-default)', borderRadius: '6px',
+                color: 'var(--text-primary)', fontSize: '0.74rem', fontWeight: 600, cursor: 'pointer',
+                transition: 'var(--transition-fast)'
               }}
+              onMouseEnter={e => { e.currentTarget.style.background = 'var(--bg-hover)'; e.currentTarget.style.borderColor = 'var(--border-strong)'; }}
+              onMouseLeave={e => { e.currentTarget.style.background = 'var(--bg-elevated)'; e.currentTarget.style.borderColor = 'var(--border-default)'; }}
               title="Indian CCTNS / NATGRID Interoperability Docket Exchange"
             >
               <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
@@ -598,19 +600,19 @@ export default function InvestigationWorkstation({ currentUser, onLogout, onSwit
               onClick={() => setIsSearchOpen(true)}
               style={{
                 display: 'flex', alignItems: 'center', gap: '8px',
-                padding: '5px 12px', background: 'var(--ink-2)',
-                border: '1px solid var(--b-soft)', borderRadius: '6px',
-                color: 'var(--t-muted)', fontSize: '0.76rem', cursor: 'pointer',
-                transition: 'var(--ease)', width: '200px'
+                padding: '6px 12px', background: 'var(--bg-elevated)',
+                border: '1px solid var(--border-default)', borderRadius: '6px',
+                color: 'var(--text-secondary)', fontSize: '0.76rem', cursor: 'pointer',
+                transition: 'var(--transition-fast)', width: '200px'
               }}
-              onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--b-medium)'}
-              onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--b-soft)'}
+              onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--accent)'}
+              onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--border-default)'}
             >
-              <span style={{ color: 'var(--t-dim)', display: 'flex' }}>{IC.search}</span>
+              <span style={{ color: 'var(--text-muted)', display: 'flex' }}>{IC.search}</span>
               <span style={{ flex: 1, textAlign: 'left' }}>Global Search...</span>
               <span style={{
-                fontSize: '0.62rem', fontFamily: 'var(--f-mono)', padding: '1px 5px',
-                background: 'rgba(255,255,255,0.06)', borderRadius: '3px', color: 'var(--t-dim)'
+                fontSize: '0.62rem', fontFamily: 'var(--font-mono)', padding: '1px 5px',
+                background: 'rgba(255,255,255,0.06)', borderRadius: '3px', color: 'var(--text-muted)'
               }}>
                 Ctrl+K
               </span>
@@ -623,32 +625,34 @@ export default function InvestigationWorkstation({ currentUser, onLogout, onSwit
                   onClick={() => setShowCaseDropdown(!showCaseDropdown)}
                   style={{
                     display: 'flex', alignItems: 'center', gap: '8px',
-                    padding: '5px 10px', background: 'var(--ink-2)',
-                    border: '1px solid var(--b-soft)', borderRadius: '6px',
-                    cursor: 'pointer', transition: 'var(--ease)'
+                    padding: '5px 12px', background: 'var(--bg-elevated)',
+                    border: '1px solid var(--border-default)', borderRadius: '6px',
+                    cursor: 'pointer', transition: 'var(--transition-fast)'
                   }}
+                  onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--border-strong)'}
+                  onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--border-default)'}
                 >
-                  <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--blue-light)' }} />
+                  <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--accent)' }} />
                   <div style={{ textAlign: 'left' }}>
-                    <div style={{ fontSize: '0.64rem', fontFamily: 'var(--f-mono)', color: 'var(--t-dim)' }}>
+                    <div style={{ fontSize: '0.62rem', fontFamily: 'var(--font-mono)', color: 'var(--text-muted)' }}>
                       ACTIVE CASE
                     </div>
-                    <div style={{ fontSize: '0.74rem', fontFamily: 'var(--f-mono)', color: 'var(--blue-light)', fontWeight: 700 }}>
+                    <div style={{ fontSize: '0.74rem', fontFamily: 'var(--font-mono)', color: 'var(--text-primary)', fontWeight: 700 }}>
                       {activeCase.id}
                     </div>
                   </div>
-                  <span style={{ fontSize: '0.68rem', color: 'var(--t-dim)' }}>▼</span>
+                  <span style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>▼</span>
                 </button>
 
                 {/* Case Switcher Dropdown */}
                 {showCaseDropdown && (
                   <div style={{
                     position: 'absolute', top: '100%', right: 0, marginTop: '6px',
-                    width: '300px', background: 'var(--ink-1)', border: '1px solid var(--b-soft)',
-                    borderRadius: '8px', boxShadow: '0 12px 36px rgba(0,0,0,0.6)',
+                    width: '300px', background: 'var(--bg-elevated)', border: '1px solid var(--border-default)',
+                    borderRadius: '8px', boxShadow: 'var(--shadow-lg)',
                     padding: '8px', zIndex: 1000
                   }}>
-                    <div style={{ fontSize: '0.66rem', fontFamily: 'var(--f-mono)', color: 'var(--t-dim)', padding: '4px 8px' }}>
+                    <div style={{ fontSize: '0.66rem', fontFamily: 'var(--font-mono)', color: 'var(--text-muted)', padding: '4px 8px' }}>
                       SWITCH INVESTIGATION CONTEXT
                     </div>
                     {cases.map(c => (
@@ -660,13 +664,14 @@ export default function InvestigationWorkstation({ currentUser, onLogout, onSwit
                         }}
                         style={{
                           padding: '8px 10px', borderRadius: '6px', cursor: 'pointer',
-                          background: c.id === activeCase.id ? 'rgba(255,255,255,0.05)' : 'transparent'
+                          background: c.id === activeCase.id ? 'var(--accent-dim)' : 'transparent',
+                          border: c.id === activeCase.id ? '1px solid var(--accent-border)' : '1px solid transparent'
                         }}
-                        onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.04)'}
-                        onMouseLeave={e => e.currentTarget.style.background = c.id === activeCase.id ? 'rgba(255,255,255,0.05)' : 'transparent'}
+                        onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-hover)'}
+                        onMouseLeave={e => e.currentTarget.style.background = c.id === activeCase.id ? 'var(--accent-dim)' : 'transparent'}
                       >
-                        <div style={{ fontSize: '0.78rem', color: '#fff', fontWeight: 600 }}>{c.id}</div>
-                        <div style={{ fontSize: '0.7rem', color: 'var(--t-muted)' }}>{c.title}</div>
+                        <div style={{ fontSize: '0.78rem', color: 'var(--text-primary)', fontWeight: 600 }}>{c.id}</div>
+                        <div style={{ fontSize: '0.70rem', color: 'var(--text-secondary)' }}>{c.title}</div>
                       </div>
                     ))}
                   </div>
@@ -891,21 +896,21 @@ function PersonaSwitchModal({ isOpen, onClose, currentEmail, onSelectPersona, on
         onClick={(e) => e.stopPropagation()}
         style={{
           width: '100%',
-          maxWidth: '480px',
-          backgroundColor: '#0c111d',
-          border: '1px solid #1e293b',
-          borderRadius: '12px',
+          maxWidth: '500px',
+          backgroundColor: 'var(--bg-surface)',
+          border: '1px solid var(--border-default)',
+          borderRadius: '10px',
           padding: '24px',
-          boxShadow: '0 20px 40px rgba(0, 0, 0, 0.7)',
-          fontFamily: 'var(--font-sans, system-ui)'
+          boxShadow: 'var(--shadow-lg)',
+          fontFamily: 'var(--font-body)'
         }}
       >
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
           <div>
-            <div style={{ fontSize: '0.68rem', fontFamily: 'var(--font-mono, monospace)', color: '#38bdf8', fontWeight: 700, letterSpacing: '0.06em' }}>
+            <div style={{ fontSize: '0.68rem', fontFamily: 'var(--font-mono)', color: 'var(--accent-hover)', fontWeight: 700, letterSpacing: '0.06em' }}>
               SECURITY & ROLE IDENTITIES
             </div>
-            <h3 style={{ margin: '4px 0 0', fontSize: '1.15rem', color: '#f8fafc', fontWeight: 700 }}>
+            <h3 style={{ margin: '4px 0 0', fontSize: '1.15rem', color: 'var(--text-primary)', fontWeight: 700 }}>
               Switch Tactical Persona
             </h3>
           </div>
@@ -914,7 +919,7 @@ function PersonaSwitchModal({ isOpen, onClose, currentEmail, onSelectPersona, on
             style={{
               background: 'none',
               border: 'none',
-              color: '#94a3b8',
+              color: 'var(--text-muted)',
               cursor: 'pointer',
               fontSize: '1.1rem',
               padding: '4px 8px',
@@ -926,7 +931,7 @@ function PersonaSwitchModal({ isOpen, onClose, currentEmail, onSelectPersona, on
           </button>
         </div>
 
-        <p style={{ fontSize: '0.78rem', color: '#94a3b8', margin: '0 0 16px', lineHeight: 1.45 }}>
+        <p style={{ fontSize: '0.80rem', color: 'var(--text-secondary)', margin: '0 0 16px', lineHeight: 1.45 }}>
           Select an active investigative profile below to instantaneously switch station roles, RBAC access levels, and case isolation rules:
         </p>
 
@@ -945,68 +950,56 @@ function PersonaSwitchModal({ isOpen, onClose, currentEmail, onSelectPersona, on
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'space-between',
-                  padding: '10px 14px',
-                  backgroundColor: isActive ? 'rgba(56, 189, 248, 0.08)' : '#111827',
-                  border: `1px solid ${isActive ? '#38bdf8' : '#1f2937'}`,
-                  borderRadius: '8px',
+                  padding: '12px 14px',
+                  backgroundColor: isActive ? 'var(--accent-dim)' : 'var(--bg-elevated)',
+                  border: `1px solid ${isActive ? 'var(--accent)' : 'var(--border-default)'}`,
+                  borderRadius: '6px',
                   cursor: 'pointer',
                   textAlign: 'left',
-                  transition: 'all 0.15s ease'
+                  transition: 'var(--transition-fast)'
                 }}
                 onMouseEnter={(e) => {
-                  if (!isActive) e.currentTarget.style.borderColor = '#334155';
+                  if (!isActive) e.currentTarget.style.borderColor = 'var(--border-strong)';
                 }}
                 onMouseLeave={(e) => {
-                  if (!isActive) e.currentTarget.style.borderColor = '#1f2937';
+                  if (!isActive) e.currentTarget.style.borderColor = 'var(--border-default)';
                 }}
               >
                 <div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <span style={{ fontSize: '0.86rem', fontWeight: 600, color: '#f8fafc' }}>
+                    <span style={{ fontSize: '0.86rem', fontWeight: 600, color: 'var(--text-primary)' }}>
                       {p.name}
                     </span>
                     <span style={{
                       fontSize: '0.62rem',
-                      fontFamily: 'var(--font-mono, monospace)',
+                      fontFamily: 'var(--font-mono)',
                       fontWeight: 700,
                       padding: '1px 6px',
                       borderRadius: '3px',
-                      backgroundColor: p.role === 'ADMIN' ? 'rgba(239, 68, 68, 0.15)' : 'rgba(56, 189, 248, 0.15)',
-                      color: p.role === 'ADMIN' ? '#f87171' : '#38bdf8',
-                      border: `1px solid ${p.role === 'ADMIN' ? 'rgba(239, 68, 68, 0.3)' : 'rgba(56, 189, 248, 0.3)'}`
+                      backgroundColor: p.role === 'ADMIN' ? 'var(--critical-dim)' : 'var(--accent-dim)',
+                      color: p.role === 'ADMIN' ? 'var(--critical)' : 'var(--accent-hover)',
+                      border: `1px solid ${p.role === 'ADMIN' ? 'var(--critical-border)' : 'var(--accent-border)'}`
                     }}>
                       {p.role}
                     </span>
                   </div>
-                  <div style={{ fontSize: '0.70rem', color: '#64748b', marginTop: '3px' }}>
+                  <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '3px' }}>
                     {p.badge} · {p.clearance} · {p.station}
                   </div>
                 </div>
 
-                {isActive ? (
-                  <span style={{
-                    fontSize: '0.64rem',
-                    fontFamily: 'var(--font-mono, monospace)',
-                    color: '#34d399',
-                    fontWeight: 700,
-                    backgroundColor: 'rgba(52, 211, 153, 0.1)',
-                    padding: '3px 8px',
-                    borderRadius: '4px',
-                    border: '1px solid rgba(52, 211, 153, 0.3)'
-                  }}>
-                    ACTIVE
-                  </span>
-                ) : (
-                  <span style={{ fontSize: '0.74rem', color: '#38bdf8', fontWeight: 600 }}>
-                    Switch →
-                  </span>
-                )}
+                <span style={{
+                  fontSize: '0.74rem',
+                  color: isActive ? 'var(--accent-hover)' : 'var(--text-muted)',
+                  fontWeight: isActive ? 700 : 500
+                }}>
+                  {isActive ? '● Active' : 'Switch →'}
+                </span>
               </button>
             );
           })}
         </div>
-
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #1e293b', paddingTop: '16px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--border-default)', paddingTop: '16px' }}>
           <button
             type="button"
             onClick={() => {
@@ -1016,9 +1009,9 @@ function PersonaSwitchModal({ isOpen, onClose, currentEmail, onSelectPersona, on
             style={{
               padding: '8px 14px',
               backgroundColor: 'transparent',
-              border: '1px solid rgba(239, 68, 68, 0.3)',
+              border: '1px solid var(--critical-border)',
               borderRadius: '6px',
-              color: '#f87171',
+              color: 'var(--critical)',
               fontSize: '0.78rem',
               fontWeight: 600,
               cursor: 'pointer'
@@ -1031,10 +1024,10 @@ function PersonaSwitchModal({ isOpen, onClose, currentEmail, onSelectPersona, on
             onClick={onClose}
             style={{
               padding: '8px 16px',
-              backgroundColor: '#1e293b',
-              border: 'none',
+              backgroundColor: 'var(--bg-elevated)',
+              border: '1px solid var(--border-default)',
               borderRadius: '6px',
-              color: '#f8fafc',
+              color: 'var(--text-primary)',
               fontSize: '0.78rem',
               fontWeight: 600,
               cursor: 'pointer'

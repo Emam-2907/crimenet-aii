@@ -350,21 +350,26 @@ Use the command bar below or type a query to command CIRA.`,
         aria-label="Geographic CCTV Network and Camera Dossier"
         style={{
           display: 'grid',
-          gridTemplateColumns: 'minmax(0, 1fr) 420px',
+          gridTemplateColumns: 'minmax(0, 1fr) 380px',
           gap: '16px',
-          height: '620px',
-          minHeight: '560px',
+          height: '470px',
+          minHeight: '420px',
           alignItems: 'stretch',
-          width: '100%'
+          width: '100%',
+          backgroundColor: 'var(--bg-surface)',
+          border: '1px solid var(--border-default)',
+          borderRadius: '8px',
+          padding: '12px',
+          boxShadow: 'var(--shadow-sm)'
         }}
       >
-        {/* Dominant Real Geographic Map Container */}
-        <div style={{ height: '620px', minHeight: '560px', position: 'relative', borderRadius: '8px', overflow: 'hidden' }}>
+        {/* Balanced Real Geographic Map Container */}
+        <div style={{ height: '100%', position: 'relative', borderRadius: '6px', overflow: 'hidden', border: '1px solid var(--border-default)' }}>
           <InvestigationMap />
         </div>
 
         {/* Dynamic Camera Details Panel */}
-        <aside aria-label="Camera Details and Analysis" style={{ height: '620px', minHeight: '560px', position: 'relative' }}>
+        <aside aria-label="Camera Details and Analysis" style={{ height: '100%', position: 'relative', overflow: 'hidden' }}>
           <CameraDetailsPanel />
         </aside>
       </section>

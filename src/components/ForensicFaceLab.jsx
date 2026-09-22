@@ -263,23 +263,23 @@ export default function ForensicFaceLab({ caseId: propCaseId }) {
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <Camera size={18} style={{ color: 'var(--accent)' }} />
-            <h2 style={{ fontSize: '1rem', fontWeight: 600, margin: 0 }}>
+            <h2 style={{ fontSize: '1rem', fontWeight: 600, margin: 0, color: 'var(--text-primary)' }}>
               Synthetic Visual Similarity Demo
             </h2>
             <span style={{
               fontSize: '0.7rem',
-              background: 'rgba(56, 189, 248, 0.15)',
+              background: 'rgba(218, 118, 103, 0.15)',
               padding: '2px 8px',
               borderRadius: '4px',
-              border: '1px solid rgba(56, 189, 248, 0.35)',
-              color: '#38bdf8',
+              border: '1px solid rgba(218, 118, 103, 0.35)',
+              color: 'var(--coral, #DA7667)',
               fontFamily: 'var(--font-mono, monospace)',
               fontWeight: 700
             }}>
               SIMULATED ALGORITHM
             </span>
           </div>
-          <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', margin: '4px 0 0 0' }}>
+          <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', margin: '4px 0 0 0' }}>
             Visual similarity demonstrates algorithmic comparison between synthetic demo images. Outputs are similarity scores, not positive biometric identifications.
           </p>
         </div>
@@ -296,8 +296,8 @@ export default function ForensicFaceLab({ caseId: propCaseId }) {
                 fontWeight: 500,
                 borderRadius: '6px',
                 border: selectedFeed?.id === feed.id ? '1px solid var(--accent)' : '1px solid var(--border-default)',
-                background: selectedFeed?.id === feed.id ? 'var(--bg-elevated)' : 'transparent',
-                color: selectedFeed?.id === feed.id ? 'var(--accent-hover)' : 'var(--text-secondary)',
+                background: selectedFeed?.id === feed.id ? 'rgba(173, 84, 92, 0.15)' : 'transparent',
+                color: selectedFeed?.id === feed.id ? 'var(--coral, #DA7667)' : 'var(--text-secondary)',
                 cursor: 'pointer',
                 transition: 'all 0.15s ease'
               }}
@@ -325,8 +325,8 @@ export default function ForensicFaceLab({ caseId: propCaseId }) {
               fontWeight: 500,
               borderRadius: '6px',
               border: customUpload ? '1px solid var(--accent)' : '1px solid var(--border-default)',
-              background: customUpload ? 'var(--bg-elevated)' : 'transparent',
-              color: customUpload ? 'var(--accent-hover)' : 'var(--text-secondary)',
+              background: customUpload ? 'rgba(173, 84, 92, 0.15)' : 'transparent',
+              color: customUpload ? 'var(--coral, #DA7667)' : 'var(--text-secondary)',
               cursor: 'pointer'
             }}
           >
@@ -339,18 +339,18 @@ export default function ForensicFaceLab({ caseId: propCaseId }) {
       {/* ── 2. Simulation Disclaimer Banner ── */}
       <div style={{
         padding: '10px 14px',
-        backgroundColor: 'rgba(239, 68, 68, 0.1)',
-        border: '1px solid rgba(239, 68, 68, 0.3)',
+        backgroundColor: 'rgba(51, 37, 41, 0.65)',
+        border: '1px solid rgba(118, 81, 84, 0.45)',
         borderRadius: '6px',
         fontSize: '0.74rem',
-        color: '#fca5a5',
+        color: '#E6C8C9',
         display: 'flex',
         alignItems: 'center',
         gap: '10px'
       }}>
-        <AlertTriangle size={16} color="#f87171" style={{ flexShrink: 0 }} />
+        <AlertTriangle size={16} color="var(--coral, #DA7667)" style={{ flexShrink: 0 }} />
         <span>
-          <strong>SIMULATION ONLY:</strong> Visual similarity demonstrates algorithmic comparison between synthetic demo images. Outputs are similarity scores, not positive biometric identifications.
+          <strong style={{ color: 'var(--coral, #DA7667)' }}>SIMULATION ONLY:</strong> Visual similarity demonstrates algorithmic comparison between synthetic demo images. Outputs are similarity scores, not positive biometric identifications.
         </span>
       </div>
 
@@ -436,7 +436,7 @@ export default function ForensicFaceLab({ caseId: propCaseId }) {
                 left: '32%',
                 width: '36%',
                 height: '46%',
-                border: isVerified ? '2px solid #22c55e' : isRejected ? '2px solid #ef4444' : '2px solid #38bdf8',
+                border: isVerified ? '2px solid #4E9A78' : isRejected ? '2px solid #C04A52' : '2px solid var(--coral, #DA7667)',
                 borderRadius: '4px',
                 boxShadow: '0 0 12px rgba(0,0,0,0.6)',
                 pointerEvents: 'none'
@@ -446,8 +446,8 @@ export default function ForensicFaceLab({ caseId: propCaseId }) {
                 position: 'absolute',
                 top: '-24px',
                 left: 0,
-                background: isVerified ? '#22c55e' : isRejected ? '#ef4444' : '#38bdf8',
-                color: '#000',
+                background: isVerified ? '#4E9A78' : isRejected ? '#C04A52' : 'var(--coral, #DA7667)',
+                color: '#FFFFFF',
                 padding: '2px 6px',
                 fontSize: '0.65rem',
                 fontWeight: 700,
@@ -489,7 +489,7 @@ export default function ForensicFaceLab({ caseId: propCaseId }) {
             color: 'var(--text-secondary)'
           }}>
             <span>Location: <strong>{selectedFeed?.location || 'Case Evidence Depot'}</strong></span>
-            <span>Optical Quality: <strong style={{ color: '#4ade80' }}>Clear (94.2)</strong></span>
+            <span>Optical Quality: <strong style={{ color: 'var(--coral, #DA7667)' }}>Clear (94.2)</strong></span>
             <span>Resolution: <strong>700×466 px</strong></span>
           </div>
         </div>
@@ -518,11 +518,11 @@ export default function ForensicFaceLab({ caseId: propCaseId }) {
               <span style={{
                 fontSize: '0.72rem',
                 fontWeight: 600,
-                color: isVerified ? '#4ade80' : '#38bdf8',
-                background: isVerified ? 'rgba(34, 197, 94, 0.12)' : 'rgba(56, 189, 248, 0.12)',
+                color: isVerified ? '#4E9A78' : 'var(--coral, #DA7667)',
+                background: isVerified ? 'rgba(78, 154, 120, 0.15)' : 'rgba(218, 118, 103, 0.15)',
                 padding: '2px 8px',
                 borderRadius: '4px',
-                border: `1px solid ${isVerified ? 'rgba(34, 197, 94, 0.3)' : 'rgba(56, 189, 248, 0.3)'}`
+                border: `1px solid ${isVerified ? 'rgba(78, 154, 120, 0.35)' : 'rgba(218, 118, 103, 0.35)'}`
               }}>
                 {isVerified ? 'Verified by Investigator' : `${candidateMatch.similarity_percentage || 96.4}% Biometric Match`}
               </span>
@@ -609,9 +609,9 @@ export default function ForensicFaceLab({ caseId: propCaseId }) {
                       fontWeight: 700,
                       padding: '2px 6px',
                       borderRadius: '3px',
-                      background: candidateMatch.threat_level === 'CRITICAL' ? 'rgba(192, 74, 82, 0.18)' : 'rgba(181, 138, 69, 0.18)',
-                      color: candidateMatch.threat_level === 'CRITICAL' ? '#C04A52' : '#B58A45',
-                      border: `1px solid ${candidateMatch.threat_level === 'CRITICAL' ? 'rgba(192, 74, 82, 0.4)' : 'rgba(181, 138, 69, 0.4)'}`
+                      background: candidateMatch.threat_level === 'CRITICAL' ? 'rgba(173, 84, 92, 0.18)' : 'rgba(218, 118, 103, 0.18)',
+                      color: candidateMatch.threat_level === 'CRITICAL' ? 'var(--rouge, #AD545C)' : 'var(--coral, #DA7667)',
+                      border: `1px solid ${candidateMatch.threat_level === 'CRITICAL' ? 'rgba(173, 84, 92, 0.4)' : 'rgba(218, 118, 103, 0.4)'}`
                     }}>
                       {candidateMatch.threat_level || 'HIGH'} THREAT
                     </span>
@@ -646,14 +646,14 @@ export default function ForensicFaceLab({ caseId: propCaseId }) {
                   {isVerified ? (
                     <div style={{
                       padding: '12px',
-                      background: 'rgba(79, 122, 103, 0.15)',
-                      border: '1px solid rgba(79, 122, 103, 0.35)',
+                      background: 'rgba(78, 154, 120, 0.14)',
+                      border: '1px solid rgba(78, 154, 120, 0.35)',
                       borderRadius: '6px',
                       display: 'flex',
                       flexDirection: 'column',
                       gap: '8px'
                     }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#4F7A67', fontSize: '0.82rem', fontWeight: 600 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#4E9A78', fontSize: '0.82rem', fontWeight: 600 }}>
                         <CheckCircle size={16} />
                         Verified by {currentVerification?.verified_by || candidateMatch.verified_by || verifierName}
                       </div>
@@ -685,13 +685,13 @@ export default function ForensicFaceLab({ caseId: propCaseId }) {
                   ) : isRejected ? (
                     <div style={{
                       padding: '12px',
-                      background: 'rgba(239, 68, 68, 0.08)',
-                      border: '1px solid rgba(239, 68, 68, 0.25)',
+                      background: 'rgba(173, 84, 92, 0.14)',
+                      border: '1px solid rgba(173, 84, 92, 0.35)',
                       borderRadius: '6px',
                       display: 'flex',
                       alignItems: 'center',
                       gap: '8px',
-                      color: '#f87171',
+                      color: 'var(--coral, #DA7667)',
                       fontSize: '0.8rem'
                     }}>
                       <XCircle size={16} />
@@ -728,7 +728,7 @@ export default function ForensicFaceLab({ caseId: propCaseId }) {
                             gap: '6px',
                             padding: '9px 12px',
                             borderRadius: '6px',
-                            background: '#238636',
+                            background: '#2B694F',
                             color: '#fff',
                             border: 'none',
                             fontSize: '0.76rem',
@@ -751,9 +751,9 @@ export default function ForensicFaceLab({ caseId: propCaseId }) {
                             gap: '6px',
                             padding: '9px 12px',
                             borderRadius: '6px',
-                            background: '#21262d',
-                            color: '#f87171',
-                            border: '1px solid #30363d',
+                            background: 'rgba(173, 84, 92, 0.14)',
+                            color: 'var(--coral, #DA7667)',
+                            border: '1px solid rgba(173, 84, 92, 0.35)',
                             fontSize: '0.76rem',
                             fontWeight: 600,
                             cursor: 'pointer',
