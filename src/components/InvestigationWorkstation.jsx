@@ -265,11 +265,11 @@ export default function InvestigationWorkstation({ currentUser, onLogout, onSwit
 
       {/* ── Persistent Operational Prototype Banner ── */}
       <div style={{
-        backgroundColor: '#181215',
-        color: '#A0A8B6',
+        backgroundColor: 'var(--bg-burgundy-solid, #17090B)',
+        color: 'var(--coral, #DA7667)',
         fontSize: '0.68rem',
         fontWeight: 600,
-        letterSpacing: '0.03em',
+        letterSpacing: '0.04em',
         textAlign: 'center',
         padding: '5px 12px',
         borderBottom: '1px solid var(--border-burgundy)',
@@ -281,7 +281,6 @@ export default function InvestigationWorkstation({ currentUser, onLogout, onSwit
         fontFamily: 'var(--font-mono, monospace)',
         flexShrink: 0
       }}>
-        <span style={{ backgroundColor: 'var(--accent-dim)', border: '1px solid var(--accent-border)', color: 'var(--accent-hover)', fontSize: '0.58rem', padding: '1px 6px', borderRadius: '3px', fontWeight: 800 }}>OPERATIONAL PROTOTYPE</span>
         <span>CRIMENET TACTICAL INTELLIGENCE SUITE — LAW ENFORCEMENT SENSITIVE // AUTHORIZED ACCESS ONLY // CASE CR-204</span>
       </div>
 
@@ -549,19 +548,6 @@ export default function InvestigationWorkstation({ currentUser, onLogout, onSwit
             <h1 style={{ fontFamily: 'var(--font-display)', fontSize: '1.02rem', fontWeight: 700, color: 'var(--text-primary)' }}>
               {PAGE_TITLES[activePage] || activePage}
             </h1>
-            <span style={{
-              fontFamily: 'var(--font-mono, monospace)',
-              fontSize: '0.62rem',
-              fontWeight: 700,
-              padding: '2px 8px',
-              borderRadius: '4px',
-              backgroundColor: 'var(--accent-dim)',
-              color: 'var(--accent-hover)',
-              border: '1px solid var(--accent-border)',
-              letterSpacing: '0.04em'
-            }}>
-              OPERATIONAL PROTOTYPE
-            </span>
             {activePage === 'workspace' && activeCase && (
               <span style={{
                 fontFamily: 'var(--font-mono)', fontSize: '0.74rem',

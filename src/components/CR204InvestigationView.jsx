@@ -180,17 +180,6 @@ Use the command bar below or type a query to command CIRA.`,
             }}>
               CASE #{activeCase.case_id}
             </span>
-            <span style={{
-              fontSize: '0.70rem',
-              fontWeight: 600,
-              padding: '2px 8px',
-              borderRadius: '4px',
-              backgroundColor: 'rgba(56, 189, 248, 0.12)',
-              color: '#38bdf8',
-              border: '1px solid rgba(56, 189, 248, 0.3)'
-            }}>
-              OPERATIONAL PROTOTYPE
-            </span>
             <span style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)' }}>
               CLASSIFICATION: {activeCase.classification}
             </span>

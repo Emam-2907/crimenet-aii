@@ -835,7 +835,7 @@ export default function CytoscapeGraph() {
           {/* Drawer Toggles */}
           <div style={{ display: 'flex', background: 'var(--ink-2)', border: '1px solid var(--b-soft)', borderRadius: '6px', padding: '2px' }}>
             <button
-              onClick={() => setActiveSideDrawer('INSPECTOR')}
+              onClick={() => setActiveSideDrawer(prev => prev === 'INSPECTOR' ? null : 'INSPECTOR')}
               style={{
                 padding: '4px 8px', background: activeSideDrawer === 'INSPECTOR' ? 'rgba(255,255,255,0.1)' : 'transparent',
                 border: 'none', borderRadius: '4px', color: '#fff', fontSize: '0.68rem', cursor: 'pointer'
@@ -844,7 +844,7 @@ export default function CytoscapeGraph() {
               Inspector
             </button>
             <button
-              onClick={() => setActiveSideDrawer('ENTITIES')}
+              onClick={() => setActiveSideDrawer(prev => prev === 'ENTITIES' ? null : 'ENTITIES')}
               style={{
                 padding: '4px 8px', background: activeSideDrawer === 'ENTITIES' ? 'rgba(255,255,255,0.1)' : 'transparent',
                 border: 'none', borderRadius: '4px', color: '#fff', fontSize: '0.68rem', cursor: 'pointer'
@@ -853,7 +853,7 @@ export default function CytoscapeGraph() {
               Entities ({graphData.nodes?.length || 0})
             </button>
             <button
-              onClick={() => setActiveSideDrawer('RELATIONS')}
+              onClick={() => setActiveSideDrawer(prev => prev === 'RELATIONS' ? null : 'RELATIONS')}
               style={{
                 padding: '4px 8px', background: activeSideDrawer === 'RELATIONS' ? 'rgba(255,255,255,0.1)' : 'transparent',
                 border: 'none', borderRadius: '4px', color: '#fff', fontSize: '0.68rem', cursor: 'pointer'
@@ -862,7 +862,7 @@ export default function CytoscapeGraph() {
               Relations ({graphData.edges?.length || 0})
             </button>
             <button
-              onClick={() => setActiveSideDrawer('PATHFINDER')}
+              onClick={() => setActiveSideDrawer(prev => prev === 'PATHFINDER' ? null : 'PATHFINDER')}
               style={{
                 padding: '4px 8px', background: activeSideDrawer === 'PATHFINDER' ? 'rgba(255,255,255,0.1)' : 'transparent',
                 border: 'none', borderRadius: '4px', color: '#fff', fontSize: '0.68rem', cursor: 'pointer'
@@ -871,7 +871,7 @@ export default function CytoscapeGraph() {
               Pathfinder
             </button>
             <button
-              onClick={() => setActiveSideDrawer('ANALYTICS')}
+              onClick={() => setActiveSideDrawer(prev => prev === 'ANALYTICS' ? null : 'ANALYTICS')}
               style={{
                 padding: '4px 8px', background: activeSideDrawer === 'ANALYTICS' ? 'rgba(255,255,255,0.1)' : 'transparent',
                 border: 'none', borderRadius: '4px', color: '#fff', fontSize: '0.68rem', cursor: 'pointer'
@@ -880,7 +880,7 @@ export default function CytoscapeGraph() {
               Analytics
             </button>
             <button
-              onClick={() => setActiveSideDrawer('LEGEND')}
+              onClick={() => setActiveSideDrawer(prev => prev === 'LEGEND' ? null : 'LEGEND')}
               style={{
                 padding: '4px 8px', background: activeSideDrawer === 'LEGEND' ? 'rgba(255,255,255,0.1)' : 'transparent',
                 border: 'none', borderRadius: '4px', color: '#fff', fontSize: '0.68rem', cursor: 'pointer'
@@ -1127,186 +1127,85 @@ export default function CytoscapeGraph() {
 
         {/* VIEW 2: ORIGINAL WORLD MAP (Visible in 'WORLD_MAP' and 'SPLIT') */}
         {(viewMode === 'WORLD_MAP' || viewMode === 'SPLIT') && (
-          viewMode === 'SPLIT' ? (
-            <div style={{
-              flex: 1,
-              width: '50%',
-              height: '100%',
-              position: 'relative',
-              overflow: 'hidden',
-              borderLeft: '1px solid var(--border-default)'
-            }}>
-              <WorldIntelligenceMap
-                externalNodes={graphData.nodes}
-                selectedEntity={selectedNode}
-                onSelectEntity={(node) => {
-                  setSelectedNode(node);
+          <div style={{
+            flex: 1,
+            width: viewMode === 'SPLIT' ? '50%' : '100%',
+            height: '100%',
+            position: 'relative',
+            overflow: 'hidden',
+            borderLeft: viewMode === 'SPLIT' ? '1px solid var(--border-default)' : 'none'
+          }}>
+            <WorldIntelligenceMap
+              externalNodes={graphData.nodes}
+              selectedEntity={selectedNode}
+              showFloatingCard={false}
+              onSelectEntity={(node) => {
+                setSelectedNode(node);
+                setActiveSideDrawer('INSPECTOR');
+                if (cyRef.current) {
+                  const ele = cyRef.current.getElementById(node.id);
+                  if (ele.length > 0) {
+                    cyRef.current.elements().removeClass('highlighted dimmed');
+                    ele.addClass('highlighted');
+                    ele.neighborhood().addClass('highlighted');
+                    cyRef.current.elements().not(ele).not(ele.neighborhood()).addClass('dimmed');
+                  }
+                }
+              }}
+              onInspectInGraph={(node) => {
+                setViewMode('GRAPH');
+                setTimeout(() => {
                   if (cyRef.current) {
                     const ele = cyRef.current.getElementById(node.id);
                     if (ele.length > 0) {
-                      cyRef.current.elements().removeClass('highlighted dimmed');
-                      ele.addClass('highlighted');
-                      ele.neighborhood().addClass('highlighted');
-                      cyRef.current.elements().not(ele).not(ele.neighborhood()).addClass('dimmed');
+                      cyRef.current.animate({ center: { eles: ele }, zoom: 1.6, duration: 400 });
                     }
                   }
-                }}
-                onInspectInGraph={(node) => {
-                  setViewMode('GRAPH');
-                  setTimeout(() => {
-                    if (cyRef.current) {
-                      const ele = cyRef.current.getElementById(node.id);
-                      if (ele.length > 0) {
-                        cyRef.current.animate({ center: { eles: ele }, zoom: 1.6, duration: 400 });
-                      }
-                    }
-                  }, 150);
-                }}
-                onAskCira={handleAskCira}
-                height="100%"
-              />
-            </div>
-          ) : (
-            <div style={{
-              flex: 1,
-              display: 'flex',
-              flexDirection: 'column',
-              overflowY: 'auto',
-              background: 'var(--bg-main, #0C0E14)',
-              padding: '14px',
-              gap: '14px'
-            }}>
-              {/* Minimized & Balanced Map Section */}
-              <div style={{
-                height: '460px',
-                width: '100%',
-                position: 'relative',
-                borderRadius: '8px',
-                border: '1px solid var(--border-default)',
-                boxShadow: 'var(--shadow-sm)',
-                overflow: 'hidden',
-                flexShrink: 0
-              }}>
-                <WorldIntelligenceMap
-                  externalNodes={graphData.nodes}
-                  selectedEntity={selectedNode}
-                  onSelectEntity={(node) => {
-                    setSelectedNode(node);
-                    if (cyRef.current) {
-                      const ele = cyRef.current.getElementById(node.id);
-                      if (ele.length > 0) {
-                        cyRef.current.elements().removeClass('highlighted dimmed');
-                        ele.addClass('highlighted');
-                        ele.neighborhood().addClass('highlighted');
-                        cyRef.current.elements().not(ele).not(ele.neighborhood()).addClass('dimmed');
-                      }
-                    }
-                  }}
-                  onInspectInGraph={(node) => {
-                    setViewMode('GRAPH');
-                    setTimeout(() => {
-                      if (cyRef.current) {
-                        const ele = cyRef.current.getElementById(node.id);
-                        if (ele.length > 0) {
-                          cyRef.current.animate({ center: { eles: ele }, zoom: 1.6, duration: 400 });
-                        }
-                      }
-                    }, 150);
-                  }}
-                  onAskCira={handleAskCira}
-                  height="100%"
-                />
-              </div>
-
-              {/* Surrounding Intelligence Controls & Transnational Node Directory */}
-              <div style={{
-                background: 'var(--bg-surface)',
-                border: '1px solid var(--border-default)',
-                borderRadius: '8px',
-                padding: '14px 16px',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '10px'
-              }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <Globe size={15} style={{ color: 'var(--coral, #DA7667)' }} />
-                    <span style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-primary)' }}>
-                      Transnational Intelligence Nexus · Monitored Global Entities
-                    </span>
-                  </div>
-                  <span style={{ fontSize: '0.70rem', fontFamily: 'var(--font-mono)', color: 'var(--text-secondary)' }}>
-                    {graphData.nodes?.length || 0} Entities Tracked in Case Network
-                  </span>
-                </div>
-
-                {/* Quick Entity Selector Cards */}
-                <div style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
-                  gap: '10px',
-                  marginTop: '4px'
-                }}>
-                  {(graphData.nodes || []).slice(0, 6).map((n) => {
-                    const nodeData = n.data || n;
-                    return (
-                      <div
-                        key={nodeData.id}
-                        style={{
-                          background: 'var(--bg-elevated)',
-                          border: '1px solid var(--border-default)',
-                          borderRadius: '6px',
-                          padding: '10px 12px',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'space-between',
-                          gap: '8px'
-                        }}
-                      >
-                        <div style={{ overflow: 'hidden' }}>
-                          <div style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                            {nodeData.label || nodeData.name || nodeData.id}
-                          </div>
-                          <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>
-                            {nodeData.type || 'Entity'} · {nodeData.threat || 'MONITORED'}
-                          </div>
-                        </div>
-
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setSelectedNode(nodeData);
-                            setViewMode('GRAPH');
-                          }}
-                          style={{
-                            padding: '4px 8px',
-                            background: 'rgba(173, 84, 92, 0.15)',
-                            border: '1px solid rgba(173, 84, 92, 0.35)',
-                            color: 'var(--coral, #DA7667)',
-                            borderRadius: '4px',
-                            fontSize: '0.66rem',
-                            fontWeight: 600,
-                            cursor: 'pointer',
-                            flexShrink: 0
-                          }}
-                        >
-                          Inspect Graph →
-                        </button>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            </div>
-          )
+                }, 150);
+              }}
+              onAskCira={handleAskCira}
+              height="100%"
+            />
+          </div>
         )}
 
         {/* ── RIGHT SLIDE-OUT PANEL ────────────────────────────────────────── */}
-        <div style={{
-          width: '380px', borderLeft: '1px solid var(--b-soft)',
-          background: 'var(--ink-1)', display: 'flex', flexDirection: 'column',
-          overflowY: 'auto', zIndex: 5
-        }}>
+        {activeSideDrawer && (
+          <div style={{
+            width: '380px', borderLeft: '1px solid var(--b-soft)',
+            background: 'var(--ink-1)', display: 'flex', flexDirection: 'column',
+            overflowY: 'auto', zIndex: 5, flexShrink: 0
+          }}>
+            {/* Drawer Header with Dismiss Button */}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              padding: '8px 14px',
+              borderBottom: '1px solid var(--b-soft)',
+              background: 'var(--ink-2)',
+              flexShrink: 0
+            }}>
+              <span style={{ fontSize: '0.68rem', fontFamily: 'var(--f-mono)', color: 'var(--t-muted)', fontWeight: 700, letterSpacing: '0.04em' }}>
+                {activeSideDrawer} PANEL
+              </span>
+              <button
+                type="button"
+                onClick={() => setActiveSideDrawer(null)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: 'var(--t-dim)',
+                  cursor: 'pointer',
+                  padding: '2px 4px',
+                  display: 'flex',
+                  alignItems: 'center'
+                }}
+                title="Collapse Panel"
+              >
+                <X size={14} />
+              </button>
+            </div>
 
           {/* PANEL 1: ENTITY / EDGE INSPECTOR */}
           {activeSideDrawer === 'INSPECTOR' && (
@@ -2054,6 +1953,7 @@ export default function CytoscapeGraph() {
           )}
 
         </div>
+        )}
       </div>
 
       {/* ── EVIDENCE DETAIL MODAL BRIDGE ─────────────────────────────────── */}

@@ -385,6 +385,7 @@ const REGION_PRESETS = [
 export default function WorldIntelligenceMap({
   externalNodes = [],
   selectedEntity = null,
+  showFloatingCard = true,
   onSelectEntity = () => {},
   onInspectInGraph = () => {},
   onAskCira = () => {},
@@ -396,12 +397,7 @@ export default function WorldIntelligenceMap({
 
   const [activeStyle, setActiveStyle] = useState('satellite');
   const [activeRegion, setActiveRegion] = useState('GLOBAL');
-  const [activeInspectNode, setActiveInspectNode] = useState(() => {
-    if (selectedEntity && selectedEntity.lat != null && selectedEntity.lng != null) {
-      return selectedEntity;
-    }
-    return DEFAULT_GLOBAL_NODES[0];
-  });
+  const [activeInspectNode, setActiveInspectNode] = useState(null);
   const [cursorCoords, setCursorCoords] = useState({ lat: '25.0000', lng: '15.0000' });
   const [searchQuery, setSearchQuery] = useState('');
   const [showSearchResults, setShowSearchResults] = useState(false);
@@ -441,30 +437,6 @@ export default function WorldIntelligenceMap({
 
     return Array.from(map.values());
   }, [externalNodes]);
-
-  // Sync activeInspectNode when selectedEntity changes
-  useEffect(() => {
-    if (selectedEntity) {
-      if (selectedEntity.lat != null && selectedEntity.lng != null) {
-        setActiveInspectNode(selectedEntity);
-      } else {
-        const found = allNodes.find(n => n.id === selectedEntity.id);
-        if (found && found.lat != null) {
-          setActiveInspectNode(found);
-        } else {
-          setActiveInspectNode(prev => ({
-            ...prev,
-            ...selectedEntity,
-            lat: selectedEntity.lat != null ? Number(selectedEntity.lat) : (prev?.lat || 40.7128),
-            lng: selectedEntity.lng != null ? Number(selectedEntity.lng) : (prev?.lng || -74.0060),
-            city: selectedEntity.city || prev?.city || 'Monitored Station',
-            country: selectedEntity.country || prev?.country || 'Jurisdiction',
-            details: selectedEntity.details || prev?.details || 'Investigation entity'
-          }));
-        }
-      }
-    }
-  }, [selectedEntity, allNodes]);
 
   // Filter nodes based on user filter toggles
   const filteredNodes = useMemo(() => {
@@ -988,7 +960,7 @@ export default function WorldIntelligenceMap({
         </div>
 
         {/* ── SELECTED NODE INSPECTION CARD (Bottom Right) ──────────────── */}
-        {activeInspectNode && (
+        {showFloatingCard && activeInspectNode && (
           <div style={{
             position: 'absolute',
             bottom: '16px',
