@@ -266,7 +266,7 @@ export default function CaseWorkspace() {
           </button>
 
           <button
-            onClick={() => navigate('analytics')}
+            onClick={() => navigate('graph')}
             className="btn-secondary"
             style={{ fontSize: '0.78rem', padding: '7px 14px' }}
           >

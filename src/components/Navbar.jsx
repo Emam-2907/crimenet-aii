@@ -144,7 +144,6 @@ export default function Navbar({ onLaunchConsole, activeIncidentsCount, currentU
             { id: 'forensics', label: 'Face Match Lab' },
             { id: 'resolution', label: 'Entity Resolution' },
             { id: 'leads', label: 'Explainable Leads' },
-            { id: 'analytics', label: 'Graph Analytics' },
             { id: 'threats', label: 'Incident Matrix' }
           ].map(item => (
             <button

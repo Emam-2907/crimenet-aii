@@ -45,7 +45,6 @@ const PRIMARY_NAV = [
   { id: 'graph',      label: 'Graph Analysis',         icon: IC.graph },
   { id: 'chat',       label: 'CIRA',                   icon: IC.chat },
   { id: 'faceid',     label: 'Forensic Face Lab',      icon: IC.faceid },
-  { id: 'analytics',  label: 'Analytics',              icon: IC.analytics },
   { id: 'settings',   label: 'Settings',               icon: IC.settings },
 ];
 
