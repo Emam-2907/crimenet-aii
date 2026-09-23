@@ -164,7 +164,7 @@ CYTOSCAPE_GRAPH_DATA = {
                 "threat": "POTENTIAL_MATCH",
                 "color": "#fbbf24",
                 "size": 42,
-                "details": "Illustrative model similarity score: 87% — not an identification. Human verification required.",
+                "details": "Potential match identified. Model similarity: 87%; human verification required. Illustrative model similarity score: 87% — not an identification.",
                 "case_id": "CR-204"
             }
         },
@@ -1178,7 +1178,7 @@ CYTOSCAPE_GRAPH_DATA = {
                 "supporting_evidence_id": "EV-CR204-06",
                 "supporting_evidence_name": "Corridor_Transit_Model.json",
                 "evidence_source": "Algorithmic Trajectory Inference",
-                "explainability": "V-102 was recorded at CCTV-04 and later at CCTV-07. The path to CCTV-11 is an inferred demo trajectory.",
+                "explainability": "V-102 was recorded at CCTV-04 and later at CCTV-07. The path between these detections is inferred from the available records; continuous movement was not directly observed.",
                 "case_id": "CR-204"
             }
         },

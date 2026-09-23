@@ -18,12 +18,7 @@ const STARS = [
   { top: '95%', left: '80%', size: '2.5px', opacity: 0.85 }
 ];
 
-const DEMO_PASSWORD_MAP = {
-  'analyst.vance@crimenet.demo': 'Crimenet2026!',
-  'investigator.chen@crimenet.demo': 'Investigator2026!',
-  'supervisor.wright@crimenet.demo': 'Supervisor2026!',
-  'admin@crimenet.demo': 'Admin2026!'
-};
+
 
 function normalizeIdentifier(input) {
   const trimmed = (input || '').trim();
@@ -60,14 +55,11 @@ export default function LoginPage({ onLoginSuccess }) {
     let cleanPassword = password.trim();
 
     if (!cleanId || !cleanPassword) {
-      setErrorMsg('Please enter username and password. (Demo: analyst.vance / Crimenet2026!)');
+      setErrorMsg('Please enter username and password. (Demo: analyst.vance / demo123)');
       return;
     }
 
     const resolvedId = normalizeIdentifier(cleanId);
-    if (cleanPassword === 'demo123' && DEMO_PASSWORD_MAP[resolvedId]) {
-      cleanPassword = DEMO_PASSWORD_MAP[resolvedId];
-    }
 
     setIsLoading(true);
 

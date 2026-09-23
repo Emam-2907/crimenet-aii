@@ -828,7 +828,7 @@ class CiraUniversalKnowledge:
             elif lang_key == "SQL_AND_DATABASES":
                 keywords.extend(["sql", "database", "rdbms", "postgresql", "mysql", "acid properties", "relational", "sqlite"])
             elif lang_key == "CYBERSECURITY_AND_EXPLOITATION":
-                keywords.extend(["cybersecurity", "hacking", "sqli", "xss", "buffer overflow", "zero day", "penetration testing", "pki", "tor", "onion routing"])
+                keywords.extend(["cybersecurity", "hacking", "sqli", "xss", "buffer overflow", "zero day", "penetration testing", "pki", "tor network", "tor browser", "onion routing"])
             elif lang_key == "NETWORKING_AND_INTERNET":
                 keywords.extend(["tcp/ip", "osi model", "osi 7", "udp", "dns", "http", "https", "packet switching", "how the internet works"])
             elif lang_key == "DATA_STRUCTURES_AND_ALGORITHMS":

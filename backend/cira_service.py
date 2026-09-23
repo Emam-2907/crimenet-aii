@@ -494,7 +494,7 @@ class BuiltinConversationalEngine:
                         f"### Relational Path Query · `{case_id}`\n\n"
                         f"**Source:** **{src_node.get('label') or src_node['id']}**\n"
                         f"**Target:** **{tgt_node.get('label') or tgt_node['id']}**\n\n"
-                        f"No direct or indirect relational path (within 5 hops) was identified in the active graph for `{case_id}`. "
+                        f"No direct or indirect relational path (within 5 hops) was identified in the active graph for `{case_id}`. No connection was found between these entities. "
                         f"They may belong to isolated operational subnets or require additional wiretap/ALPR ingestion to surface latent links."
                     )
             elif not src_node and not tgt_node:

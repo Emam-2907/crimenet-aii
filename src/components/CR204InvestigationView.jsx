@@ -146,7 +146,7 @@ Use the command bar below or type a query to command CIRA.`,
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#10b981', display: 'inline-block' }} />
-          <span style={{ fontWeight: 700, letterSpacing: '0.04em' }}>TACTICAL SURVEILLANCE MATRIX // OPERATIONAL CCTV & SENSOR GRID</span>
+          <span style={{ fontWeight: 700, letterSpacing: '0.04em' }}>TACTICAL SURVEILLANCE MATRIX // DEMO FEED // CCTV & SENSOR GRID</span>
         </div>
         <div aria-live="polite" aria-atomic="true">
           <span>ACTIVE TELEMETRY: </span>

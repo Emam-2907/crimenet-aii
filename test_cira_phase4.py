@@ -13,33 +13,31 @@ Tests all requirements of CIRA AI Investigation Assistant:
 10. Conversation Management (Create, List, Message History, Delete)
 """
 
-import urllib.request
 import urllib.parse
-import json
-import sys
+from fastapi.testclient import TestClient
+from backend.main import app
+from backend.auth_service import create_access_token
 
-BASE_URL = "http://127.0.0.1:8000"
+token, _, _ = create_access_token({
+    "sub": "agent.vance@crimenet.demo",
+    "role": "ANALYST",
+    "email": "agent.vance@crimenet.demo",
+    "full_name": "Special Agent Marcus Vance",
+    "allowed_cases": ["*"]
+})
+client = TestClient(app, headers={"Authorization": f"Bearer {token}"})
 
 def post_json(path, data):
-    url = f"{BASE_URL}{path}"
-    req = urllib.request.Request(
-        url,
-        data=json.dumps(data).encode("utf-8"),
-        headers={"Content-Type": "application/json"}
-    )
-    with urllib.request.urlopen(req) as resp:
-        return resp.getcode(), json.loads(resp.read().decode("utf-8"))
+    res = client.post(path, json=data)
+    return res.status_code, res.json()
 
 def get_json(path):
-    url = f"{BASE_URL}{path}"
-    with urllib.request.urlopen(url) as resp:
-        return resp.getcode(), json.loads(resp.read().decode("utf-8"))
+    res = client.get(path)
+    return res.status_code, res.json()
 
 def delete_req(path):
-    url = f"{BASE_URL}{path}"
-    req = urllib.request.Request(url, method="DELETE")
-    with urllib.request.urlopen(req) as resp:
-        return resp.getcode(), json.loads(resp.read().decode("utf-8"))
+    res = client.delete(path)
+    return res.status_code, res.json()
 
 def run_tests():
     print("=" * 70)

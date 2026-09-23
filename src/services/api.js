@@ -149,91 +149,14 @@ export const api = {
 
   // ── Authentication & Session ───────────────────────────────────────────────
   login: async (userIdOrEmail, password) => {
-    try {
-      const data = await request('/auth/login', {
-        method: 'POST',
-        body: { user_id: userIdOrEmail, email: userIdOrEmail, password }
-      });
-      if (data && data.access_token) {
-        api.setToken(data.access_token);
-      }
-      return data;
-    } catch (err) {
-      if (err.status === 400 || err.status === 401 || err.status === 403) {
-        throw err;
-      }
-      // If network is offline or 5xx serverless cold start failure, authenticate against known demo accounts
-      const identifier = (userIdOrEmail || '').trim().toLowerCase();
-      const accounts = {
-        'analyst.vance@crimenet.demo': {
-          email: 'analyst.vance@crimenet.demo',
-          password: 'Crimenet2026!',
-          full_name: 'Special Agent Marcus Vance',
-          role: 'ANALYST',
-          clearance: 'TS/SCI-ORCON',
-          badge_id: 'CN-ALPHA-0941',
-          station: 'Metro Tactical Counter-Syndicate Command'
-        },
-        'investigator.chen@crimenet.demo': {
-          email: 'investigator.chen@crimenet.demo',
-          password: 'Investigator2026!',
-          full_name: 'Detective Sarah Chen',
-          role: 'INVESTIGATOR',
-          clearance: 'SECRET',
-          badge_id: 'CN-INV-5512',
-          station: 'Major Case Investigation Unit'
-        },
-        'supervisor.wright@crimenet.demo': {
-          email: 'supervisor.wright@crimenet.demo',
-          password: 'Supervisor2026!',
-          full_name: 'Inspector Thomas Wright',
-          role: 'SUPERVISOR',
-          clearance: 'TS//SCI',
-          badge_id: 'CN-SUP-7719',
-          station: 'Regional Fusion Command'
-        },
-        'admin@crimenet.demo': {
-          email: 'admin@crimenet.demo',
-          password: 'Admin2026!',
-          full_name: 'Command Administrator',
-          role: 'ADMIN',
-          clearance: 'TS//SCI-ORCON',
-          badge_id: 'CN-HQ-0001',
-          station: 'Joint Intelligence Headquarters'
-        }
-      };
-
-      const matchedKey = Object.keys(accounts).find(
-        k => k === identifier || accounts[k].badge_id.toLowerCase() === identifier
-      );
-
-      if (matchedKey) {
-        const acc = accounts[matchedKey];
-        if (acc.password === password) {
-          const fakeToken = `ey-demo-auth-${Date.now()}-${Math.random().toString(36).slice(2)}`;
-          api.setToken(fakeToken);
-          const fallbackData = {
-            access_token: fakeToken,
-            token_type: 'bearer',
-            user: {
-              email: acc.email,
-              full_name: acc.full_name,
-              role: acc.role,
-              clearance: acc.clearance,
-              badge_id: acc.badge_id,
-              station: acc.station,
-              allowed_cases: ['*'],
-              mfa_enrolled: false,
-              mfa_required: false
-            }
-          };
-          return fallbackData;
-        } else {
-          throw new ApiError('Access Denied: Invalid credentials provided. Password verification failed.', 401);
-        }
-      }
-      throw new ApiError('Access Denied: Unknown personnel identity. Verify email address.', 401);
+    const data = await request('/auth/login', {
+      method: 'POST',
+      body: { user_id: userIdOrEmail, email: userIdOrEmail, password }
+    });
+    if (data && data.access_token) {
+      api.setToken(data.access_token);
     }
+    return data;
   },
 
   demoLogin: async (email) => {

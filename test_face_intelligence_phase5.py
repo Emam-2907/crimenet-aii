@@ -18,8 +18,16 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from fastapi.testclient import TestClient
 from backend.main import app
 from backend.face_intelligence_service import face_intelligence_service, AUTHORIZED_IDENTITY_GALLERY
+from backend.auth_service import create_access_token
 
-client = TestClient(app)
+token, _, _ = create_access_token({
+    "sub": "agent.vance@crimenet.demo",
+    "role": "INVESTIGATOR",
+    "email": "agent.vance@crimenet.demo",
+    "full_name": "Special Agent Marcus Vance",
+    "allowed_cases": ["*"]
+})
+client = TestClient(app, headers={"Authorization": f"Bearer {token}"})
 
 def create_synthetic_test_face(width=300, height=300):
     """Creates an in-memory test portrait with high contrast face-like geometry."""
